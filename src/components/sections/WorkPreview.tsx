@@ -3,21 +3,27 @@
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight } from "../icons";
+import WorkHeaderVisual from "../WorkHeaderVisual";
 import { projects } from "@/lib/projects";
 
 export default function WorkPreview() {
   return (
     <section aria-labelledby="work-heading" className="section bg-surface">
       <div className="container">
-        <div className="mb-16">
-          <ScrollReveal>
-            <p className="text-overline mb-4">Selected Work</p>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <h2 id="work-heading" className="text-h2 max-w-[560px]">
-              Results, not just{" "}
-              <em className="italic-display text-accent">renderings</em>
-            </h2>
+        <div className="mb-16 grid grid-cols-1 items-end gap-10 md:grid-cols-[minmax(0,1fr)_minmax(200px,360px)] md:gap-12 lg:items-start">
+          <div>
+            <ScrollReveal>
+              <p className="text-overline mb-4">Selected Work</p>
+            </ScrollReveal>
+            <ScrollReveal delay={100}>
+              <h2 id="work-heading" className="text-h2 max-w-[560px]">
+                Results, not just{" "}
+                <em className="italic-display text-accent">renderings</em>
+              </h2>
+            </ScrollReveal>
+          </div>
+          <ScrollReveal delay={80}>
+            <WorkHeaderVisual />
           </ScrollReveal>
         </div>
 
