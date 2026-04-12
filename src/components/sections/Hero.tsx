@@ -65,7 +65,27 @@ export default function Hero() {
         className="pointer-events-none absolute top-[20%] -right-[10%] size-[600px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.06)_0%,transparent_70%)]"
       />
 
+      {/* Left “message zone”: soft wash + hairline so copy doesn’t sit on flat black */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-0 w-[min(100%,58%)] bg-[linear-gradient(105deg,rgba(201,165,90,0.055)_0%,rgba(12,12,11,0.35)_38%,transparent_88%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.22)_20%,rgba(201,165,90,0.12)_50%,transparent)] md:left-10 lg:left-16"
+      />
+
       <div className="container relative z-[1]">
+        <motion.p
+          className="font-mono mb-4 text-[10px] tracking-[0.22em] text-accent/45 uppercase"
+          initial="hidden"
+          animate="visible"
+          custom={0.02}
+          variants={enterVariant}
+        >
+          Brand · Product · Performance
+        </motion.p>
+
         <motion.p
           className="text-overline mb-6"
           initial="hidden"
