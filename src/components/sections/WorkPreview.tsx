@@ -3,27 +3,34 @@
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight } from "../icons";
-import WorkHeaderVisual from "../WorkHeaderVisual";
+import WorkOverlapFieldCanvas from "../WorkOverlapFieldCanvas";
 import { projects } from "@/lib/projects";
 
 export default function WorkPreview() {
   return (
-    <section aria-labelledby="work-heading" className="section bg-surface">
-      <div className="container">
-        <div className="mb-16 grid grid-cols-1 items-end gap-10 md:grid-cols-[minmax(0,1fr)_minmax(200px,360px)] md:gap-12 lg:items-start">
-          <div>
-            <ScrollReveal>
-              <p className="text-overline mb-4">Selected Work</p>
-            </ScrollReveal>
-            <ScrollReveal delay={100}>
-              <h2 id="work-heading" className="text-h2 max-w-[560px]">
-                Results, not just{" "}
-                <em className="italic-display text-accent">renderings</em>
-              </h2>
-            </ScrollReveal>
-          </div>
-          <ScrollReveal delay={80}>
-            <WorkHeaderVisual />
+    <section aria-labelledby="work-heading" className="section relative overflow-visible bg-surface">
+      {/* Layered field: same language as hero; radial ripples + cooler gold; bleeds into section above */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-[min(260px,36vh)] z-[1] hidden h-[min(400px,52vh)] md:block"
+      >
+        <div
+          className="absolute right-6 bottom-0 h-full w-[min(480px,46vw)] md:right-10 lg:right-16 lg:w-[min(520px,42vw)] [mask-image:linear-gradient(to_bottom,transparent,black_26%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_26%)]"
+        >
+          <WorkOverlapFieldCanvas />
+        </div>
+      </div>
+
+      <div className="container relative z-[2]">
+        <div className="mb-16 max-w-[640px]">
+          <ScrollReveal>
+            <p className="text-overline mb-4">Selected Work</p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <h2 id="work-heading" className="text-h2">
+              Results, not just{" "}
+              <em className="italic-display text-accent">renderings</em>
+            </h2>
           </ScrollReveal>
         </div>
 
