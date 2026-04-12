@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
+import MagneticButton from "../MagneticButton";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -170,14 +171,18 @@ export default function Hero() {
           variants={enterVariant}
           style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}
         >
-          <Link href="/contact" className="btn btn-primary">
-            Start a Project
-            <IconArrowUpRight size={16} />
-          </Link>
-          <Link href="/work" className="btn btn-secondary">
-            See the Work
-            <IconArrowRight size={16} />
-          </Link>
+          <MagneticButton>
+            <Link href="/contact" className="btn btn-primary" data-cursor-label="Let's Build">
+              Start a Project
+              <IconArrowUpRight size={16} />
+            </Link>
+          </MagneticButton>
+          <MagneticButton>
+            <Link href="/work" className="btn btn-secondary">
+              See the Work
+              <IconArrowRight size={16} />
+            </Link>
+          </MagneticButton>
         </motion.div>
       </div>
 

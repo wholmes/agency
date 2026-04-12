@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogoMark, IconArrowUpRight } from "./icons";
+import { availability } from "@/lib/availability";
 
 const navLinks = [
   { href: "/services", label: "Services" },
@@ -103,9 +104,27 @@ export default function Navigation() {
             ))}
           </nav>
 
+          {/* Availability indicator — desktop only */}
+          <div style={{ display: "none", alignItems: "center", gap: "var(--space-2)" }} className="desktop-nav availability-badge">
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: availability.available ? "var(--color-success, #4DAF7C)" : "var(--color-text-tertiary)",
+                flexShrink: 0,
+                boxShadow: availability.available ? "0 0 6px rgba(77,175,124,0.6)" : "none",
+              }}
+              aria-hidden="true"
+            />
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-tertiary)", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+              {availability.available ? availability.label : `Next opening: ${availability.nextOpen}`}
+            </span>
+          </div>
+
           {/* Desktop CTA */}
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }} className="desktop-nav">
-            <Link href="/contact" className="btn btn-primary" style={{ fontSize: "var(--text-xs)" }}>
+            <Link href="/contact" className="btn btn-primary" style={{ fontSize: "var(--text-xs)" }} data-cursor-label="Let's Build">
               Start a Project
               <IconArrowUpRight size={14} />
             </Link>
@@ -212,6 +231,11 @@ export default function Navigation() {
           }
           .mobile-trigger {
             display: none;
+          }
+        }
+        @media (min-width: 1024px) {
+          .availability-badge {
+            display: flex !important;
           }
         }
         .logo-mark:hover {

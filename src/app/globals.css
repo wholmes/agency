@@ -218,8 +218,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Italic display — Fraunces has beautiful italics */
+/* The SOFT and WONK axes animate on hover — letterforms physically morph */
 .italic-display {
   font-style: italic;
+  font-variation-settings: "SOFT" 60, "WONK" 0;
+  transition: font-variation-settings 500ms var(--ease-out);
+}
+
+*:hover > .italic-display,
+a:hover .italic-display,
+button:hover .italic-display,
+.italic-display:hover {
   font-variation-settings: "SOFT" 100, "WONK" 1;
 }
 

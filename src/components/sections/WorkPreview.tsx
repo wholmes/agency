@@ -3,42 +3,7 @@
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight } from "../icons";
-
-const projects = [
-  {
-    id: "meridian",
-    title: "Meridian SaaS",
-    category: "Web Design & Development",
-    result: "+40% demo requests in 30 days",
-    description:
-      "A complete rebuild of a B2B SaaS marketing site — cleaner positioning, conversion-first architecture.",
-    color: "#1A2A1A",
-    accent: "#4DAF7C",
-    year: "2025",
-  },
-  {
-    id: "arclight",
-    title: "Arclight Labs",
-    category: "Brand Strategy + Web",
-    result: "Series A secured post-launch",
-    description:
-      "Pre-launch brand and site for a deeptech startup entering a crowded market. Clarity became their competitive advantage.",
-    color: "#1A1A2A",
-    accent: "#6B8CE8",
-    year: "2025",
-  },
-  {
-    id: "sable",
-    title: "Sable Studio",
-    category: "Analytics Integration",
-    result: "3× faster reporting cycle",
-    description:
-      "Migrated a creative studio from gut-feel metrics to a custom GA4 + Looker setup that actually got used.",
-    color: "#2A1A18",
-    accent: "#E88B6B",
-    year: "2024",
-  },
-];
+import { projects } from "@/lib/projects";
 
 export default function WorkPreview() {
   return (
@@ -84,7 +49,7 @@ function ProjectRow({
   project,
   delay,
 }: {
-  project: (typeof projects)[0];
+  project: (typeof projects)[number];
   delay: number;
 }) {
   return (
@@ -94,6 +59,7 @@ function ProjectRow({
         style={{ display: "block", textDecoration: "none" }}
         className="project-row"
         aria-label={`Case study: ${project.title}`}
+        data-cursor-label="Case Study"
       >
         <article
           style={{
@@ -120,10 +86,12 @@ function ProjectRow({
               alignItems: "center",
               justifyContent: "center",
             }}
+            className="project-visual"
           >
-            {/* Abstract visual representation */}
+            {/* Radial gradient — shifts on hover via CSS vars */}
             <div
               aria-hidden="true"
+              className="project-gradient"
               style={{
                 position: "absolute",
                 inset: 0,
@@ -131,10 +99,13 @@ function ProjectRow({
                   radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%),
                   radial-gradient(circle at 70% 70%, ${project.accent}11 0%, transparent 50%)
                 `,
+                transition: "background-position 600ms var(--ease-out), opacity 400ms var(--ease-out)",
               }}
             />
+            {/* Ghost letter — rotates + scales on card hover */}
             <div
               aria-hidden="true"
+              className="project-ghost-letter"
               style={{
                 position: "relative",
                 fontFamily: "var(--font-display)",
@@ -144,6 +115,8 @@ function ProjectRow({
                 color: project.accent,
                 opacity: 0.15,
                 userSelect: "none",
+                transition: "transform 500ms var(--ease-out), opacity 400ms var(--ease-out)",
+                transformOrigin: "center center",
               }}
             >
               {project.title.charAt(0)}
@@ -158,11 +131,25 @@ function ProjectRow({
                 letterSpacing: "0.1em",
                 color: `${project.accent}99`,
                 fontFamily: "var(--font-mono, monospace)",
+                transition: "opacity 300ms var(--ease-out)",
               }}
+              className="project-year"
               aria-hidden="true"
             >
               {project.year}
             </div>
+            {/* Hover overlay accent border */}
+            <div
+              aria-hidden="true"
+              className="project-border-accent"
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "var(--radius-md)",
+                border: `1px solid ${project.accent}00`,
+                transition: "border-color 400ms var(--ease-out)",
+              }}
+            />
           </div>
 
           {/* Content */}
@@ -196,7 +183,7 @@ function ProjectRow({
             </div>
 
             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "var(--space-5)" }}>
-              {project.description}
+              {project.problem.split(".")[0]}.
             </p>
 
             <div
@@ -227,6 +214,20 @@ function ProjectRow({
           }
           .project-row:hover .project-arrow {
             color: var(--color-accent) !important;
+          }
+          /* Visual block activates on card hover */
+          .project-row:hover .project-ghost-letter {
+            transform: rotate(8deg) scale(1.15);
+            opacity: 0.25 !important;
+          }
+          .project-row:hover .project-gradient {
+            opacity: 1.4;
+          }
+          .project-row:hover .project-border-accent {
+            border-color: ${project.accent}40 !important;
+          }
+          .project-row:hover .project-year {
+            opacity: 0.5;
           }
           @media (min-width: 768px) {
             .project-article {

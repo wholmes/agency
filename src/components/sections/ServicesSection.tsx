@@ -134,6 +134,7 @@ function ServiceCard({
         }}
         className="service-card"
         aria-label={`Learn about ${service.title}`}
+        data-cursor-label="Explore"
       >
         <div
           style={{

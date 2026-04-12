@@ -3,6 +3,8 @@ import Link from "next/link";
 import ScrollReveal from "@/components/ScrollReveal";
 import { IconArrowUpRight } from "@/components/icons";
 import CtaSection from "@/components/sections/CtaSection";
+import { projects } from "@/lib/projects";
+import type { Project } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "Work — Case Studies & Portfolio",
@@ -12,45 +14,6 @@ export const metadata: Metadata = {
     canonical: "https://brandmeetscode.com/work",
   },
 };
-
-const projects = [
-  {
-    id: "meridian",
-    title: "Meridian SaaS",
-    category: "Web Design & Development",
-    year: "2025",
-    result: "+40% demo requests in 30 days",
-    resultDetail: "3.1s avg → 0.8s load time. Lighthouse 96.",
-    problem: "Meridian's existing site was built during fundraising and optimized for investors, not buyers. Demo conversion rate was 1.2% — well below their market benchmark.",
-    approach: "Complete information architecture rethink, new messaging hierarchy, and a full rebuild in Next.js with an edge CDN. Added a qualification flow to the demo request form to improve lead quality.",
-    color: "#1A2A1A",
-    accent: "#4DAF7C",
-  },
-  {
-    id: "arclight",
-    title: "Arclight Labs",
-    category: "Brand Strategy + Web Design & Development",
-    year: "2025",
-    result: "Series A secured 60 days post-launch",
-    resultDetail: "Raised $8M. Cited brand clarity as a key differentiator in term sheet.",
-    problem: "Pre-launch deeptech startup entering a crowded enterprise AI market. Founders were scientists, not marketers — they needed positioning that was honest about the technology without being incomprehensible.",
-    approach: "8-week brand strategy engagement before design began. Developed a 'precision over promise' positioning that acknowledged the technology's limitations honestly — which became their competitive advantage.",
-    color: "#1A1A2A",
-    accent: "#6B8CE8",
-  },
-  {
-    id: "sable",
-    title: "Sable Studio",
-    category: "Analytics Integration",
-    year: "2024",
-    result: "3× faster reporting cycle",
-    resultDetail: "From 6 hours/week to 2 hours. 100% of KPIs now in one dashboard.",
-    problem: "Creative studio with 12 team members was spending 6+ hours per week pulling numbers from three different platforms into a spreadsheet. Leadership made pricing decisions based on 3-week-old data.",
-    approach: "Consolidated tracking into GA4 + Looker Studio. Built a single dashboard covering project profitability, time tracking efficiency, and client acquisition by channel. Automated weekly email digest.",
-    color: "#2A1A18",
-    accent: "#E88B6B",
-  },
-];
 
 export default function WorkPage() {
   return (
@@ -98,23 +61,14 @@ export default function WorkPage() {
   );
 }
 
-function CaseStudy({ project, index }: { project: (typeof projects)[0]; index: number }) {
+function CaseStudy({ project, index }: { project: Project; index: number }) {
   const isEven = index % 2 === 0;
 
   return (
     <article aria-labelledby={`case-${project.id}`}>
       {/* Visual block + meta */}
       <ScrollReveal>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "var(--space-8)",
-            marginBottom: "var(--space-10)",
-            alignItems: "center",
-          }}
-          className="case-header"
-        >
+        <Link href={`/work/${project.id}`} style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-8)", marginBottom: "var(--space-10)", alignItems: "center", textDecoration: "none" }} className="case-header case-link">
           {/* Large visual */}
           <div
             style={{
@@ -148,8 +102,13 @@ function CaseStudy({ project, index }: { project: (typeof projects)[0]; index: n
               <span style={{ fontSize: "var(--text-xs)", color: "var(--color-accent)", fontWeight: 500 }}>{project.result}</span>
             </div>
             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-tertiary)" }}>{project.resultDetail}</p>
+            <div style={{ marginTop: "var(--space-5)" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-accent)", fontWeight: 500 }}>
+                Read case study <IconArrowUpRight size={14} />
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
       </ScrollReveal>
 
       {/* Case study body */}
@@ -174,6 +133,7 @@ function CaseStudy({ project, index }: { project: (typeof projects)[0]; index: n
           .case-header { grid-template-columns: 1.2fr 1fr !important; }
           .case-body { grid-template-columns: 1fr 1fr !important; }
         }
+        .case-link:hover { opacity: 0.9; }
       `}</style>
     </article>
   );

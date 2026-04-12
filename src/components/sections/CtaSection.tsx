@@ -3,6 +3,7 @@
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight, IconEmail } from "../icons";
+import MagneticButton from "../MagneticButton";
 
 export default function CtaSection() {
   return (
@@ -94,18 +95,23 @@ export default function CtaSection() {
 
         <ScrollReveal delay={240}>
           <div style={{ display: "flex", gap: "var(--space-4)", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/contact" className="btn btn-primary" style={{ fontSize: "var(--text-sm)", padding: "var(--space-5) var(--space-8)" }}>
-              Start a Project
-              <IconArrowUpRight size={18} />
-            </Link>
-            <a
-              href="mailto:hello@brandmeetscode.com"
-              className="btn btn-secondary"
-              style={{ fontSize: "var(--text-sm)", padding: "var(--space-5) var(--space-8)" }}
-            >
-              <IconEmail size={16} />
-              hello@brandmeetscode.com
-            </a>
+            <MagneticButton>
+              <Link href="/contact" className="btn btn-primary" style={{ fontSize: "var(--text-sm)", padding: "var(--space-5) var(--space-8)" }} data-cursor-label="Let's Build">
+                Start a Project
+                <IconArrowUpRight size={18} />
+              </Link>
+            </MagneticButton>
+            <MagneticButton>
+              <a
+                href="mailto:hello@brandmeetscode.com"
+                className="btn btn-secondary"
+                style={{ fontSize: "var(--text-sm)", padding: "var(--space-5) var(--space-8)" }}
+                data-cursor-label="Say Hello"
+              >
+                <IconEmail size={16} />
+                hello@brandmeetscode.com
+              </a>
+            </MagneticButton>
           </div>
         </ScrollReveal>
 

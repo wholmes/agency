@@ -3,6 +3,7 @@ import Link from "next/link";
 import { IconDesign, IconCode, IconBrand, IconAnalytics, IconArrowUpRight, IconPerformance } from "@/components/icons";
 import ScrollReveal from "@/components/ScrollReveal";
 import CtaSection from "@/components/sections/CtaSection";
+import ScopeEstimator from "@/components/ScopeEstimator";
 
 export const metadata: Metadata = {
   title: "Services — Web Design, Development, Brand Strategy & Analytics",
@@ -213,6 +214,33 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      {/* Scope estimator */}
+      <section aria-labelledby="estimator-heading" style={{ paddingBlock: "var(--space-40)", borderBottom: "1px solid var(--color-border)" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-16)", alignItems: "start" }} className="estimator-grid">
+            <div>
+              <ScrollReveal>
+                <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>Ballpark Estimator</p>
+              </ScrollReveal>
+              <ScrollReveal delay={80}>
+                <h2 id="estimator-heading" className="text-h2" style={{ marginBottom: "var(--space-6)" }}>
+                  Get a rough number<br />
+                  <em className="italic-display" style={{ color: "var(--color-accent)" }}>before the call</em>
+                </h2>
+              </ScrollReveal>
+              <ScrollReveal delay={160}>
+                <p className="text-body-lg">
+                  No forms, no follow-up emails, no sales call required. Answer four questions and get a realistic ballpark range for your project.
+                </p>
+              </ScrollReveal>
+            </div>
+            <ScrollReveal delay={120}>
+              <ScopeEstimator />
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
       <CtaSection />
 
       <style>{`
@@ -241,6 +269,9 @@ export default function ServicesPage() {
           .guarantee-box {
             flex-direction: column;
           }
+        }
+        @media (min-width: 1024px) {
+          .estimator-grid { grid-template-columns: 1fr 1.3fr !important; }
         }
       `}</style>
     </>

@@ -5,6 +5,7 @@ import ServicesSection from "@/components/sections/ServicesSection";
 import WorkPreview from "@/components/sections/WorkPreview";
 import AboutTeaser from "@/components/sections/AboutTeaser";
 import CtaSection from "@/components/sections/CtaSection";
+import ChapterProgress from "@/components/ChapterProgress";
 
 export const metadata: Metadata = {
   title: "BrandMeetsCode — Premium Web Development Agency",
@@ -15,15 +16,18 @@ export const metadata: Metadata = {
   },
 };
 
+const SECTION_IDS = ["section-proof", "section-services", "section-work", "section-about", "section-cta"];
+
 export default function Home() {
   return (
     <>
+      <ChapterProgress sectionIds={SECTION_IDS} />
       <Hero />
-      <SocialProof />
-      <ServicesSection />
-      <WorkPreview />
-      <AboutTeaser />
-      <CtaSection />
+      <div id="section-proof"><SocialProof /></div>
+      <div id="section-services"><ServicesSection /></div>
+      <div id="section-work"><WorkPreview /></div>
+      <div id="section-about"><AboutTeaser /></div>
+      <div id="section-cta"><CtaSection /></div>
     </>
   );
 }
