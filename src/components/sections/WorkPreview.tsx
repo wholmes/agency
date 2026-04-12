@@ -7,34 +7,27 @@ import { projects } from "@/lib/projects";
 
 export default function WorkPreview() {
   return (
-    <section aria-labelledby="work-heading" className="section" style={{ background: "var(--color-surface)" }}>
+    <section aria-labelledby="work-heading" className="section bg-surface">
       <div className="container">
-        {/* Header */}
-        <div style={{ marginBottom: "var(--space-16)" }}>
+        <div className="mb-16">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-4)" }}>
-              Selected Work
-            </p>
+            <p className="text-overline mb-4">Selected Work</p>
           </ScrollReveal>
           <ScrollReveal delay={100}>
-            <h2 id="work-heading" className="text-h2" style={{ maxWidth: "560px" }}>
-              Results, not just
-              {" "}
-              <em className="italic-display" style={{ color: "var(--color-accent)" }}>
-                renderings
-              </em>
+            <h2 id="work-heading" className="text-h2 max-w-[560px]">
+              Results, not just{" "}
+              <em className="italic-display text-accent">renderings</em>
             </h2>
           </ScrollReveal>
         </div>
 
-        {/* Projects */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <div className="flex flex-col gap-4">
           {projects.map((project, i) => (
             <ProjectRow key={project.id} project={project} delay={i * 100} />
           ))}
         </div>
 
-        <ScrollReveal delay={300} style={{ textAlign: "center", paddingTop: "var(--space-16)" }}>
+        <ScrollReveal delay={300} className="pt-16 text-center">
           <Link href="/work" className="btn btn-secondary">
             View All Work
             <IconArrowUpRight size={16} />
@@ -56,186 +49,68 @@ function ProjectRow({
     <ScrollReveal delay={delay}>
       <Link
         href={`/work/${project.id}`}
-        style={{ display: "block", textDecoration: "none" }}
-        className="project-row"
+        className="project-row block no-underline"
+        style={{ "--project-accent": project.accent } as React.CSSProperties}
         aria-label={`Case study: ${project.title}`}
         data-cursor-label="Case Study"
       >
-        <article
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "var(--space-6)",
-            padding: "var(--space-8)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-lg)",
-            background: "var(--color-bg)",
-            transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
-          }}
-          className="project-article"
-        >
-          {/* Visual block */}
+        <article className="project-article grid grid-cols-1 gap-6 rounded-lg border border-border bg-bg p-8 transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] md:grid-cols-[1fr_1.2fr] md:items-center">
           <div
-            style={{
-              height: "clamp(180px, 25vw, 280px)",
-              borderRadius: "var(--radius-md)",
-              background: project.color,
-              position: "relative",
-              overflow: "hidden",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            className="project-visual"
+            className="project-visual relative flex h-[clamp(180px,25vw,280px)] items-center justify-center overflow-hidden rounded-md md:rounded-md"
+            style={{ background: project.color }}
           >
-            {/* Radial gradient — shifts on hover via CSS vars */}
             <div
               aria-hidden="true"
-              className="project-gradient"
+              className="project-gradient absolute inset-0 opacity-90 transition-[opacity] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
               style={{
-                position: "absolute",
-                inset: 0,
                 backgroundImage: `
                   radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%),
                   radial-gradient(circle at 70% 70%, ${project.accent}11 0%, transparent 50%)
                 `,
-                transition: "background-position 600ms var(--ease-out), opacity 400ms var(--ease-out)",
               }}
             />
-            {/* Ghost letter — rotates + scales on card hover */}
             <div
               aria-hidden="true"
-              className="project-ghost-letter"
-              style={{
-                position: "relative",
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(3rem, 8vw, 5rem)",
-                fontWeight: 300,
-                letterSpacing: "-0.04em",
-                color: project.accent,
-                opacity: 0.15,
-                userSelect: "none",
-                transition: "transform 500ms var(--ease-out), opacity 400ms var(--ease-out)",
-                transformOrigin: "center center",
-              }}
+              className="project-ghost-letter relative text-[clamp(3rem,8vw,5rem)] font-light tracking-tighter transition-[transform,opacity] [transition-duration:500ms] [transition-timing-function:var(--ease-out)] select-none"
+              style={{ color: project.accent, opacity: 0.15, transformOrigin: "center center" }}
             >
               {project.title.charAt(0)}
             </div>
-            {/* Year tag */}
             <div
-              style={{
-                position: "absolute",
-                top: "var(--space-4)",
-                right: "var(--space-4)",
-                fontSize: "var(--text-xs)",
-                letterSpacing: "0.1em",
-                color: `${project.accent}99`,
-                fontFamily: "var(--font-mono, monospace)",
-                transition: "opacity 300ms var(--ease-out)",
-              }}
-              className="project-year"
+              className="project-year absolute top-4 right-4 font-mono text-xs tracking-wider transition-opacity [transition-duration:300ms] [transition-timing-function:var(--ease-out)]"
+              style={{ color: `${project.accent}99` }}
               aria-hidden="true"
             >
               {project.year}
             </div>
-            {/* Hover overlay accent border */}
             <div
               aria-hidden="true"
-              className="project-border-accent"
-              style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "var(--radius-md)",
-                border: `1px solid ${project.accent}00`,
-                transition: "border-color 400ms var(--ease-out)",
-              }}
+              className="project-border-accent pointer-events-none absolute inset-0 rounded-md border border-transparent transition-[border-color] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
             />
           </div>
 
-          {/* Content */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--space-4)" }}>
+            <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <p
-                  style={{
-                    fontSize: "var(--text-xs)",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "var(--color-text-tertiary)",
-                    marginBottom: "var(--space-2)",
-                  }}
-                >
-                  {project.category}
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "var(--text-2xl)",
-                    fontWeight: 300,
-                    letterSpacing: "-0.02em",
-                    color: "var(--color-text-primary)",
-                  }}
-                >
-                  {project.title}
-                </h3>
+                <p className="mb-2 text-xs tracking-wider text-text-tertiary uppercase">{project.category}</p>
+                <h3 className="font-display text-2xl font-light tracking-tight text-text-primary">{project.title}</h3>
               </div>
-              <IconArrowUpRight size={20} style={{ color: "var(--color-text-tertiary)", flexShrink: 0, marginTop: "var(--space-1)" } as React.CSSProperties} className="project-arrow" />
+              <IconArrowUpRight
+                size={20}
+                className="project-arrow mt-1 shrink-0 text-text-tertiary transition-colors [transition-duration:var(--duration-base)]"
+              />
             </div>
 
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "var(--space-5)" }}>
+            <p className="mb-5 text-sm leading-relaxed text-text-secondary">
               {project.problem.split(".")[0]}.
             </p>
 
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "var(--space-2)",
-                padding: "var(--space-2) var(--space-3)",
-                background: "var(--color-accent-subtle)",
-                border: "1px solid var(--color-accent-muted)",
-                borderRadius: "var(--radius-sm)",
-                fontSize: "var(--text-xs)",
-                color: "var(--color-accent)",
-                fontWeight: 500,
-              }}
-            >
-              <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-accent)" }} />
+            <div className="inline-flex items-center gap-2 rounded-sm border border-accent-muted bg-accent-subtle px-3 py-2 text-xs font-medium text-accent">
+              <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-accent" />
               {project.result}
             </div>
           </div>
         </article>
-
-        <style>{`
-          .project-row:hover .project-article {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-card-hover);
-            border-color: var(--color-accent-muted) !important;
-          }
-          .project-row:hover .project-arrow {
-            color: var(--color-accent) !important;
-          }
-          /* Visual block activates on card hover */
-          .project-row:hover .project-ghost-letter {
-            transform: rotate(8deg) scale(1.15);
-            opacity: 0.25 !important;
-          }
-          .project-row:hover .project-gradient {
-            opacity: 1.4;
-          }
-          .project-row:hover .project-border-accent {
-            border-color: ${project.accent}40 !important;
-          }
-          .project-row:hover .project-year {
-            opacity: 0.5;
-          }
-          @media (min-width: 768px) {
-            .project-article {
-              grid-template-columns: 1fr 1.2fr !important;
-              align-items: center;
-            }
-          }
-        `}</style>
       </Link>
     </ScrollReveal>
   );

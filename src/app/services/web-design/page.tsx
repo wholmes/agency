@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { IconDesign, IconCheck, IconArrowUpRight, IconCode } from "@/components/icons";
+import { IconCheck, IconArrowUpRight } from "@/components/icons";
 import ScrollReveal from "@/components/ScrollReveal";
 import CtaSection from "@/components/sections/CtaSection";
 
@@ -59,46 +59,34 @@ const faqs = [
 export default function WebDesignPage() {
   return (
     <>
-      {/* Page header */}
-      <section
-        aria-labelledby="service-heading"
-        style={{
-          paddingTop: "calc(var(--nav-height) + var(--space-24))",
-          paddingBottom: "var(--space-24)",
-          borderBottom: "1px solid var(--color-border)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Accent glow */}
-        <div aria-hidden="true" style={{ position: "absolute", top: 0, right: 0, width: "50%", height: "100%", background: "radial-gradient(ellipse at 80% 20%, rgba(201,165,90,0.05) 0%, transparent 60%)", pointerEvents: "none" }} />
-
-        <div className="container" style={{ position: "relative" }}>
+      <section aria-labelledby="service-heading" className="relative overflow-hidden border-b border-border pt-[calc(var(--nav-height)+6rem)] pb-24">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-0 h-full w-1/2 bg-[radial-gradient(ellipse_at_80%_20%,rgba(201,165,90,0.05)_0%,transparent_60%)]"
+        />
+        <div className="container relative">
           <ScrollReveal>
-            <Link href="/services" style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-tertiary)", textDecoration: "none", marginBottom: "var(--space-8)" }} className="back-link">
+            <Link
+              href="/services"
+              className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary no-underline transition-colors hover:text-text-secondary"
+            >
               ← All Services
             </Link>
           </ScrollReveal>
-
           <ScrollReveal delay={60}>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>
-              Service
-            </p>
+            <p className="text-overline mb-5">Service</p>
           </ScrollReveal>
-
           <ScrollReveal delay={120}>
-            <h1 id="service-heading" className="text-h1" style={{ maxWidth: "640px", marginBottom: "var(--space-6)" }}>
+            <h1 id="service-heading" className="text-h1 mb-6 max-w-[640px]">
               Web Design &amp; Development
             </h1>
           </ScrollReveal>
-
           <ScrollReveal delay={200}>
-            <p className="text-body-lg" style={{ maxWidth: "520px", marginBottom: "var(--space-10)" }}>
-              Interfaces built with composition principles, not templates.
-              We design and build your site as a single, coherent project — no hand-off between design and dev teams.
+            <p className="text-body-lg mb-10 max-w-[520px]">
+              Interfaces built with composition principles, not templates. We design and build your site as a single,
+              coherent project — no hand-off between design and dev teams.
             </p>
           </ScrollReveal>
-
           <ScrollReveal delay={280}>
             <Link href="/contact" className="btn btn-primary">
               Start a Project
@@ -108,18 +96,17 @@ export default function WebDesignPage() {
         </div>
       </section>
 
-      {/* Who it's for */}
-      <section aria-labelledby="who-heading" className="section" style={{ borderBottom: "1px solid var(--color-border)" }}>
+      <section aria-labelledby="who-heading" className="section border-b border-border">
         <div className="container">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>Who It&rsquo;s For</p>
+            <p className="text-overline mb-5">Who It&rsquo;s For</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h2 id="who-heading" className="text-h2" style={{ maxWidth: "640px", marginBottom: "var(--space-8)" }}>
+            <h2 id="who-heading" className="text-h2 mb-8 max-w-[640px]">
               Right for you if:
             </h2>
           </ScrollReveal>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-5)" }} className="who-grid">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {[
               "You've outgrown your current site and it no longer represents where the business is",
               "You're launching something new and want to do it right the first time",
@@ -127,9 +114,9 @@ export default function WebDesignPage() {
               "You need the site to do real work — not just look good in a portfolio screenshot",
             ].map((item, i) => (
               <ScrollReveal key={i} delay={i * 60}>
-                <div style={{ display: "flex", gap: "var(--space-4)", alignItems: "flex-start", padding: "var(--space-6)", background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-accent)", flexShrink: 0, marginTop: "0.4em" }} aria-hidden="true" />
-                  <p style={{ fontSize: "var(--text-md)", color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{item}</p>
+                <div className="flex items-start gap-4 rounded-md border border-border bg-surface p-6">
+                  <div className="mt-[0.4em] size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                  <p className="text-md leading-relaxed text-text-secondary">{item}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -137,25 +124,24 @@ export default function WebDesignPage() {
         </div>
       </section>
 
-      {/* What's included */}
-      <section aria-labelledby="included-heading" className="section" style={{ borderBottom: "1px solid var(--color-border)", background: "var(--color-surface)" }}>
+      <section aria-labelledby="included-heading" className="section border-b border-border bg-surface">
         <div className="container">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>What&rsquo;s Included</p>
+            <p className="text-overline mb-5">What&rsquo;s Included</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h2 id="included-heading" className="text-h2" style={{ marginBottom: "var(--space-12)" }}>
+            <h2 id="included-heading" className="text-h2 mb-12">
               No hidden scope
             </h2>
           </ScrollReveal>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-4)" }} className="inclusions-grid">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {inclusions.map((item, i) => (
               <ScrollReveal key={item} delay={i * 40}>
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-4) var(--space-5)", background: "var(--color-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-accent)", flexShrink: 0 }}>
+                <div className="flex items-center gap-4 rounded-md border border-border bg-bg px-5 py-4">
+                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">
                     <IconCheck size={12} />
                   </div>
-                  <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{item}</span>
+                  <span className="text-sm text-text-primary">{item}</span>
                 </div>
               </ScrollReveal>
             ))}
@@ -163,67 +149,38 @@ export default function WebDesignPage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section aria-labelledby="faq-heading" className="section">
         <div className="container">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>FAQ</p>
+            <p className="text-overline mb-5">FAQ</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h2 id="faq-heading" className="text-h2" style={{ marginBottom: "var(--space-12)" }}>
+            <h2 id="faq-heading" className="text-h2 mb-12">
               Common questions
             </h2>
           </ScrollReveal>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+          <div className="divide-y divide-border">
             {faqs.map((faq, i) => (
               <ScrollReveal key={i} delay={i * 60}>
-                <details
-                  style={{
-                    borderTop: "1px solid var(--color-border)",
-                    paddingBlock: "var(--space-6)",
-                  }}
-                  className="faq-item"
-                >
-                  <summary
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "var(--text-lg)",
-                      fontWeight: 400,
-                      letterSpacing: "-0.01em",
-                      cursor: "pointer",
-                      listStyle: "none",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "var(--space-4)",
-                      userSelect: "none",
-                    }}
-                  >
+                <details className="group py-6">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-normal tracking-tight select-none [&::-webkit-details-marker]:hidden">
                     {faq.question}
-                    <span aria-hidden="true" style={{ flexShrink: 0, fontSize: "var(--text-xl)", color: "var(--color-accent)", fontWeight: 300 }}>+</span>
+                    <span
+                      aria-hidden="true"
+                      className="inline-block shrink-0 text-xl font-light text-accent transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
                   </summary>
-                  <p style={{ marginTop: "var(--space-5)", fontSize: "var(--text-base)", color: "var(--color-text-secondary)", lineHeight: 1.75, maxWidth: "680px" }}>
-                    {faq.answer}
-                  </p>
+                  <p className="mt-5 max-w-[680px] text-base leading-relaxed text-text-secondary">{faq.answer}</p>
                 </details>
               </ScrollReveal>
             ))}
-            <div style={{ borderTop: "1px solid var(--color-border)" }} />
           </div>
         </div>
       </section>
 
       <CtaSection />
-
-      <style>{`
-        .back-link:hover { color: var(--color-text-secondary) !important; }
-        details[open] summary span { transform: rotate(45deg); }
-        details summary span { transition: transform 0.2s ease; display: inline-block; }
-        @media (min-width: 640px) {
-          .who-grid { grid-template-columns: 1fr 1fr !important; }
-          .inclusions-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-      `}</style>
     </>
   );
 }

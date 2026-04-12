@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { motion, useSpring } from "framer-motion";
 
 interface Props {
   children: React.ReactNode;
@@ -39,8 +39,8 @@ export default function MagneticButton({
   return (
     <motion.div
       ref={ref}
-      style={{ x: rawX, y: rawY, display: "inline-flex", ...style }}
-      className={className}
+      style={{ x: rawX, y: rawY, ...style }}
+      className={["inline-flex", className].filter(Boolean).join(" ")}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >

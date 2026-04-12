@@ -116,7 +116,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body style={{ fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)" }}>
+      <body className="font-body">
         <CustomCursor />
         <Navigation />
         <main id="main-content">{children}</main>

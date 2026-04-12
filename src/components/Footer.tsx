@@ -21,94 +21,43 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      style={{
-        borderTop: "1px solid var(--color-border)",
-        backgroundColor: "var(--color-surface)",
-        paddingTop: "var(--space-16)",
-        paddingBottom: "var(--space-10)",
-      }}
+      className="border-t border-border bg-surface pt-16 pb-10"
     >
       <div className="container">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "var(--space-12)",
-            marginBottom: "var(--space-16)",
-          }}
-          className="footer-grid"
-        >
-          {/* Brand column */}
+        <div className="mb-16 grid grid-cols-1 gap-12 sm:grid-cols-[1.5fr_1fr_1fr]">
           <div>
             <Link
               href="/"
-              style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-5)" }}
+              className="mb-5 inline-flex items-center gap-3"
               aria-label="BrandMeetsCode — Home"
             >
-              <LogoMark size={24} style={{ color: "var(--color-accent)" } as React.CSSProperties} />
-              <span
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "var(--text-md)",
-                  fontWeight: 400,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Brand<span style={{ color: "var(--color-accent)" }}>Meets</span>Code
+              <LogoMark size={24} className="text-accent" />
+              <span className="font-display text-md font-normal tracking-tight text-text-primary">
+                Brand<span className="text-accent">Meets</span>Code
               </span>
             </Link>
-            <p
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text-secondary)",
-                lineHeight: 1.7,
-                maxWidth: "300px",
-                marginBottom: "var(--space-6)",
-              }}
-            >
+            <p className="mb-6 max-w-[300px] text-sm leading-relaxed text-text-secondary">
               Premium web development where brand strategy meets technical execution.
             </p>
             <a
               href="mailto:hello@brandmeetscode.com"
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-accent)",
-                textDecoration: "none",
-                transition: "opacity var(--duration-base) var(--ease-out)",
-              }}
-              className="footer-email"
+              className="text-sm text-accent no-underline transition-opacity [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:opacity-70"
             >
               hello@brandmeetscode.com
             </a>
           </div>
 
-          {/* Link columns */}
           {Object.entries(footerLinks).map(([group, links]) => (
             <nav key={group} aria-label={`${group} links`}>
-              <p
-                style={{
-                  fontSize: "var(--text-xs)",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "var(--color-text-tertiary)",
-                  marginBottom: "var(--space-5)",
-                  fontWeight: 500,
-                }}
-              >
+              <p className="mb-5 text-xs font-medium tracking-[0.12em] text-text-tertiary uppercase">
                 {group}
               </p>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+              <ul className="flex flex-col gap-3 list-none">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      style={{
-                        fontSize: "var(--text-sm)",
-                        color: "var(--color-text-secondary)",
-                        textDecoration: "none",
-                        transition: "color var(--duration-base) var(--ease-out)",
-                      }}
-                      className="footer-link"
+                      className="text-sm text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
                     >
                       {link.label}
                     </Link>
@@ -119,47 +68,13 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
-        <div
-          style={{
-            borderTop: "1px solid var(--color-border)",
-            paddingTop: "var(--space-6)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "var(--space-4)",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--color-text-tertiary)",
-              letterSpacing: "0.04em",
-            }}
-          >
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
+          <p className="text-xs tracking-wide text-text-tertiary">
             &copy; {year} BrandMeetsCode. All rights reserved.
           </p>
-          <p
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--color-text-tertiary)",
-            }}
-          >
-            Crafted with intention.
-          </p>
+          <p className="text-xs text-text-tertiary">Crafted with intention.</p>
         </div>
       </div>
-
-      <style>{`
-        .footer-email:hover { opacity: 0.7; }
-        .footer-link:hover { color: var(--color-text-primary) !important; }
-        @media (min-width: 640px) {
-          .footer-grid {
-            grid-template-columns: 1.5fr 1fr 1fr !important;
-          }
-        }
-      `}</style>
     </footer>
   );
 }

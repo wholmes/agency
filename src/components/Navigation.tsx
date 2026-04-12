@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -30,7 +30,6 @@ export default function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* Lock scroll when mobile menu open */
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -42,115 +41,86 @@ export default function Navigation() {
     };
   }, [mobileOpen]);
 
-  /* Close on route change */
   useEffect(() => {
-    setMobileOpen(false);
+    startTransition(() => setMobileOpen(false));
   }, [pathname]);
 
   return (
     <>
       <header
         role="banner"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          height: "var(--nav-height)",
-          display: "flex",
-          alignItems: "center",
-          transition: `background-color var(--duration-slow) var(--ease-out), backdrop-filter var(--duration-slow) var(--ease-out), border-color var(--duration-slow) var(--ease-out)`,
-          backgroundColor: scrolled ? "rgba(12, 12, 11, 0.85)" : "transparent",
-          backdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(20px) saturate(180%)" : "none",
-          borderBottom: `1px solid ${scrolled ? "var(--color-border)" : "transparent"}`,
-        }}
+        className={`fixed top-0 right-0 left-0 z-[100] flex h-[var(--nav-height)] items-center transition-[background-color,backdrop-filter,border-color] [transition-duration:var(--duration-slow)] ease-out ${
+          scrolled
+            ? "border-b border-border bg-[rgba(12,12,11,0.85)] backdrop-blur-xl backdrop-saturate-[180%]"
+            : "border-b border-transparent bg-transparent"
+        }`}
       >
-        <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-          {/* Logo */}
+        <div className="container flex w-full items-center justify-between">
           <Link
             href="/"
             aria-label="BrandMeetsCode — Home"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-3)",
-              textDecoration: "none",
-            }}
+            className="flex items-center gap-3 no-underline"
           >
             <LogoMark
               size={28}
-              className="logo-mark"
-              style={{ color: "var(--color-accent)", transition: "transform var(--duration-base) var(--ease-out)" } as React.CSSProperties}
+              className="text-accent transition-transform [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:rotate-[15deg]"
             />
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "var(--text-md)",
-                fontWeight: 400,
-                letterSpacing: "-0.01em",
-                color: "var(--color-text-primary)",
-              }}
-            >
-              Brand<span style={{ color: "var(--color-accent)" }}>Meets</span>Code
+            <span className="font-display text-md font-normal tracking-tight text-text-primary">
+              Brand<span className="text-accent">Meets</span>Code
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav role="navigation" aria-label="Main navigation" style={{ display: "flex", alignItems: "center", gap: "var(--space-8)" }} className="desktop-nav">
+          <nav
+            role="navigation"
+            aria-label="Main navigation"
+            className="hidden items-center gap-8 md:flex"
+          >
             {navLinks.map((link) => (
-              <NavLink key={link.href} href={link.href} label={link.label} active={pathname === link.href || pathname.startsWith(link.href + "/")} />
+              <NavLink
+                key={link.href}
+                href={link.href}
+                label={link.label}
+                active={pathname === link.href || pathname.startsWith(`${link.href}/`)}
+              />
             ))}
           </nav>
 
-          {/* Availability indicator — desktop only */}
-          <div style={{ display: "none", alignItems: "center", gap: "var(--space-2)" }} className="desktop-nav availability-badge">
+          <div className="availability-badge hidden items-center gap-2 lg:flex">
             <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: availability.available ? "var(--color-success, #4DAF7C)" : "var(--color-text-tertiary)",
-                flexShrink: 0,
-                boxShadow: availability.available ? "0 0 6px rgba(77,175,124,0.6)" : "none",
-              }}
+              className={`inline-block size-1.5 shrink-0 rounded-full ${
+                availability.available
+                  ? "bg-success shadow-[0_0_6px_rgba(77,175,124,0.6)]"
+                  : "bg-text-tertiary"
+              }`}
               aria-hidden="true"
             />
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-tertiary)", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+            <span className="text-xs tracking-wide whitespace-nowrap text-text-tertiary">
               {availability.available ? availability.label : `Next opening: ${availability.nextOpen}`}
             </span>
           </div>
 
-          {/* Desktop CTA */}
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }} className="desktop-nav">
-            <Link href="/contact" className="btn btn-primary" style={{ fontSize: "var(--text-xs)" }} data-cursor-label="Let's Build">
+          <div className="hidden items-center gap-4 md:flex">
+            <Link
+              href="/contact"
+              className="btn btn-primary text-xs"
+              data-cursor-label="Let's Build"
+            >
               Start a Project
               <IconArrowUpRight size={14} />
             </Link>
           </div>
 
-          {/* Mobile trigger */}
           <button
             aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((v) => !v)}
-            className="mobile-trigger"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 40,
-              height: 40,
-              color: "var(--color-text-primary)",
-            }}
+            className="flex size-10 items-center justify-center text-text-primary md:hidden"
           >
             <HamburgerIcon open={mobileOpen} />
           </button>
         </div>
       </header>
 
-      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -158,21 +128,12 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 99,
-              backgroundColor: "var(--color-bg)",
-              display: "flex",
-              flexDirection: "column",
-              padding: "var(--space-8) var(--space-6)",
-              paddingTop: "calc(var(--nav-height) + var(--space-12))",
-            }}
+            className="fixed inset-0 z-[99] flex flex-col bg-bg px-6 pt-[calc(var(--nav-height)+3rem)] pb-8 md:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation"
           >
-            <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <nav className="flex flex-1 flex-col gap-2">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
@@ -183,18 +144,9 @@ export default function Navigation() {
                 >
                   <Link
                     href={link.href}
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "var(--text-4xl)",
-                      fontWeight: 300,
-                      letterSpacing: "-0.03em",
-                      color: pathname === link.href ? "var(--color-accent)" : "var(--color-text-primary)",
-                      padding: "var(--space-3) 0",
-                      borderBottom: "1px solid var(--color-border)",
-                      transition: "color var(--duration-base) var(--ease-out)",
-                      lineHeight: 1.2,
-                    }}
+                    className={`block border-b border-border py-3 font-display text-4xl leading-tight font-light tracking-tight transition-colors [transition-duration:var(--duration-base)] ease-out ${
+                      pathname === link.href ? "text-accent" : "text-text-primary"
+                    }`}
                   >
                     {link.label}
                   </Link>
@@ -207,9 +159,9 @@ export default function Navigation() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ delay: 0.35, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              style={{ paddingTop: "var(--space-8)" }}
+              className="pt-8"
             >
-              <Link href="/contact" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+              <Link href="/contact" className="btn btn-primary flex w-full justify-center">
                 Start a Project
                 <IconArrowUpRight size={16} />
               </Link>
@@ -217,31 +169,6 @@ export default function Navigation() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style>{`
-        .desktop-nav {
-          display: none;
-        }
-        .mobile-trigger {
-          display: flex;
-        }
-        @media (min-width: 768px) {
-          .desktop-nav {
-            display: flex;
-          }
-          .mobile-trigger {
-            display: none;
-          }
-        }
-        @media (min-width: 1024px) {
-          .availability-badge {
-            display: flex !important;
-          }
-        }
-        .logo-mark:hover {
-          transform: rotate(15deg);
-        }
-      `}</style>
     </>
   );
 }
@@ -250,44 +177,22 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
   return (
     <Link
       href={href}
-      style={{
-        position: "relative",
-        fontFamily: "var(--font-body)",
-        fontSize: "var(--text-sm)",
-        fontWeight: 400,
-        letterSpacing: "0.01em",
-        color: active ? "var(--color-accent)" : "var(--color-text-secondary)",
-        textDecoration: "none",
-        padding: "var(--space-2) 0",
-        transition: "color var(--duration-base) var(--ease-out)",
-      }}
-      className="nav-link"
+      className={`nav-link relative py-2 font-body text-sm font-normal tracking-[0.01em] transition-colors [transition-duration:var(--duration-base)] ease-out ${
+        active ? "text-accent" : "text-text-secondary hover:text-text-primary"
+      }`}
     >
       {label}
       {active && (
         <motion.span
           layoutId="nav-indicator"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 1,
-            backgroundColor: "var(--color-accent)",
-          }}
+          className="absolute right-0 bottom-0 left-0 h-px bg-accent"
           transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
         />
       )}
-      <style>{`
-        .nav-link:hover {
-          color: var(--color-text-primary) !important;
-        }
-      `}</style>
     </Link>
   );
 }
 
-/* SVG path-morphing hamburger → close */
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -305,7 +210,7 @@ function HamburgerIcon({ open }: { open: boolean }) {
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
-        style={{ transformOrigin: "left" }}
+        className="origin-left"
       />
       <motion.path
         animate={open ? { d: "M18 6L6 18" } : { d: "M3 16h18" }}

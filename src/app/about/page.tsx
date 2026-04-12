@@ -35,46 +35,34 @@ const values = [
 export default function AboutPage() {
   return (
     <>
-      {/* Header */}
-      <section
-        style={{
-          paddingTop: "calc(var(--nav-height) + var(--space-24))",
-          paddingBottom: "var(--space-24)",
-          borderBottom: "1px solid var(--color-border)",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div aria-hidden="true" style={{ position: "absolute", top: "10%", left: "-5%", width: "400px", height: "400px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,165,90,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div className="container" style={{ position: "relative" }}>
+      <section className="relative overflow-hidden border-b border-border pt-[calc(var(--nav-height)+6rem)] pb-24">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[10%] -left-[5%] size-[400px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.05)_0%,transparent_70%)]"
+        />
+        <div className="container relative">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>About</p>
+            <p className="text-overline mb-5">About</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h1 className="text-h1" style={{ maxWidth: "700px", marginBottom: "var(--space-6)" }}>
-              Built at the intersection of two disciplines that rarely meet
-            </h1>
+            <h1 className="text-h1 mb-6 max-w-[700px]">Built at the intersection of two disciplines that rarely meet</h1>
           </ScrollReveal>
           <ScrollReveal delay={160}>
-            <p className="text-body-lg" style={{ maxWidth: "520px" }}>
-              BrandMeetsCode exists because the best websites require both brand clarity
-              and technical precision — and most agencies only do one of those well.
+            <p className="text-body-lg max-w-[520px]">
+              BrandMeetsCode exists because the best websites require both brand clarity and technical precision — and most
+              agencies only do one of those well.
             </p>
           </ScrollReveal>
         </div>
       </section>
 
-      {/* Story */}
-      <section aria-labelledby="story-heading" className="section" style={{ borderBottom: "1px solid var(--color-border)" }}>
+      <section aria-labelledby="story-heading" className="section border-b border-border">
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-16)", alignItems: "start" }} className="story-grid">
-            {/* Text */}
+          <div className="story-grid grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.2fr_1fr]">
             <div>
               <ScrollReveal>
-                <h2 id="story-heading" className="text-h2" style={{ marginBottom: "var(--space-8)" }}>
-                  The{" "}
-                  <em className="italic-display" style={{ color: "var(--color-accent)" }}>real</em>{" "}
-                  origin story
+                <h2 id="story-heading" className="text-h2 mb-8">
+                  The <em className="italic-display text-accent">real</em> origin story
                 </h2>
               </ScrollReveal>
               {[
@@ -84,52 +72,31 @@ export default function AboutPage() {
                 "That's what we build.",
               ].map((paragraph, i) => (
                 <ScrollReveal key={i} delay={i * 80}>
-                  <p className="text-body-lg" style={{ marginBottom: "var(--space-6)" }}>
-                    {paragraph}
-                  </p>
+                  <p className="text-body-lg mb-6">{paragraph}</p>
                 </ScrollReveal>
               ))}
             </div>
 
-            {/* Visual card — founder presence */}
             <ScrollReveal delay={200}>
-              <div
-                style={{
-                  background: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-lg)",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Abstract visual placeholder representing the founders */}
+              <div className="overflow-hidden rounded-lg border border-border bg-surface">
                 <div
-                  style={{
-                    height: "280px",
-                    background: "linear-gradient(135deg, var(--color-surface-2) 0%, #1C1810 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
+                  className="relative flex h-[280px] items-center justify-center overflow-hidden bg-[linear-gradient(135deg,var(--color-surface-2)_0%,#1c1810_100%)]"
                   aria-hidden="true"
                 >
-                  <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(201,165,90,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,165,90,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
-                  <div style={{ textAlign: "center", position: "relative" }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: "5rem", fontWeight: 300, letterSpacing: "-0.04em", color: "var(--color-accent)", opacity: 0.15, lineHeight: 1 }}>
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.04)_1px,transparent_1px)] bg-size-[40px_40px]" />
+                  <div className="relative text-center">
+                    <div className="font-display text-[5rem] leading-none font-light tracking-tighter text-accent opacity-15">
                       BMC
                     </div>
-                    <p style={{ fontSize: "var(--text-xs)", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginTop: "var(--space-4)" }}>
-                      Brand Meets Code
-                    </p>
+                    <p className="mt-4 text-xs tracking-[0.15em] text-text-tertiary uppercase">Brand Meets Code</p>
                   </div>
                 </div>
-                <div style={{ padding: "var(--space-8)" }}>
-                  <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.7, marginBottom: "var(--space-4)" }}>
-                    We&rsquo;re a small, senior team. No juniors in client-facing work.
-                    Every project is handled by people who have done this many times before.
+                <div className="p-8">
+                  <p className="mb-4 text-sm leading-relaxed text-text-secondary">
+                    We&rsquo;re a small, senior team. No juniors in client-facing work. Every project is handled by people who
+                    have done this many times before.
                   </p>
-                  <Link href="/contact" className="btn btn-ghost" style={{ paddingInline: 0, fontSize: "var(--text-sm)", color: "var(--color-accent)" }}>
+                  <Link href="/contact" className="btn btn-ghost px-0 text-sm text-accent">
                     Work with us <IconArrowUpRight size={14} />
                   </Link>
                 </div>
@@ -139,32 +106,27 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values */}
-      <section aria-labelledby="values-heading" className="section" style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}>
+      <section aria-labelledby="values-heading" className="section border-b border-border bg-surface">
         <div className="container">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>What We Believe</p>
+            <p className="text-overline mb-5">What We Believe</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h2 id="values-heading" className="text-h2" style={{ marginBottom: "var(--space-16)" }}>
+            <h2 id="values-heading" className="text-h2 mb-16">
               Specific beliefs, not platitudes
             </h2>
           </ScrollReveal>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-6)" }} className="values-grid">
+          <div className="values-grid grid grid-cols-1 gap-6 lg:grid-cols-2">
             {values.map((value, i) => (
               <ScrollReveal key={value.title} delay={i * 80}>
-                <div style={{ padding: "var(--space-8)", background: "var(--color-bg)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-                  <div style={{ display: "flex", gap: "var(--space-4)", alignItems: "flex-start", marginBottom: "var(--space-4)" }}>
-                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-accent)", flexShrink: 0, marginTop: 2 }}>
+                <div className="rounded-lg border border-border bg-bg p-8">
+                  <div className="mb-4 flex items-start gap-4">
+                    <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">
                       <IconCheck size={11} />
                     </div>
-                    <h3 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-xl)", fontWeight: 400, letterSpacing: "-0.015em", lineHeight: 1.3 }}>
-                      {value.title}
-                    </h3>
+                    <h3 className="font-display text-xl font-normal leading-snug tracking-tight">{value.title}</h3>
                   </div>
-                  <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.75, paddingLeft: "var(--space-10)" }}>
-                    {value.body}
-                  </p>
+                  <p className="pl-10 text-sm leading-relaxed text-text-secondary">{value.body}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -173,13 +135,6 @@ export default function AboutPage() {
       </section>
 
       <CtaSection />
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .story-grid { grid-template-columns: 1.2fr 1fr !important; }
-          .values-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-      `}</style>
     </>
   );
 }

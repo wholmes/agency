@@ -106,9 +106,7 @@ export default function ScopeEstimator() {
       const without = s.integrations.filter((x) => x !== "none");
       return {
         ...s,
-        integrations: without.includes(id)
-          ? without.filter((x) => x !== id)
-          : [...without, id],
+        integrations: without.includes(id) ? without.filter((x) => x !== id) : [...without, id],
       };
     });
   };
@@ -116,29 +114,16 @@ export default function ScopeEstimator() {
   const range = step === "result" ? calcRange(sel) : null;
 
   return (
-    <div
-      style={{
-        background: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-lg)",
-        overflow: "hidden",
-      }}
-    >
-      {/* Progress bar */}
-      <div style={{ height: 2, background: "var(--color-border)" }}>
+    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="h-0.5 bg-border">
         <div
-          style={{
-            height: "100%",
-            width: `${((stepIndex) / (steps.length - 1)) * 100}%`,
-            background: "var(--color-accent)",
-            transition: "width 400ms var(--ease-out)",
-          }}
+          className="h-full bg-accent transition-[width] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
+          style={{ width: `${(stepIndex / (steps.length - 1)) * 100}%` }}
         />
       </div>
 
-      <div style={{ padding: "var(--space-10)" }}>
-        {/* Step label */}
-        <p style={{ fontSize: "var(--text-xs)", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-text-tertiary)", marginBottom: "var(--space-5)" }}>
+      <div className="p-10">
+        <p className="mb-5 text-xs tracking-wider text-text-tertiary uppercase">
           Step {stepIndex + 1} of {steps.length}
         </p>
 
@@ -172,7 +157,7 @@ export default function ScopeEstimator() {
           {step === "integrations" && (
             <StepWrap key="integrations">
               <StepTitle>Any integrations needed?</StepTitle>
-              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-tertiary)", marginBottom: "var(--space-6)" }}>Select all that apply.</p>
+              <p className="mb-6 text-sm text-text-tertiary">Select all that apply.</p>
               <OptionGrid>
                 {integrations.map((i) => (
                   <OptionButton
@@ -185,12 +170,12 @@ export default function ScopeEstimator() {
                   </OptionButton>
                 ))}
               </OptionGrid>
-              <div style={{ marginTop: "var(--space-6)" }}>
+              <div className="mt-6">
                 <button
-                  className="btn btn-primary"
+                  type="button"
+                  className="btn btn-primary disabled:opacity-40"
                   onClick={() => setStep("timeline")}
                   disabled={sel.integrations.length === 0}
-                  style={{ opacity: sel.integrations.length === 0 ? 0.4 : 1 }}
                 >
                   Continue <IconArrowRight size={16} />
                 </button>
@@ -203,7 +188,11 @@ export default function ScopeEstimator() {
               <StepTitle>What&rsquo;s your timeline?</StepTitle>
               <OptionGrid cols={2}>
                 {timelines.map((t) => (
-                  <OptionButton key={t.id} selected={sel.timeline === t.id} onClick={() => { select("timeline", t.id); setStep("result"); }}>
+                  <OptionButton
+                    key={t.id}
+                    selected={sel.timeline === t.id}
+                    onClick={() => select("timeline", t.id)}
+                  >
                     {t.label}
                   </OptionButton>
                 ))}
@@ -213,27 +202,33 @@ export default function ScopeEstimator() {
 
           {step === "result" && range && (
             <StepWrap key="result">
-              <p style={{ fontSize: "var(--text-xs)", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: "var(--space-4)", fontWeight: 600 }}>
-                Your ballpark estimate
-              </p>
-              <div style={{ marginBottom: "var(--space-6)" }}>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-4xl)", fontWeight: 300, letterSpacing: "-0.03em", color: "var(--color-text-primary)", lineHeight: 1 }}>
+              <p className="mb-4 text-xs font-semibold tracking-wider text-accent uppercase">Your ballpark estimate</p>
+              <div className="mb-6">
+                <div className="font-display text-4xl leading-none font-light tracking-tight text-text-primary">
                   {fmt(range.low)}–{fmt(range.high)}
                 </div>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "var(--space-2)" }}>
+                <p className="mt-2 text-sm text-text-secondary">
                   {range.weeks} · All-in estimate
                 </p>
               </div>
 
-              <div style={{ padding: "var(--space-5)", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-muted)", borderRadius: "var(--radius-md)", marginBottom: "var(--space-8)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.7 }}>
-                This is a rough range based on your inputs — not a quote. Real projects are scoped after a 30-minute discovery call where we can understand your actual goals.
+              <div className="mb-8 rounded-md border border-accent-muted bg-accent-subtle p-5 text-sm leading-relaxed text-text-secondary">
+                This is a rough range based on your inputs — not a quote. Real projects are scoped after a 30-minute
+                discovery call where we can understand your actual goals.
               </div>
 
-              <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
+              <div className="flex flex-wrap gap-3">
                 <Link href="/contact" className="btn btn-primary" data-cursor-label="Let's Build">
                   Start a Project <IconArrowUpRight size={16} />
                 </Link>
-                <button className="btn btn-secondary" onClick={() => { setStep("type"); setSel({ type: "", pages: "", integrations: [], timeline: "" }); }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setStep("type");
+                    setSel({ type: "", pages: "", integrations: [], timeline: "" });
+                  }}
+                >
                   Start over
                 </button>
               </div>
@@ -261,18 +256,13 @@ function StepWrap({ children }: { children: React.ReactNode }) {
 
 function StepTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-2xl)", fontWeight: 300, letterSpacing: "-0.02em", marginBottom: "var(--space-6)", lineHeight: 1.2 }}>
-      {children}
-    </h3>
+    <h3 className="font-display mb-6 text-2xl font-light leading-snug tracking-tight">{children}</h3>
   );
 }
 
 function OptionGrid({ children, cols = 2 }: { children: React.ReactNode; cols?: number }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "var(--space-3)" }}>
-      {children}
-    </div>
-  );
+  const colClass = cols === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2";
+  return <div className={`grid gap-3 ${colClass}`}>{children}</div>;
 }
 
 function OptionButton({
@@ -288,39 +278,19 @@ function OptionButton({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      style={{
-        padding: "var(--space-4) var(--space-5)",
-        background: selected ? "var(--color-accent-subtle)" : "var(--color-bg)",
-        border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-border)"}`,
-        borderRadius: "var(--radius-md)",
-        color: selected ? "var(--color-accent)" : "var(--color-text-secondary)",
-        fontSize: "var(--text-sm)",
-        fontFamily: "var(--font-body, sans-serif)",
-        textAlign: "left",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        transition: "all var(--duration-base) var(--ease-out)",
-        cursor: "pointer",
-      }}
-      className="option-btn"
+      className={`option-btn flex cursor-pointer items-center gap-2 rounded-md border px-5 py-4 text-left text-sm font-body transition-all [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] ${
+        selected
+          ? "border-accent bg-accent-subtle text-accent"
+          : "border-border bg-bg text-text-secondary"
+      }`}
     >
       {multiSelect && (
         <span
-          style={{
-            width: 16,
-            height: 16,
-            borderRadius: 4,
-            border: `1px solid ${selected ? "var(--color-accent)" : "var(--color-border)"}`,
-            background: selected ? "var(--color-accent)" : "transparent",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            color: "var(--color-bg)",
-            transition: "all var(--duration-fast) var(--ease-out)",
-          }}
+          className={`flex size-4 shrink-0 items-center justify-center rounded border transition-all [transition-duration:var(--duration-fast)] [transition-timing-function:var(--ease-out)] ${
+            selected ? "border-accent bg-accent text-bg" : "border-border bg-transparent"
+          }`}
         >
           {selected && <IconCheck size={10} />}
         </span>

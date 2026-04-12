@@ -76,98 +76,61 @@ const services = [
 export default function ServicesPage() {
   return (
     <>
-      {/* Page header */}
       <section
         aria-labelledby="services-page-heading"
-        style={{
-          paddingTop: "calc(var(--nav-height) + var(--space-24))",
-          paddingBottom: "var(--space-24)",
-          borderBottom: "1px solid var(--color-border)",
-        }}
+        className="border-b border-border pt-[calc(var(--nav-height)+6rem)] pb-24"
       >
         <div className="container">
           <ScrollReveal>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>
-              Services
-            </p>
+            <p className="text-overline mb-5">Services</p>
           </ScrollReveal>
           <ScrollReveal delay={80}>
-            <h1 id="services-page-heading" className="text-h1" style={{ maxWidth: "640px", marginBottom: "var(--space-6)" }}>
+            <h1 id="services-page-heading" className="text-h1 mb-6 max-w-[640px]">
               Everything a premium website requires
             </h1>
           </ScrollReveal>
           <ScrollReveal delay={160}>
-            <p className="text-body-lg" style={{ maxWidth: "520px" }}>
-              We offer four integrated services. Most clients engage us for two or three —
-              because the results compound when strategy, design, and code are all speaking the same language.
+            <p className="text-body-lg max-w-[520px]">
+              We offer four integrated services. Most clients engage us for two or three — because the results compound
+              when strategy, design, and code are all speaking the same language.
             </p>
           </ScrollReveal>
         </div>
       </section>
 
-      {/* Services list */}
       <section aria-label="Service details" className="section">
         <div className="container">
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <div className="flex flex-col gap-4">
             {services.map((service, i) => (
               <ScrollReveal key={service.title} delay={i * 80}>
                 <Link
                   href={service.href}
-                  className="service-item"
-                  style={{ display: "block", textDecoration: "none" }}
+                  className="service-item block no-underline"
                   aria-label={`Learn about ${service.title}`}
                 >
-                  <article
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr",
-                      gap: "var(--space-8)",
-                      padding: "var(--space-10)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "var(--radius-lg)",
-                      background: "var(--color-surface)",
-                      transition: "transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out)",
-                    }}
-                    className="service-article"
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "var(--space-4)" }}>
-                      <div style={{ display: "flex", gap: "var(--space-5)", alignItems: "flex-start" }}>
-                        <div
-                          style={{
-                            width: 52,
-                            height: 52,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            background: "var(--color-accent-subtle)",
-                            border: "1px solid var(--color-accent-muted)",
-                            borderRadius: "var(--radius-md)",
-                            color: "var(--color-accent)",
-                            flexShrink: 0,
-                          }}
-                        >
+                  <article className="service-article rounded-lg border border-border bg-surface p-10 transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)]">
+                    <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+                      <div className="flex flex-wrap items-start gap-5">
+                        <div className="flex size-[52px] shrink-0 items-center justify-center rounded-md border border-accent-muted bg-accent-subtle text-accent">
                           <service.icon size={24} />
                         </div>
                         <div>
-                          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-2xl)", fontWeight: 300, letterSpacing: "-0.02em", marginBottom: "var(--space-1)" }}>
-                            {service.title}
-                          </h2>
-                          <p style={{ fontSize: "var(--text-sm)", color: "var(--color-accent)", fontStyle: "italic" }}>
-                            {service.subtitle}
-                          </p>
+                          <h2 className="font-display mb-1 text-2xl font-light tracking-tight">{service.title}</h2>
+                          <p className="text-sm text-accent italic">{service.subtitle}</p>
                         </div>
                       </div>
-                      <IconArrowUpRight size={20} style={{ color: "var(--color-text-tertiary)", marginTop: "var(--space-3)" } as React.CSSProperties} className="service-arrow" />
+                      <IconArrowUpRight size={20} className="service-arrow mt-3 shrink-0 text-text-tertiary transition-colors [transition-duration:var(--duration-base)]" />
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-6)" }} className="service-body">
-                      <p style={{ fontSize: "var(--text-base)", color: "var(--color-text-secondary)", lineHeight: 1.75 }}>
-                        {service.description}
-                      </p>
-                      <ul style={{ listStyle: "none", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }} className="outcomes-list">
+                    <div className="service-body">
+                      <p className="text-base leading-relaxed text-text-secondary">{service.description}</p>
+                      <ul className="outcomes-list">
                         {service.outcomes.map((outcome) => (
-                          <li key={outcome} style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
-                            <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--color-accent)", flexShrink: 0, marginTop: "0.5em" }} aria-hidden="true" />
+                          <li key={outcome} className="flex items-start gap-2 text-sm text-text-secondary">
+                            <span
+                              className="mt-[0.5em] size-1 shrink-0 rounded-full bg-accent"
+                              aria-hidden="true"
+                            />
                             {outcome}
                           </li>
                         ))}
@@ -181,32 +144,20 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Performance guarantee */}
-      <section aria-labelledby="guarantee-heading" style={{ paddingBottom: "var(--space-40)", borderBottom: "1px solid var(--color-border)" }}>
+      <section aria-labelledby="guarantee-heading" className="border-b border-border pb-40">
         <div className="container">
           <ScrollReveal>
-            <div
-              style={{
-                display: "flex",
-                gap: "var(--space-6)",
-                alignItems: "flex-start",
-                padding: "var(--space-10)",
-                background: "var(--color-accent-subtle)",
-                border: "1px solid var(--color-accent-muted)",
-                borderRadius: "var(--radius-lg)",
-              }}
-              className="guarantee-box"
-            >
-              <div style={{ width: 52, height: 52, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-accent)", borderRadius: "var(--radius-md)", flexShrink: 0, color: "var(--color-bg)" }}>
+            <div className="guarantee-box flex flex-col gap-6 rounded-lg border border-accent-muted bg-accent-subtle p-10 sm:flex-row sm:items-start">
+              <div className="flex size-[52px] shrink-0 items-center justify-center rounded-md bg-accent text-bg">
                 <IconPerformance size={24} />
               </div>
               <div>
-                <h2 id="guarantee-heading" style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-xl)", fontWeight: 400, letterSpacing: "-0.015em", marginBottom: "var(--space-3)" }}>
+                <h2 id="guarantee-heading" className="font-display mb-3 text-xl font-normal tracking-tight">
                   The Lighthouse Guarantee
                 </h2>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", lineHeight: 1.75, maxWidth: "600px" }}>
-                  Every website we build ships with a Lighthouse score of 90+ across Performance, Accessibility,
-                  Best Practices, and SEO. If it doesn&rsquo;t, we fix it before final delivery — no scope negotiations.
+                <p className="max-w-[600px] text-sm leading-relaxed text-text-secondary">
+                  Every website we build ships with a Lighthouse score of 90+ across Performance, Accessibility, Best
+                  Practices, and SEO. If it doesn&rsquo;t, we fix it before final delivery — no scope negotiations.
                 </p>
               </div>
             </div>
@@ -214,23 +165,24 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Scope estimator */}
-      <section aria-labelledby="estimator-heading" style={{ paddingBlock: "var(--space-40)", borderBottom: "1px solid var(--color-border)" }}>
+      <section aria-labelledby="estimator-heading" className="border-b border-border py-40">
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-16)", alignItems: "start" }} className="estimator-grid">
+          <div className="estimator-grid grid grid-cols-1 items-start gap-16 lg:grid-cols-[1fr_1.3fr]">
             <div>
               <ScrollReveal>
-                <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>Ballpark Estimator</p>
+                <p className="text-overline mb-5">Ballpark Estimator</p>
               </ScrollReveal>
               <ScrollReveal delay={80}>
-                <h2 id="estimator-heading" className="text-h2" style={{ marginBottom: "var(--space-6)" }}>
-                  Get a rough number<br />
-                  <em className="italic-display" style={{ color: "var(--color-accent)" }}>before the call</em>
+                <h2 id="estimator-heading" className="text-h2 mb-6">
+                  Get a rough number
+                  <br />
+                  <em className="italic-display text-accent">before the call</em>
                 </h2>
               </ScrollReveal>
               <ScrollReveal delay={160}>
                 <p className="text-body-lg">
-                  No forms, no follow-up emails, no sales call required. Answer four questions and get a realistic ballpark range for your project.
+                  No forms, no follow-up emails, no sales call required. Answer four questions and get a realistic ballpark
+                  range for your project.
                 </p>
               </ScrollReveal>
             </div>
@@ -242,38 +194,6 @@ export default function ServicesPage() {
       </section>
 
       <CtaSection />
-
-      <style>{`
-        .service-item:hover .service-article {
-          transform: translateY(-4px);
-          box-shadow: var(--shadow-card-hover);
-          border-color: var(--color-accent-muted) !important;
-        }
-        .service-item:hover .service-arrow {
-          color: var(--color-accent) !important;
-        }
-        @media (min-width: 768px) {
-          .service-body {
-            grid-template-columns: 1fr 1fr !important;
-          }
-          .outcomes-list {
-            grid-template-columns: 1fr !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .outcomes-list {
-            grid-template-columns: 1fr !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .guarantee-box {
-            flex-direction: column;
-          }
-        }
-        @media (min-width: 1024px) {
-          .estimator-grid { grid-template-columns: 1fr 1.3fr !important; }
-        }
-      `}</style>
     </>
   );
 }

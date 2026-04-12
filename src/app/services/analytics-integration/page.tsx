@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { IconAnalytics, IconArrowUpRight, IconCheck } from "@/components/icons";
+import { IconArrowUpRight, IconCheck } from "@/components/icons";
 import ScrollReveal from "@/components/ScrollReveal";
 import CtaSection from "@/components/sections/CtaSection";
 
@@ -34,24 +34,26 @@ const faqs = [
 export default function AnalyticsPage() {
   return (
     <>
-      <section style={{ paddingTop: "calc(var(--nav-height) + var(--space-24))", paddingBottom: "var(--space-24)", borderBottom: "1px solid var(--color-border)" }}>
+      <section className="border-b border-border pt-[calc(var(--nav-height)+6rem)] pb-24">
         <div className="container">
           <ScrollReveal>
-            <Link href="/services" style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--color-text-tertiary)", textDecoration: "none", marginBottom: "var(--space-8)" }} className="back-link">
+            <Link
+              href="/services"
+              className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary no-underline transition-colors hover:text-text-secondary"
+            >
               ← All Services
             </Link>
           </ScrollReveal>
           <ScrollReveal delay={60}>
-            <p className="text-overline" style={{ marginBottom: "var(--space-5)" }}>Service</p>
+            <p className="text-overline mb-5">Service</p>
           </ScrollReveal>
           <ScrollReveal delay={120}>
-            <h1 className="text-h1" style={{ maxWidth: "640px", marginBottom: "var(--space-6)" }}>
-              Analytics &amp; Growth Integration
-            </h1>
+            <h1 className="text-h1 mb-6 max-w-[640px]">Analytics &amp; Growth Integration</h1>
           </ScrollReveal>
           <ScrollReveal delay={200}>
-            <p className="text-body-lg" style={{ maxWidth: "520px", marginBottom: "var(--space-10)" }}>
-              Data you&rsquo;ll actually use. We configure tracking that answers business questions — not just fills dashboards.
+            <p className="text-body-lg mb-10 max-w-[520px]">
+              Data you&rsquo;ll actually use. We configure tracking that answers business questions — not just fills
+              dashboards.
             </p>
           </ScrollReveal>
           <ScrollReveal delay={280}>
@@ -62,22 +64,28 @@ export default function AnalyticsPage() {
         </div>
       </section>
 
-      <section className="section" style={{ borderBottom: "1px solid var(--color-border)" }}>
+      <section className="section border-b border-border">
         <div className="container">
           <ScrollReveal>
-            <h2 className="text-h2" style={{ marginBottom: "var(--space-10)" }}>What&rsquo;s included</h2>
+            <h2 className="text-h2 mb-10">What&rsquo;s included</h2>
           </ScrollReveal>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "var(--space-4)" }} className="inclusions-grid">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[
-              "GA4 full configuration", "Google Tag Manager setup", "Custom event taxonomy", "Funnel tracking implementation",
-              "Custom KPI dashboard", "Conversion goal configuration", "90-day monthly review", "Team training session",
+              "GA4 full configuration",
+              "Google Tag Manager setup",
+              "Custom event taxonomy",
+              "Funnel tracking implementation",
+              "Custom KPI dashboard",
+              "Conversion goal configuration",
+              "90-day monthly review",
+              "Team training session",
             ].map((item, i) => (
               <ScrollReveal key={item} delay={i * 40}>
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-4) var(--space-5)", background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)" }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-accent-subtle)", border: "1px solid var(--color-accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-accent)", flexShrink: 0 }}>
+                <div className="flex items-center gap-4 rounded-md border border-border bg-surface px-5 py-4">
+                  <div className="flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">
                     <IconCheck size={12} />
                   </div>
-                  <span style={{ fontSize: "var(--text-sm)", color: "var(--color-text-primary)" }}>{item}</span>
+                  <span className="text-sm text-text-primary">{item}</span>
                 </div>
               </ScrollReveal>
             ))}
@@ -88,34 +96,30 @@ export default function AnalyticsPage() {
       <section className="section">
         <div className="container">
           <ScrollReveal>
-            <h2 className="text-h2" style={{ marginBottom: "var(--space-12)" }}>Common questions</h2>
+            <h2 className="text-h2 mb-12">Common questions</h2>
           </ScrollReveal>
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div className="divide-y divide-border">
             {faqs.map((faq, i) => (
               <ScrollReveal key={i} delay={i * 60}>
-                <details style={{ borderTop: "1px solid var(--color-border)", paddingBlock: "var(--space-6)" }}>
-                  <summary style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)", fontWeight: 400, letterSpacing: "-0.01em", cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "var(--space-4)", userSelect: "none" }}>
+                <details className="group py-6">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-normal tracking-tight select-none [&::-webkit-details-marker]:hidden">
                     {faq.question}
-                    <span aria-hidden="true" style={{ flexShrink: 0, fontSize: "var(--text-xl)", color: "var(--color-accent)", fontWeight: 300 }}>+</span>
+                    <span
+                      aria-hidden="true"
+                      className="inline-block shrink-0 text-xl font-light text-accent transition-transform duration-200 group-open:rotate-45"
+                    >
+                      +
+                    </span>
                   </summary>
-                  <p style={{ marginTop: "var(--space-5)", fontSize: "var(--text-base)", color: "var(--color-text-secondary)", lineHeight: 1.75, maxWidth: "680px" }}>
-                    {faq.answer}
-                  </p>
+                  <p className="mt-5 max-w-[680px] text-base leading-relaxed text-text-secondary">{faq.answer}</p>
                 </details>
               </ScrollReveal>
             ))}
-            <div style={{ borderTop: "1px solid var(--color-border)" }} />
           </div>
         </div>
       </section>
 
       <CtaSection />
-      <style>{`
-        .back-link:hover { color: var(--color-text-secondary) !important; }
-        details[open] summary span { transform: rotate(45deg); }
-        details summary span { transition: transform 0.2s ease; display: inline-block; }
-        @media (min-width: 640px) { .inclusions-grid { grid-template-columns: 1fr 1fr !important; } }
-      `}</style>
     </>
   );
 }

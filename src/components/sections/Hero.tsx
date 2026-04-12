@@ -37,7 +37,6 @@ export default function Hero() {
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    /* Subtle parallax on the decorative line */
     const handleScroll = () => {
       if (lineRef.current) {
         const y = window.scrollY * 0.4;
@@ -51,64 +50,32 @@ export default function Hero() {
   return (
     <section
       aria-label="Hero"
-      style={{
-        position: "relative",
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        paddingTop: "var(--nav-height)",
-        overflow: "hidden",
-      }}
+      className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
-      {/* Background grid texture */}
       <div
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(201, 165, 90, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201, 165, 90, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "80px 80px",
-          pointerEvents: "none",
-        }}
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.03)_1px,transparent_1px)] bg-size-[80px_80px]"
       />
 
-      {/* Radial glow accent */}
       <div
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: "20%",
-          right: "-10%",
-          width: "600px",
-          height: "600px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(201, 165, 90, 0.06) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
+        className="pointer-events-none absolute top-[20%] -right-[10%] size-[600px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.06)_0%,transparent_70%)]"
       />
 
-      <div className="container" style={{ position: "relative", zIndex: 1 }}>
-        {/* Overline */}
+      <div className="container relative z-[1]">
         <motion.p
-          className="text-overline"
+          className="text-overline mb-8"
           initial="hidden"
           animate="visible"
           custom={0.1}
           variants={enterVariant}
-          style={{ marginBottom: "var(--space-8)" }}
         >
           Premium Web Development Agency
         </motion.p>
 
-        {/* Main headline — intentional typographic decision */}
-        <h1 style={{ marginBottom: "var(--space-8)" }}>
+        <h1 className="mb-8">
           <motion.span
-            className="text-display"
-            style={{ display: "block", overflow: "hidden" }}
+            className="text-display block overflow-hidden"
             initial="hidden"
             animate="visible"
             custom={0}
@@ -117,27 +84,16 @@ export default function Hero() {
             Brand
           </motion.span>
           <motion.span
-            className="text-display"
-            style={{
-              display: "block",
-              overflow: "hidden",
-              paddingLeft: "clamp(2rem, 10vw, 12rem)",
-            }}
+            className="text-display block overflow-hidden pl-[clamp(2rem,10vw,12rem)]"
             initial="hidden"
             animate="visible"
             custom={0.12}
             variants={clipVariant}
           >
-            <em
-              className="italic-display"
-              style={{ color: "var(--color-accent)" }}
-            >
-              meets
-            </em>
+            <em className="italic-display text-accent">meets</em>
           </motion.span>
           <motion.span
-            className="text-display"
-            style={{ display: "block", overflow: "hidden" }}
+            className="text-display block overflow-hidden"
             initial="hidden"
             animate="visible"
             custom={0.24}
@@ -147,29 +103,23 @@ export default function Hero() {
           </motion.span>
         </h1>
 
-        {/* Supporting copy */}
         <motion.p
-          className="text-body-lg"
+          className="text-body-lg mb-10 max-w-[480px]"
           initial="hidden"
           animate="visible"
           custom={0.55}
           variants={enterVariant}
-          style={{
-            maxWidth: "480px",
-            marginBottom: "var(--space-10)",
-          }}
         >
-          We build premium websites for B2B companies and SaaS founders who need
-          both design precision and engineering depth. Every pixel earns its place.
+          We build premium websites for B2B companies and SaaS founders who need both design precision and
+          engineering depth. Every pixel earns its place.
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
+          className="flex flex-wrap gap-4"
           initial="hidden"
           animate="visible"
           custom={0.7}
           variants={enterVariant}
-          style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}
         >
           <MagneticButton>
             <Link href="/contact" className="btn btn-primary" data-cursor-label="Let's Build">
@@ -186,41 +136,20 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Decorative offset line — breaks the grid intentionally */}
       <div
         ref={lineRef}
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          bottom: "var(--space-16)",
-          right: 0,
-          width: "45vw",
-          height: "1px",
-          background: "linear-gradient(to right, transparent, var(--color-border), transparent)",
-          pointerEvents: "none",
-        }}
+        className="pointer-events-none absolute right-0 bottom-16 h-px w-[45vw] bg-[linear-gradient(to_right,transparent,var(--color-border),transparent)]"
       />
 
-      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.6 }}
-        style={{
-          position: "absolute",
-          bottom: "var(--space-10)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "var(--space-2)",
-        }}
+        className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
         aria-hidden="true"
       >
-        <span style={{ fontSize: "var(--text-xs)", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-text-tertiary)" }}>
-          Scroll
-        </span>
+        <span className="text-xs tracking-[0.15em] text-text-tertiary uppercase">Scroll</span>
         <ScrollLine />
       </motion.div>
     </section>
@@ -229,23 +158,11 @@ export default function Hero() {
 
 function ScrollLine() {
   return (
-    <div
-      style={{
-        width: 1,
-        height: 40,
-        background: "var(--color-border)",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
+    <div className="relative h-10 w-px overflow-hidden bg-border">
       <motion.div
         animate={{ y: ["-100%", "100%"] }}
         transition={{ duration: 1.4, repeat: Infinity, ease: "linear", repeatDelay: 0.3 }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "var(--color-accent)",
-        }}
+        className="absolute inset-0 bg-accent"
       />
     </div>
   );

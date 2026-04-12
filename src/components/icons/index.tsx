@@ -103,6 +103,7 @@ export function IconCode({ size = 24, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -124,6 +125,7 @@ export function IconBrand({ size = 24, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
@@ -145,6 +147,7 @@ export function IconAnalytics({ size = 24, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -166,6 +169,7 @@ export function IconDesign({ size = 24, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
@@ -190,6 +194,7 @@ export function IconPerformance({ size = 24, className = "", style }: IconProps)
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -224,6 +229,7 @@ export function IconCheck({ size = 20, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -245,6 +251,7 @@ export function IconEmail({ size = 20, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -267,6 +274,7 @@ export function IconCalendar({ size = 20, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <rect x="2" y="4" width="20" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -288,6 +296,7 @@ export function IconStar({ size = 20, className = "", style }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -308,6 +317,7 @@ export function IconQuote({ size = 32, className = "", style }: IconProps) {
       viewBox="0 0 32 32"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path
@@ -327,6 +337,7 @@ export function IconExternalLink({ size = 16, className = "", style }: IconProps
       viewBox="0 0 24 24"
       fill="none"
       className={className}
+      style={style}
       aria-hidden="true"
     >
       <path

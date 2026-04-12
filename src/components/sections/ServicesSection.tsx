@@ -47,66 +47,33 @@ export default function ServicesSection() {
   return (
     <section aria-labelledby="services-heading" className="section">
       <div className="container">
-        {/* Section header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            marginBottom: "var(--space-16)",
-            flexWrap: "wrap",
-            gap: "var(--space-6)",
-          }}
-        >
+        <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
           <div>
             <ScrollReveal>
-              <p className="text-overline" style={{ marginBottom: "var(--space-4)" }}>
-                What We Do
-              </p>
+              <p className="text-overline mb-4">What We Do</p>
             </ScrollReveal>
             <ScrollReveal delay={100}>
               <h2 id="services-heading" className="text-h2">
-                Built for brands that<br />
-                <em className="italic-display" style={{ color: "var(--color-accent)" }}>
-                  mean business
-                </em>
+                Built for brands that
+                <br />
+                <em className="italic-display text-accent">mean business</em>
               </h2>
             </ScrollReveal>
           </div>
           <ScrollReveal delay={200}>
-            <Link href="/services" className="btn btn-ghost" style={{ color: "var(--color-text-secondary)" }}>
+            <Link href="/services" className="btn btn-ghost text-text-secondary">
               All Services
               <IconArrowUpRight size={16} />
             </Link>
           </ScrollReveal>
         </div>
 
-        {/* Services grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "1px",
-            background: "var(--color-border)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius-lg)",
-            overflow: "hidden",
-          }}
-          className="services-grid"
-        >
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
           {services.map((service, i) => (
             <ServiceCard key={service.number} service={service} delay={i * 80} />
           ))}
         </div>
       </div>
-
-      <style>{`
-        @media (min-width: 768px) {
-          .services-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }
@@ -124,115 +91,30 @@ function ServiceCard({
     <ScrollReveal delay={delay}>
       <Link
         href={service.href}
-        style={{
-          display: "block",
-          padding: "var(--space-10)",
-          background: "var(--color-surface)",
-          transition: "background var(--duration-base) var(--ease-out)",
-          textDecoration: "none",
-          height: "100%",
-        }}
-        className="service-card"
+        className="group service-card block h-full bg-surface p-10 no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:bg-surface-2"
         aria-label={`Learn about ${service.title}`}
         data-cursor-label="Explore"
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: "var(--space-6)",
-          }}
-        >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "var(--color-accent-subtle)",
-              border: "1px solid var(--color-accent-muted)",
-              borderRadius: "var(--radius-md)",
-              color: "var(--color-accent)",
-              transition: "background var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out)",
-            }}
-            className="service-icon"
-          >
-            <Icon size={22} />
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div className="flex items-start gap-5">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-accent-muted bg-accent-subtle text-accent transition-[background,transform] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] group-hover:scale-105 group-hover:bg-accent-muted">
+              <Icon size={22} />
+            </div>
+            <h3 className="font-display text-xl font-normal tracking-tight text-text-primary">{service.title}</h3>
           </div>
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "var(--text-xs)",
-              color: "var(--color-text-tertiary)",
-              letterSpacing: "0.08em",
-            }}
-          >
-            {service.number}
-          </span>
+          <span className="font-mono text-xs tracking-wider text-text-tertiary">{service.number}</span>
         </div>
 
-        <h3
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "var(--text-xl)",
-            fontWeight: 400,
-            letterSpacing: "-0.015em",
-            color: "var(--color-text-primary)",
-            marginBottom: "var(--space-4)",
-          }}
-        >
-          {service.title}
-        </h3>
+        <p className="mb-6 text-sm leading-relaxed text-text-secondary">{service.description}</p>
 
-        <p
-          style={{
-            fontSize: "var(--text-sm)",
-            color: "var(--color-text-secondary)",
-            lineHeight: 1.7,
-            marginBottom: "var(--space-6)",
-          }}
-        >
-          {service.description}
-        </p>
-
-        <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+        <ul className="flex list-none flex-col gap-2">
           {service.outcomes.map((outcome) => (
-            <li
-              key={outcome}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-2)",
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-tertiary)",
-              }}
-            >
-              <span
-                style={{
-                  width: 4,
-                  height: 4,
-                  borderRadius: "50%",
-                  background: "var(--color-accent)",
-                  flexShrink: 0,
-                }}
-                aria-hidden="true"
-              />
+            <li key={outcome} className="flex items-center gap-2 text-xs text-text-tertiary">
+              <span className="size-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
               {outcome}
             </li>
           ))}
         </ul>
-
-        <style>{`
-          .service-card:hover {
-            background: var(--color-surface-2) !important;
-          }
-          .service-card:hover .service-icon {
-            background: var(--color-accent-muted) !important;
-            transform: scale(1.05);
-          }
-        `}</style>
       </Link>
     </ScrollReveal>
   );

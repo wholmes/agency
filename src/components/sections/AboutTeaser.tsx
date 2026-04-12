@@ -15,48 +15,34 @@ export default function AboutTeaser() {
   return (
     <section aria-labelledby="about-heading" className="section">
       <div className="container">
-        {/* Intentionally asymmetric layout — text heavy left, accent right */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "var(--space-16)",
-            alignItems: "center",
-          }}
-          className="about-grid"
-        >
-          {/* Left: copy */}
+        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
           <div>
             <ScrollReveal>
-              <p className="text-overline" style={{ marginBottom: "var(--space-4)" }}>
-                The Difference
-              </p>
+              <p className="text-overline mb-4">The Difference</p>
             </ScrollReveal>
 
             <ScrollReveal delay={80}>
-              <h2 id="about-heading" className="text-h2" style={{ marginBottom: "var(--space-6)" }}>
+              <h2 id="about-heading" className="text-h2 mb-6">
                 Where brand{" "}
-                <em className="italic-display" style={{ color: "var(--color-accent)" }}>
-                  strategy
-                </em>
-                {" "}meets<br />technical execution
+                <em className="italic-display text-accent">strategy</em> meets
+                <br />
+                technical execution
               </h2>
             </ScrollReveal>
 
             <ScrollReveal delay={160}>
-              <p className="text-body-lg" style={{ marginBottom: "var(--space-8)" }}>
-                Most agencies are either great at design or great at code. We built
-                BrandMeetsCode because the best projects need both — and they need them
-                to work together from day one, not be stitched together at the end.
+              <p className="text-body-lg mb-8">
+                Most agencies are either great at design or great at code. We built BrandMeetsCode because the best
+                projects need both — and they need them to work together from day one, not be stitched together at the
+                end.
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={240}>
-              <p className="text-body" style={{ marginBottom: "var(--space-10)" }}>
-                We work with companies who have tried generic dev shops and ended up
-                with something technically functional but strategically inert. We fix
-                that — not by redesigning every six months, but by making the right
-                decisions the first time.
+              <p className="text-body mb-10">
+                We work with companies who have tried generic dev shops and ended up with something technically
+                functional but strategically inert. We fix that — not by redesigning every six months, but by making the
+                right decisions the first time.
               </p>
             </ScrollReveal>
 
@@ -68,82 +54,26 @@ export default function AboutTeaser() {
             </ScrollReveal>
           </div>
 
-          {/* Right: beliefs/values card */}
           <div>
             <ScrollReveal delay={200}>
-              <div
-                style={{
-                  background: "var(--color-surface)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "var(--space-10)",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Decorative accent line */}
+              <div className="relative overflow-hidden rounded-lg border border-border bg-surface p-10">
                 <div
                   aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 2,
-                    background: "linear-gradient(to right, var(--color-accent), transparent)",
-                  }}
+                  className="absolute top-0 right-0 left-0 h-0.5 bg-[linear-gradient(to_right,var(--color-accent),transparent)]"
                 />
 
-                <p
-                  style={{
-                    fontSize: "var(--text-xs)",
-                    letterSpacing: "0.15em",
-                    textTransform: "uppercase",
-                    color: "var(--color-text-tertiary)",
-                    marginBottom: "var(--space-8)",
-                  }}
-                >
-                  What we believe
-                </p>
+                <p className="mb-8 text-xs tracking-[0.15em] text-text-tertiary uppercase">What we believe</p>
 
-                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+                <ul className="flex list-none flex-col gap-5">
                   {beliefs.map((belief, i) => (
-                    <li
-                      key={i}
-                      style={{
-                        display: "flex",
-                        gap: "var(--space-4)",
-                        alignItems: "flex-start",
-                      }}
-                    >
+                    <li key={i} className="flex items-start gap-4">
                       <div
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: "50%",
-                          background: "var(--color-accent-subtle)",
-                          border: "1px solid var(--color-accent-muted)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          marginTop: 2,
-                          color: "var(--color-accent)",
-                        }}
+                        className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent"
                         aria-hidden="true"
                       >
                         <IconCheck size={11} />
                       </div>
-                      <span
-                        style={{
-                          fontFamily: "var(--font-display)",
-                          fontSize: "var(--text-lg)",
-                          fontWeight: 300,
-                          letterSpacing: "-0.01em",
-                          color: "var(--color-text-primary)",
-                          lineHeight: 1.4,
-                        }}
-                      >
+                      <span className="font-display text-lg font-light leading-snug tracking-tight text-text-primary">
                         {belief}
                       </span>
                     </li>
@@ -154,14 +84,6 @@ export default function AboutTeaser() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .about-grid {
-            grid-template-columns: 1fr 1fr !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }
