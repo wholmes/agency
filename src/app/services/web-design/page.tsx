@@ -113,7 +113,7 @@ export default function WebDesignPage() {
               "You've had a site built before and it looked good in Figma but fell apart in code",
               "You need the site to do real work — not just look good in a portfolio screenshot",
             ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 60}>
+              <ScrollReveal key={i} delay={Math.floor(i / 2) * 60}>
                 <div className="flex items-start gap-4 rounded-md border border-border bg-surface p-6">
                   <div className="mt-[0.4em] size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
                   <p className="text-md leading-relaxed text-text-secondary">{item}</p>
@@ -136,7 +136,7 @@ export default function WebDesignPage() {
           </ScrollReveal>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {inclusions.map((item, i) => (
-              <ScrollReveal key={item} delay={i * 40}>
+              <ScrollReveal key={item} delay={Math.floor(i / 2) * 40}>
                 <div className="flex items-center gap-4 rounded-md border border-border bg-bg px-5 py-4">
                   <div className="flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">
                     <IconCheck size={12} />

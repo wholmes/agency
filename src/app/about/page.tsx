@@ -118,7 +118,7 @@ export default function AboutPage() {
           </ScrollReveal>
           <div className="values-grid grid grid-cols-1 gap-6 lg:grid-cols-2">
             {values.map((value, i) => (
-              <ScrollReveal key={value.title} delay={i * 80}>
+              <ScrollReveal key={value.title} delay={Math.floor(i / 2) * 80}>
                 <div className="rounded-lg border border-border bg-bg p-8">
                   <div className="mb-4 flex items-start gap-4">
                     <div className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">

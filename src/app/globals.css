@@ -90,12 +90,13 @@
     color: var(--color-text-primary);
     font-size: var(--text-base);
     line-height: 1.7;
-    cursor: none;
+    cursor: auto;
   }
 
-  @media (hover: none) {
+  /* Custom cursor replaces the default only on fine pointers; touch / coarse keeps system cursor */
+  @media (hover: hover) and (pointer: fine) {
     body {
-      cursor: auto;
+      cursor: none;
     }
   }
 
@@ -109,13 +110,14 @@
   }
 
   button {
-    @apply cursor-none border-0 bg-transparent;
+    @apply border-0 bg-transparent;
     font-family: inherit;
+    cursor: inherit;
   }
 
-  @media (hover: none) {
+  @media (hover: hover) and (pointer: fine) {
     button {
-      @apply cursor-pointer;
+      cursor: none;
     }
   }
 
@@ -503,14 +505,18 @@
   }
 }
 
+/* Do not use `transition-duration` on `*` — it overrides Tailwind/component transitions with
+   !important and breaks layout, Framer Motion, and hover states site-wide. */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 
   .reveal,

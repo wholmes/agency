@@ -28,7 +28,7 @@ export default function SocialProof() {
       <div className="container">
         <div className="mb-16 grid grid-cols-2 gap-8 md:grid-cols-4">
           {stats.map((stat, i) => (
-            <ScrollReveal key={stat.label} delay={i * 80}>
+            <ScrollReveal key={stat.label} delay={Math.floor(i / 2) * 80}>
               <div className="text-center">
                 <div className="font-display mb-2 text-3xl leading-none font-light tracking-tight text-accent">
                   {stat.value}

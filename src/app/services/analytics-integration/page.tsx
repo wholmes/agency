@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
               "90-day monthly review",
               "Team training session",
             ].map((item, i) => (
-              <ScrollReveal key={item} delay={i * 40}>
+              <ScrollReveal key={item} delay={Math.floor(i / 2) * 40}>
                 <div className="flex items-center gap-4 rounded-md border border-border bg-surface px-5 py-4">
                   <div className="flex size-6 shrink-0 items-center justify-center rounded-full border border-accent-muted bg-accent-subtle text-accent">
                     <IconCheck size={12} />

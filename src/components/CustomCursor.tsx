@@ -28,6 +28,8 @@ export default function CustomCursor() {
   const [label, setLabel] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const isVisibleRef = useRef(false);
+  /** False until first mousemove — avoids ring/dot stuck at 0,0 before pointer sync */
+  const pointerReadyRef = useRef(false);
   const mouse = useRef({ x: 0, y: 0 });
   const ring = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
@@ -68,7 +70,13 @@ export default function CustomCursor() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
+      if (!pointerReadyRef.current) {
+        pointerReadyRef.current = true;
+        mouse.current = { x: e.clientX, y: e.clientY };
+        ring.current = { x: e.clientX, y: e.clientY };
+      } else {
+        mouse.current = { x: e.clientX, y: e.clientY };
+      }
       if (!isVisibleRef.current) {
         isVisibleRef.current = true;
         setIsVisible(true);
@@ -80,13 +88,9 @@ export default function CustomCursor() {
 
     const handleMouseLeave = () => {
       isVisibleRef.current = false;
+      pointerReadyRef.current = false;
       setIsVisible(false);
     };
-    const handleMouseEnter = () => {
-      isVisibleRef.current = true;
-      setIsVisible(true);
-    };
-
     const handlePointerOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!isInteractive(target)) {
@@ -128,7 +132,6 @@ export default function CustomCursor() {
 
     document.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mouseenter", handleMouseEnter);
     document.addEventListener("mouseover", handlePointerOver);
 
     const handleMouseOut = (e: MouseEvent) => {
@@ -246,7 +249,6 @@ export default function CustomCursor() {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
-      document.removeEventListener("mouseenter", handleMouseEnter);
       document.removeEventListener("mouseover", handlePointerOver);
       document.removeEventListener("mouseout", handleMouseOut);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
