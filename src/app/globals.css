@@ -37,7 +37,7 @@
   --text-3xl: clamp(2.25rem, 3vw + 1.5rem, 3.5rem);
   --text-4xl: clamp(3rem, 5vw + 1.5rem, 5rem);
   --text-5xl: clamp(3.75rem, 7vw + 1.5rem, 7rem);
-  --text-hero: clamp(3.5rem, 9vw + 1rem, 9rem);
+  --text-hero: clamp(3rem, 7.2vw + 0.75rem, 7.25rem);
 
   /* Radii */
   --radius-sm: 2px;
@@ -168,7 +168,7 @@
   }
 
   .text-display {
-    @apply font-display font-light leading-[0.95] tracking-[-0.03em];
+    @apply font-display font-light leading-[0.82] tracking-[-0.03em];
     font-size: var(--text-hero);
     color: var(--color-text-primary);
   }

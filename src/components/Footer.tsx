@@ -68,11 +68,47 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
-          <p className="text-xs tracking-wide text-text-tertiary">
-            &copy; {year} BrandMeetsCode. All rights reserved.
+        <div className="border-t border-border pt-10">
+          <p className="mb-8 max-w-[520px] text-xs leading-relaxed tracking-wide text-text-secondary">
+            Remote-first studio. We partner with B2B teams and SaaS founders in the US and Europe — engagements by
+            project, with a small number of active builds at a time.
           </p>
-          <p className="text-xs text-text-tertiary">Crafted with intention.</p>
+
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
+              &copy; {year} BrandMeetsCode
+            </p>
+            <nav aria-label="Legal and utility" className="flex flex-wrap gap-x-8 gap-y-2">
+              <Link
+                href="/contact"
+                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
+              >
+                Contact
+              </Link>
+              <Link
+                href="/work"
+                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
+              >
+                Work
+              </Link>
+              <Link
+                href="/about"
+                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
+              >
+                About
+              </Link>
+              <Link
+                href="/services"
+                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
+              >
+                Services
+              </Link>
+            </nav>
+          </div>
+
+          <p className="mt-6 font-mono text-[10px] tracking-[0.12em] text-text-tertiary uppercase">
+            All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

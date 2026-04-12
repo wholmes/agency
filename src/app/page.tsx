@@ -6,8 +6,6 @@ import WorkPreview from "@/components/sections/WorkPreview";
 import AboutTeaser from "@/components/sections/AboutTeaser";
 import CtaSection from "@/components/sections/CtaSection";
 import ChapterProgress from "@/components/ChapterProgress";
-import IsometricFieldCanvas from "@/components/IsometricFieldCanvas";
-
 export const metadata: Metadata = {
   title: "BrandMeetsCode — Premium Web Development Agency",
   description:
@@ -22,7 +20,6 @@ const SECTION_IDS = ["section-proof", "section-services", "section-work", "secti
 export default function Home() {
   return (
     <>
-      <IsometricFieldCanvas />
       <ChapterProgress sectionIds={SECTION_IDS} />
       <Hero />
       <div id="section-proof"><SocialProof /></div>

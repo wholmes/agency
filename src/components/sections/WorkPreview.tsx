@@ -101,9 +101,7 @@ function ProjectRow({
               />
             </div>
 
-            <p className="mb-5 text-sm leading-relaxed text-text-secondary">
-              {project.problem.split(".")[0]}.
-            </p>
+            <p className="mb-5 text-sm leading-relaxed text-text-secondary">{project.proofFit}</p>
 
             <div className="inline-flex items-center gap-2 rounded-sm border border-accent-muted bg-accent-subtle px-3 py-2 text-xs font-medium text-accent">
               <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-accent" />

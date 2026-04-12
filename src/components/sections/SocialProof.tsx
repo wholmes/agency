@@ -10,13 +10,13 @@ const stats = [
   { value: "<2s", label: "Avg Load Time" },
 ];
 
-const clients = [
-  "Meridian SaaS",
-  "Croft & Webb",
-  "Arclight Labs",
-  "Nova Analytics",
-  "Sable Studio",
-  "Tether Finance",
+const clients: { name: string; context: string }[] = [
+  { name: "Meridian SaaS", context: "B2B SaaS · pipeline & demo conversion" },
+  { name: "Croft & Webb", context: "Professional services · brand & lead gen" },
+  { name: "Arclight Labs", context: "Enterprise AI · Series A & enterprise pilots" },
+  { name: "Nova Analytics", context: "Product analytics · self-serve growth" },
+  { name: "Sable Studio", context: "Creative studio · profitability & ops reporting" },
+  { name: "Tether Finance", context: "Fintech · compliance-first UX" },
 ];
 
 export default function SocialProof() {
@@ -51,15 +51,23 @@ export default function SocialProof() {
           </div>
         </ScrollReveal>
 
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-          {clients.map((name, i) => (
-            <ScrollReveal key={name} delay={i * 50}>
-              <span className="font-display text-md font-light tracking-tight text-text-tertiary italic transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-secondary">
-                {name}
-              </span>
+        <ul className="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {clients.map((client, i) => (
+            <ScrollReveal
+              key={client.name}
+              delay={Math.floor(i / 2) * 80}
+              as="li"
+              className="list-none text-center sm:text-left"
+            >
+              <div className="font-display text-md font-light tracking-tight text-text-primary transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)]">
+                {client.name}
+              </div>
+              <p className="mt-2 max-w-[280px] text-xs leading-relaxed text-text-tertiary sm:max-w-none">
+                {client.context}
+              </p>
             </ScrollReveal>
           ))}
-        </div>
+        </ul>
 
         <ScrollReveal delay={200}>
           <div className="relative mx-auto mt-16 max-w-[720px] rounded-lg border border-border bg-surface-2 p-10">

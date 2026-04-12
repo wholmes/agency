@@ -119,12 +119,12 @@ export default function IsometricFieldCanvas() {
     // Asymmetric left/right frustum shifts the grid to the right ~60% of screen.
     function buildCamera(W: number, H: number): THREE.OrthographicCamera {
       // frustumH: how many world units fit vertically — tunes the zoom
-      const frustumH = ROWS * GAP * 0.78 + MAX_H * 0.55;
+      const frustumH = ROWS * GAP * 0.60 + MAX_H * 0.45;
       const frustumW = frustumH * (W / H);
 
-      // L = 60% of total width → lookAt target renders at screen x = 60%
-      const L = frustumW * 0.60;
-      const R = frustumW * 0.40;
+      // L = 76% of total width → lookAt target renders at screen x = 76% (right side)
+      const L = frustumW * 0.76;
+      const R = frustumW * 0.24;
 
       const cam = new THREE.OrthographicCamera(-L, R, frustumH / 2, -frustumH / 2, 0.1, 500);
 
@@ -138,10 +138,11 @@ export default function IsometricFieldCanvas() {
     let camera = buildCamera(W, H);
 
     // ── events ────────────────────────────────────────────────────────────
+    // Scroll progress through the hero section (0 → 1)
     const scroll = { pct: 0 };
     const onScroll = () => {
-      const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-      scroll.pct = Math.min(1, window.scrollY / max);
+      const heroH = canvas.parentElement?.offsetHeight ?? window.innerHeight;
+      scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -161,7 +162,7 @@ export default function IsometricFieldCanvas() {
       frame = requestAnimationFrame(loop);
 
       // On reduced motion: pause the field at t=0.5 (mid-wave, looks natural)
-      const t = reduced ? 0.5 : (now - t0) * 0.001;
+      const t  = reduced ? 0.5 : (now - t0) * 0.001;
       const sp = scroll.pct;
 
       for (let row = 0; row < ROWS; row++) {
@@ -195,9 +196,6 @@ export default function IsometricFieldCanvas() {
       topMesh.instanceMatrix.needsUpdate    = true;
       topMesh.instanceColor!.needsUpdate    = true;
 
-      // Fade the canvas as the user scrolls past the hero (~first 30% of page)
-      canvas.style.opacity = String(Math.max(0, 1 - sp * 3.5));
-
       renderer.render(scene, camera);
     };
 
@@ -219,7 +217,7 @@ export default function IsometricFieldCanvas() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-10 h-dvh w-full"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
     />
   );
 }

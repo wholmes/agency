@@ -2,6 +2,8 @@ export interface Project {
   id: string;
   title: string;
   category: string;
+  /** One line for homepage cards: industry, buyer, metric, or constraint — proof of fit */
+  proofFit: string;
   year: string;
   result: string;
   resultDetail: string;
@@ -18,6 +20,7 @@ export const projects: Project[] = [
     id: "meridian",
     title: "Meridian SaaS",
     category: "Web Design & Development",
+    proofFit: "Enterprise B2B SaaS · VP Marketing buyer · +40% qualified demos in 30 days",
     year: "2025",
     result: "+40% demo requests in 30 days",
     resultDetail: "3.1s avg → 0.8s load time. Lighthouse 96.",
@@ -35,6 +38,7 @@ export const projects: Project[] = [
     id: "arclight",
     title: "Arclight Labs",
     category: "Brand Strategy + Web Design & Development",
+    proofFit: "Pre-launch enterprise AI · Series A narrative · $8M raised, brand cited in term sheet",
     year: "2025",
     result: "Series A secured 60 days post-launch",
     resultDetail: "Raised $8M. Cited brand clarity as a key differentiator in term sheet.",
@@ -52,6 +56,7 @@ export const projects: Project[] = [
     id: "sable",
     title: "Sable Studio",
     category: "Analytics Integration",
+    proofFit: "12-person creative studio · leadership reporting · weekly ops 6hr → 2hr",
     year: "2024",
     result: "3× faster reporting cycle",
     resultDetail: "From 6 hours/week to 2 hours. 100% of KPIs now in one dashboard.",

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
 import MagneticButton from "../MagneticButton";
+import IsometricFieldCanvas from "../IsometricFieldCanvas";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -52,6 +53,8 @@ export default function Hero() {
       aria-label="Hero"
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
+      <IsometricFieldCanvas />
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.03)_1px,transparent_1px)] bg-size-[80px_80px]"
@@ -64,7 +67,7 @@ export default function Hero() {
 
       <div className="container relative z-[1]">
         <motion.p
-          className="text-overline mb-8"
+          className="text-overline mb-6"
           initial="hidden"
           animate="visible"
           custom={0.1}
@@ -73,9 +76,9 @@ export default function Hero() {
           Premium Web Development Agency
         </motion.p>
 
-        <h1 className="mb-8">
+        <h1 className="mb-6">
           <motion.span
-            className="text-display block overflow-hidden"
+            className="text-display block overflow-hidden pb-[0.06em]"
             initial="hidden"
             animate="visible"
             custom={0}
@@ -84,7 +87,7 @@ export default function Hero() {
             Brand
           </motion.span>
           <motion.span
-            className="text-display block overflow-hidden pl-[clamp(2rem,10vw,12rem)]"
+            className="text-display block overflow-hidden pb-[0.06em] pl-[clamp(2rem,10vw,12rem)] -mt-[20px]"
             initial="hidden"
             animate="visible"
             custom={0.12}
@@ -93,7 +96,7 @@ export default function Hero() {
             <em className="italic-display text-accent">meets</em>
           </motion.span>
           <motion.span
-            className="text-display block overflow-hidden"
+            className="text-display block overflow-hidden pb-[0.06em]"
             initial="hidden"
             animate="visible"
             custom={0.24}
@@ -104,7 +107,7 @@ export default function Hero() {
         </h1>
 
         <motion.p
-          className="text-body-lg mb-10 max-w-[480px]"
+          className="text-body-lg mb-8 max-w-[480px]"
           initial="hidden"
           animate="visible"
           custom={0.55}
