@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "./icons";
+import StackLogos from "./StackLogos";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
 export default function Footer({
@@ -68,6 +69,10 @@ export default function Footer({
           <p className="mb-8 max-w-[520px] text-xs leading-relaxed tracking-wide text-text-secondary">
             {remoteBlurb}
           </p>
+
+          <div className="mb-10">
+            <StackLogos />
+          </div>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
