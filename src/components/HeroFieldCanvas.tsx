@@ -1,0 +1,335 @@
+"use client";
+
+/**
+ * Single WebGL hero field — one context, one animation loop per mount.
+ * `home`: cartesian waves, 22×22, warm gold.
+ * `services`: radial ripples, 16×16, cooler gold.
+ *
+ * Both share the same camera treatment (right-biased orthographic) and scroll
+ * response so we don’t run two diverging Three.js lifecycles.
+ *
+ * --- SCROLL SCRUBBING TUNING GUIDE -------------------------------------------
+ *
+ * The scroll response has two layers that work together:
+ *
+ * 1. EASING CURVE  (animation loop, search "sp = Math.sqrt")
+ *    sp = Math.sqrt(scroll.pct)
+ *    sqrt front-loads the effect: at 10% scroll the visual is already ~32% of
+ *    its maximum. Change the curve to adjust "how quickly it kicks in":
+ *      Math.sqrt(x)   -> very snappy (current)
+ *      Math.cbrt(x)   -> even snappier (try if still feels slow)
+ *      x              -> linear / gradual (try if too aggressive)
+ *      x * x          -> slow start, fast finish (rarely useful here)
+ *
+ * 2. AMPLITUDE  (inside heightHome / heightServices, search "scrollAmp")
+ *    scrollAmp = 1 + scrollPct * 0.65  (home)
+ *    scrollAmp = 1 + scrollPct * 0.58  (services)
+ *    Multiplies bar heights. At full scroll bars are 65/58% taller than at
+ *    rest. Raise the coefficient for drama; lower for subtlety.
+ *    Keep it below ~1.0 to avoid bars clipping the camera frustum.
+ *
+ * 3. WAVE SPEED  (same height functions, search "spd =")
+ *    spd = 0.65 + scrollPct * 0.9   (home)
+ *    spd = 0.72 + scrollPct * 0.88  (services)
+ *    The base value is the idle animation speed. The coefficient is how much
+ *    faster the waves run at full scroll. Note: scrollPct here is already
+ *    sqrt-eased, so speed also kicks in early.
+ *
+ * Rule of thumb:
+ *   EASING    -> "how soon" the effect starts
+ *   AMPLITUDE -> "how much" the bars grow
+ *   WAVE SPEED -> energy/chaos feel as the hero scrolls away
+ * -----------------------------------------------------------------------------
+ */
+
+import { useLayoutEffect, useRef } from "react";
+import * as THREE from "three";
+
+export type HeroFieldVariant = "home" | "services";
+
+type FieldConfig = {
+  cols: number;
+  rows: number;
+  gap: number;
+  minH: number;
+  maxH: number;
+  bodyHex: number;
+  topSlabY: number;
+  ambient: number;
+  sunColor: number;
+  sunIntensity: number;
+  sunPos: [number, number, number];
+  boxBody: number;
+  boxTop: number;
+};
+
+const CONFIG: Record<HeroFieldVariant, FieldConfig> = {
+  home: {
+    cols: 22,
+    rows: 22,
+    gap: 1.1,
+    minH: 0.08,
+    maxH: 4.4,
+    bodyHex: 0x191714,
+    topSlabY: 0.03,
+    ambient: 0.28,
+    sunColor: 0xfff6e6,
+    sunIntensity: 1.5,
+    sunPos: [4, 10, 3],
+    boxBody: 0.93,
+    boxTop: 0.95,
+  },
+  services: {
+    cols: 16,
+    rows: 16,
+    gap: 1.02,
+    minH: 0.06,
+    maxH: 2.85,
+    bodyHex: 0x141312,
+    topSlabY: 0.028,
+    ambient: 0.26,
+    sunColor: 0xf0ead8,
+    sunIntensity: 1.3,
+    sunPos: [5, 9, 4],
+    boxBody: 0.92,
+    boxTop: 0.94,
+  },
+};
+
+function heightHome(
+  col: number,
+  row: number,
+  t: number,
+  scrollPct: number,
+  cols: number,
+  rows: number,
+  minH: number,
+  maxH: number,
+): number {
+  const x = col - cols / 2;
+  const z = row - rows / 2;
+  const spd = 0.65 + scrollPct * 0.9;
+  const v =
+    0.5 +
+    0.22 * Math.sin(x * 0.65 + t * spd * 0.32) +
+    0.18 * Math.cos(z * 0.72 + t * spd * 0.26) +
+    0.11 * Math.sin((x + z) * 0.55 + t * spd * 0.44) +
+    0.07 * Math.cos(x * 0.9 - z * 0.52 + t * spd * 0.38) +
+    0.05 * Math.sin(z * 1.1 + t * spd * 0.56);
+  const edgeFade = Math.min(1, col / 5);
+  const scrollAmp = 1 + scrollPct * 0.65;
+  return minH + Math.max(0, v) * (maxH - minH) * edgeFade * scrollAmp;
+}
+
+function heightServices(
+  col: number,
+  row: number,
+  t: number,
+  scrollPct: number,
+  cols: number,
+  rows: number,
+  minH: number,
+  maxH: number,
+): number {
+  const cx = cols / 2;
+  const cz = rows / 2;
+  const x = col - cx;
+  const z = row - cz;
+  const r = Math.sqrt(x * x + z * z);
+  const spd = 0.72 + scrollPct * 0.88;
+  const v =
+    0.48 +
+    0.24 * Math.sin(r * 0.55 - t * spd * 0.95) +
+    0.14 * Math.cos(r * 0.9 + t * spd * 0.45) +
+    0.1 * Math.sin(x * 0.35 + z * 0.35 + t * spd * 0.55);
+  const edgeX = Math.min(1, col / 2.5) * Math.min(1, (cols - 1 - col) / 2.5);
+  const edgeZ = Math.min(1, row / 2.5) * Math.min(1, (rows - 1 - row) / 2.5);
+  const cornerFade = Math.max(0.5, Math.min(edgeX, edgeZ));
+  const leftFade = Math.min(1, col / 5);
+  const scrollAmp = 1 + scrollPct * 0.58;
+  return minH + Math.max(0, v) * (maxH - minH) * cornerFade * leftFade * scrollAmp;
+}
+
+function applyTopGold(
+  variant: HeroFieldVariant,
+  h: number,
+  minH: number,
+  maxH: number,
+  out: THREE.Color,
+): void {
+  const k = (h - minH) / (maxH - minH);
+  if (variant === "home") {
+    const brightness = 0.18 + k * 0.82;
+    out.setRGB(0.84 * brightness, 0.69 * brightness, 0.37 * brightness);
+  } else {
+    const brightness = 0.18 + k * 0.72;
+    out.setRGB(0.72 * brightness, 0.58 * brightness, 0.4 * brightness);
+  }
+}
+
+export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const cfg = CONFIG[variant];
+    const N = cfg.cols * cfg.rows;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      return;
+    }
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setClearColor(0x000000, 0);
+    renderer.setSize(W, H, false);
+
+    const scene = new THREE.Scene();
+    const GX = ((cfg.cols - 1) * cfg.gap) / 2;
+    const GZ = ((cfg.rows - 1) * cfg.gap) / 2;
+
+    const ambient = new THREE.AmbientLight(0xffffff, cfg.ambient);
+    const sun = new THREE.DirectionalLight(cfg.sunColor, cfg.sunIntensity);
+    sun.position.set(...cfg.sunPos);
+    scene.add(ambient, sun);
+
+    const bodyGeo = new THREE.BoxGeometry(cfg.boxBody, 1, cfg.boxBody);
+    const bodyMat = new THREE.MeshLambertMaterial({ color: cfg.bodyHex });
+    const bodyMesh = new THREE.InstancedMesh(bodyGeo, bodyMat, N);
+    bodyMesh.frustumCulled = false;
+    scene.add(bodyMesh);
+
+    const topH = variant === "home" ? 0.06 : 0.055;
+    const topGeo = new THREE.BoxGeometry(cfg.boxTop, topH, cfg.boxTop);
+    const topMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const topMesh = new THREE.InstancedMesh(topGeo, topMat, N);
+    topMesh.frustumCulled = false;
+    const initGold = new THREE.Color(0xd4a760);
+    for (let i = 0; i < N; i++) topMesh.setColorAt(i, initGold);
+    topMesh.instanceColor!.needsUpdate = true;
+    scene.add(topMesh);
+
+    const quat = new THREE.Quaternion();
+    const pos = new THREE.Vector3();
+    const scl = new THREE.Vector3();
+    const mx = new THREE.Matrix4();
+    const topCol = new THREE.Color();
+
+    function buildCamera(w: number, h: number): THREE.OrthographicCamera {
+      const frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
+      const frustumW = frustumH * (w / h);
+      const L = frustumW * 0.76;
+      const R = frustumW * 0.24;
+      const cam = new THREE.OrthographicCamera(-L, R, frustumH / 2, -frustumH / 2, 0.1, 500);
+      const d = 80;
+      cam.position.set(GX + d, d, GZ + d);
+      cam.lookAt(GX, cfg.maxH * 0.25, GZ);
+      return cam;
+    }
+
+    let camera = buildCamera(W, H);
+
+    const scroll = { pct: 0 };
+    const onScroll = () => {
+      const heroH = canvas.parentElement?.offsetHeight ?? window.innerHeight;
+      scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
+    };
+
+    const onResize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      renderer.setSize(W, H, false);
+      camera = buildCamera(W, H);
+    };
+
+    let tabVisible = !document.hidden;
+    const onVisibility = () => {
+      tabVisible = !document.hidden;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // seed correct position on mount (e.g. refresh-while-scrolled)
+    window.addEventListener("resize", onResize);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const t0 = performance.now();
+    let rafId = 0;
+    let disposed = false;
+
+    const heightFn = variant === "home" ? heightHome : heightServices;
+
+    const loop = (now: number) => {
+      if (disposed) return;
+      rafId = requestAnimationFrame(loop);
+      if (!tabVisible) return;
+
+      const t = reduced ? 0.5 : (now - t0) * 0.001;
+      // sqrt easing: front-loads scroll response so the first ~20% of scroll
+      // delivers ~45% of the visual effect — computed once per frame, not per bar
+      const sp = Math.sqrt(scroll.pct);
+
+      for (let row = 0; row < cfg.rows; row++) {
+        for (let col = 0; col < cfg.cols; col++) {
+          const idx = row * cfg.cols + col;
+          const wx = col * cfg.gap;
+          const wz = row * cfg.gap;
+          const h = heightFn(col, row, t, sp, cfg.cols, cfg.rows, cfg.minH, cfg.maxH);
+
+          pos.set(wx, h / 2, wz);
+          scl.set(1, h, 1);
+          mx.compose(pos, quat, scl);
+          bodyMesh.setMatrixAt(idx, mx);
+
+          pos.set(wx, h + cfg.topSlabY, wz);
+          scl.set(1, 1, 1);
+          mx.compose(pos, quat, scl);
+          topMesh.setMatrixAt(idx, mx);
+
+          applyTopGold(variant, h, cfg.minH, cfg.maxH, topCol);
+          topMesh.setColorAt(idx, topCol);
+        }
+      }
+
+      bodyMesh.instanceMatrix.needsUpdate = true;
+      topMesh.instanceMatrix.needsUpdate = true;
+      topMesh.instanceColor!.needsUpdate = true;
+      renderer.render(scene, camera);
+    };
+
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      bodyGeo.dispose();
+      bodyMat.dispose();
+      topGeo.dispose();
+      topMat.dispose();
+      renderer.dispose();
+    };
+  }, [variant]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+    />
+  );
+}

@@ -1,22 +1,20 @@
 import Link from "next/link";
 import { LogoMark } from "./icons";
+import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
-const footerLinks = {
-  Services: [
-    { label: "Web Design", href: "/services/web-design" },
-    { label: "Web Development", href: "/services/web-design" },
-    { label: "Brand Strategy", href: "/services/brand-strategy" },
-    { label: "Analytics Integration", href: "/services/analytics-integration" },
-  ],
-  Company: [
-    { label: "Work", href: "/work" },
-    { label: "About", href: "/about" },
-    { label: "Contact", href: "/contact" },
-  ],
-};
-
-export default function Footer() {
+export default function Footer({
+  tagline,
+  remoteBlurb,
+  contactEmail,
+  chrome,
+}: {
+  tagline: string;
+  remoteBlurb: string;
+  contactEmail: string;
+  chrome: SiteChromeConfigParsed;
+}) {
   const year = new Date().getFullYear();
+  const mailto = `mailto:${contactEmail}`;
 
   return (
     <footer
@@ -31,30 +29,28 @@ export default function Footer() {
               className="mb-5 inline-flex items-center gap-3"
               aria-label="BrandMeetsCode — Home"
             >
-              <LogoMark size={24} className="text-accent" />
+              <LogoMark size={26} className="text-accent opacity-90" />
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
                 Brand<span className="text-accent">Meets</span>Code
               </span>
             </Link>
-            <p className="mb-6 max-w-[300px] text-sm leading-relaxed text-text-secondary">
-              Premium web development where brand strategy meets technical execution.
-            </p>
+            <p className="mb-6 max-w-[300px] text-sm leading-relaxed text-text-secondary">{tagline}</p>
             <a
-              href="mailto:hello@brandmeetscode.com"
+              href={mailto}
               className="text-sm text-accent no-underline transition-opacity [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:opacity-70"
             >
-              hello@brandmeetscode.com
+              {contactEmail}
             </a>
           </div>
 
-          {Object.entries(footerLinks).map(([group, links]) => (
-            <nav key={group} aria-label={`${group} links`}>
+          {chrome.footerColumns.map((column) => (
+            <nav key={column.title} aria-label={`${column.title} links`}>
               <p className="mb-5 text-xs font-medium tracking-[0.12em] text-text-tertiary uppercase">
-                {group}
+                {column.title}
               </p>
               <ul className="flex flex-col gap-3 list-none">
-                {links.map((link) => (
-                  <li key={link.href}>
+                {column.links.map((link) => (
+                  <li key={`${column.title}-${link.href}-${link.label}`}>
                     <Link
                       href={link.href}
                       className="text-sm text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
@@ -70,44 +66,28 @@ export default function Footer() {
 
         <div className="border-t border-border pt-10">
           <p className="mb-8 max-w-[520px] text-xs leading-relaxed tracking-wide text-text-secondary">
-            Remote-first studio. We partner with B2B teams and SaaS founders in the US and Europe — engagements by
-            project, with a small number of active builds at a time.
+            {remoteBlurb}
           </p>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
-              &copy; {year} BrandMeetsCode
+              &copy; {year} {chrome.copyrightBrandName}
             </p>
             <nav aria-label="Legal and utility" className="flex flex-wrap gap-x-8 gap-y-2">
-              <Link
-                href="/contact"
-                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
-              >
-                Contact
-              </Link>
-              <Link
-                href="/work"
-                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
-              >
-                Work
-              </Link>
-              <Link
-                href="/about"
-                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
-              >
-                About
-              </Link>
-              <Link
-                href="/services"
-                className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
-              >
-                Services
-              </Link>
+              {chrome.footerUtilityLinks.map((link) => (
+                <Link
+                  key={`${link.href}-${link.label}`}
+                  href={link.href}
+                  className="text-xs tracking-wide text-text-secondary no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:text-text-primary"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           <p className="mt-6 font-mono text-[10px] tracking-[0.12em] text-text-tertiary uppercase">
-            All rights reserved.
+            {chrome.rightsReservedLine}
           </p>
         </div>
       </div>

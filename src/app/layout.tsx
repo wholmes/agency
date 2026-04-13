@@ -2,8 +2,19 @@ import type { Metadata } from "next";
 import { Fraunces, DM_Sans, DM_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import type { NavDropdownData } from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
+import AdminEditLink from "@/components/AdminEditLink";
+import { isAdminSession } from "@/lib/admin/session";
+import {
+  getFooterCopy,
+  getIndustryPagesForList,
+  getProjects,
+  getServiceOfferings,
+  getSiteChrome,
+  getSiteSettings,
+} from "@/lib/cms/queries";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -87,11 +98,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [settings, footer, chrome, isAdmin, serviceOfferings, industries, allProjects] =
+    await Promise.all([
+      getSiteSettings(),
+      getFooterCopy(),
+      getSiteChrome(),
+      isAdminSession(),
+      getServiceOfferings(),
+      getIndustryPagesForList(),
+      getProjects(),
+    ]);
+
+  const dropdownData: NavDropdownData = {
+    services: serviceOfferings,
+    industries,
+    recentProjects: allProjects.slice(0, 3),
+  };
+
+  const availability = {
+    available: settings.availabilityAvailable,
+    label: settings.availabilityLabel,
+    nextOpen: settings.availabilityNextOpen ?? undefined,
+  };
+
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${dmMono.variable}`}>
       <head>
@@ -118,9 +152,15 @@ export default function RootLayout({
       </head>
       <body className="font-body">
         <CustomCursor />
-        <Navigation />
+        <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} />
         <main id="main-content">{children}</main>
-        <Footer />
+        <Footer
+          tagline={footer.tagline}
+          remoteBlurb={footer.remoteBlurb}
+          contactEmail={settings.contactEmail}
+          chrome={chrome}
+        />
+        <AdminEditLink isAdmin={isAdmin} />
       </body>
     </html>
   );

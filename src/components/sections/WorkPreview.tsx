@@ -3,33 +3,27 @@
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight } from "../icons";
-import WorkOverlapFieldCanvas from "../WorkOverlapFieldCanvas";
-import { projects } from "@/lib/projects";
+import type { Project } from "@/lib/projects";
+import type { WorkPreviewSection } from "@prisma/client";
 
-export default function WorkPreview() {
+export default function WorkPreview({
+  projects,
+  header,
+}: {
+  projects: Project[];
+  header: WorkPreviewSection;
+}) {
   return (
-    <section aria-labelledby="work-heading" className="section relative overflow-visible bg-surface">
-      {/* Layered field: same language as hero; radial ripples + cooler gold; bleeds into section above */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-[min(260px,36vh)] z-[1] hidden h-[min(400px,52vh)] md:block"
-      >
-        <div
-          className="absolute right-6 bottom-0 h-full w-[min(480px,46vw)] md:right-10 lg:right-16 lg:w-[min(520px,42vw)] [mask-image:linear-gradient(to_bottom,transparent,black_26%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_26%)]"
-        >
-          <WorkOverlapFieldCanvas />
-        </div>
-      </div>
-
-      <div className="container relative z-[2]">
+    <section aria-labelledby="work-heading" className="section bg-surface">
+      <div className="container">
         <div className="mb-16 max-w-[640px]">
           <ScrollReveal>
-            <p className="text-overline mb-4">Selected Work</p>
+            <p className="text-overline mb-4">{header.overline}</p>
           </ScrollReveal>
           <ScrollReveal delay={100}>
             <h2 id="work-heading" className="text-h2">
-              Results, not just{" "}
-              <em className="italic-display text-accent">renderings</em>
+              {header.headingLine1}{" "}
+              <em className="italic-display text-accent">{header.headingEmphasis}</em>
             </h2>
           </ScrollReveal>
         </div>
@@ -55,7 +49,7 @@ function ProjectRow({
   project,
   delay,
 }: {
-  project: (typeof projects)[number];
+  project: Project;
   delay: number;
 }) {
   return (

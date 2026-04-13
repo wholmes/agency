@@ -1,65 +1,235 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BrandMeetsCode — Agency site
 
-## Getting Started
+Premium marketing site for **BrandMeetsCode**, built with **Next.js 16** (App Router), **React 19**, **Tailwind CSS 4**, and **Prisma 5**. Page copy, case studies, services, navigation, forms, and most UI strings live in a **Prisma-backed database**. A password-protected **admin UI** at **`/admin`** edits frequently changed content and case studies; **Prisma Studio** and SQL remain available for everything else.
 
-First, run the development server:
+---
+
+## Requirements
+
+- **Node.js** 20+
+- **npm** (or compatible client)
+
+---
+
+## Quick start (local)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd agency
+npm install
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `.env` and set at minimum:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `DATABASE_URL` — see [Database URL](#database-url) below.
+- `ADMIN_PASSWORD` — at least **8 characters** (required to sign in at `/admin`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create the database, apply migrations, seed content, and run the dev server:
+
+```bash
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
+
+- **Site:** [http://localhost:3000](http://localhost:3000)  
+- **Admin:** [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
+
+After changing the Prisma schema or pulling new migrations:
+
+```bash
+npm run db:migrate
+npx prisma generate   # also runs via postinstall / build
+```
+
+`npm run build` runs `prisma generate` and then `next build`. `postinstall` runs `prisma generate` so the client exists after `npm install`.
+
+---
+
+## Environment variables
+
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `DATABASE_URL` | Yes | Prisma connection string. |
+| `ADMIN_PASSWORD` | Yes for admin | Password for `/admin` (minimum 8 characters). |
+| `ADMIN_SESSION_SECRET` | No | Secret used to sign the admin session cookie. If omitted, `ADMIN_PASSWORD` is used (fine for local dev; use a separate long secret in production). |
+
+### Database URL
+
+**Local (SQLite — default in this repo):**
+
+```env
+DATABASE_URL="file:./prisma/data.db"
+```
+
+The path is relative to the **project root**. The database file lives under `prisma/data.db` and is gitignored once created.
+
+**Production (PostgreSQL example):**
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+```
+
+Use the connection string from your provider (Neon, Supabase, Railway, etc.). Update `datasource db { provider = "postgresql" }` in `prisma/schema.prisma`, then run `npx prisma migrate deploy` against production. Array-like fields are stored as JSON strings in SQLite; the same pattern works on Postgres.
+
+In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`ADMIN_SESSION_SECRET`**.
+
+---
+
+## Admin UI (`/admin`)
+
+| URL | What it does |
+| --- | ------------- |
+| `/admin/login` | Sign in with `ADMIN_PASSWORD`. |
+| `/admin` | Overview and links to editors. |
+| `/admin/settings` | Contact email, availability strip (nav). |
+| `/admin/footer` | Footer tagline and remote blurb. |
+| `/admin/chrome` | **SiteChrome** JSON (nav links, primary CTA, footer columns, utility links, copyright). |
+| `/admin/home-hero` | Homepage hero copy and CTAs. |
+| `/admin/cta` | Global “Ready to start?” CTA block. |
+| `/admin/projects` | List case studies. |
+| `/admin/projects/[id]` | Edit one case study (including `services` as a JSON string array). |
+
+**Behavior:**
+
+- **Session:** HTTP-only cookie, HMAC-signed, 7-day lifetime (`src/lib/admin/session.ts`).
+- **Authorization:** Server Actions in `src/app/admin/(protected)/mutations.ts` call `isAdminSession()` and redirect to `/admin/login` if missing.
+- **SEO:** `robots.txt` disallows `/admin`; admin routes use `noindex` metadata.
+
+**Adding more editors:** Follow existing pages under `src/app/admin/(protected)/` and add actions in `mutations.ts`.
+
+---
+
+## Database and CMS
+
+| Piece | Location |
+| ----- | -------- |
+| Schema | `prisma/schema.prisma` |
+| Migrations | `prisma/migrations/` |
+| Seed (default content) | `prisma/seed.ts` |
+| Read API (cached where noted) | `src/lib/cms/queries.ts` |
+| Prisma client | `src/lib/prisma.ts` |
+
+### Models (overview)
+
+| Area | Models |
+| ---- | ------ |
+| Case studies | `Project` |
+| Global settings | `SiteSettings` |
+| Home | `HomeHero`, `ServicesHomeSection`, `WorkPreviewSection`, `AboutHomeTeaser`, `SocialStat`, `SocialClient`, `FeaturedTestimonial` |
+| Work listing | `WorkPageHero` |
+| Services | `ServiceOffering`, `ServicesPageHero`, `ContinuityBlock`, `LighthouseGuarantee`, `ServicesContinuityIntro`, `ServiceDetailPage`, `ScopeEstimatorConfig` |
+| About | `AboutPageHero`, `AboutStoryParagraph`, `AboutStorySection`, `AboutTeaserBelief`, `AboutTeaserCard`, `AboutValue`, `AboutValuesSectionHeader` |
+| Shared CTAs | `CtaSectionCopy` |
+| Footer | `FooterCopy` |
+| Contact | `ContactPageCopy`, `ContactFormConfig` |
+| Case study template | `CaseStudyUiLabels` |
+| Nav / footer chrome | `SiteChrome` |
+
+Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strategy`, `analytics-integration`), backed by `ServiceDetailPage.slug`.
+
+### npm scripts
+
+| Script | Command |
+| ------ | ------- |
+| `npm run dev` | Development server (Turbopack). |
+| `npm run build` | `prisma generate` + production build. |
+| `npm run start` | Production server (after `build`). |
+| `npm run lint` | ESLint. |
+| `npm run db:migrate` | `prisma migrate dev` (development migrations). |
+| `npm run db:seed` | Run `prisma/seed.ts`. |
+| `npm run db:studio` | Prisma Studio (table browser). |
+
+### Editing content
+
+1. **Admin UI** — `/admin` (set `ADMIN_PASSWORD`, restart the dev server after changing env).
+2. **Prisma Studio** — `npm run db:studio`.
+3. **Re-seed** — `npm run db:seed` resets data according to `seed.ts` (destructive; avoid on production if you need to keep live edits).
+4. **Code** — Add getters in `src/lib/cms/queries.ts`, wire components, extend `prisma/seed.ts` for new defaults.
+
+---
+
+## Troubleshooting
+
+### Prisma client errors (e.g. `prisma.siteChrome` is undefined)
+
+Next.js **Turbopack** must **not** bundle Prisma. This repo sets `serverExternalPackages: ["@prisma/client", "prisma"]` in `next.config.ts`. If you see missing model delegates after an upgrade:
+
+```bash
+npx prisma generate
+rm -rf .next
+npm run dev
+```
+
+### Admin login does nothing / “not configured”
+
+- Ensure `ADMIN_PASSWORD` is at least **8 characters** in `.env`.
+- Restart the dev server after changing `.env`.
+
+### Schema changes
+
+```bash
+npm run db:migrate
+npm run db:seed   # only if you want to refresh seed data (destructive)
+```
+
+---
+
+## Project layout
+
+```
+prisma/                 Schema, migrations, seed
+src/app/admin/          Admin UI (login + CMS pages)
+src/app/                App Router routes, layouts, sitemap, robots
+src/components/         UI (sections, ScopeEstimator, ContactForm, …)
+src/lib/admin/          Session helpers (signed cookie)
+src/lib/cms/            Queries and shared CMS types
+```
+
+Global SEO metadata and JSON-LD in `src/app/layout.tsx` are defined in code, not in the database.
+
+---
 
 ## Custom cursor
 
-The site uses a custom cursor (`src/components/CustomCursor.tsx`), rendered from `src/app/layout.tsx`. It only activates on devices that report **fine pointer + hover** (`(hover: none)` bails out early, so touch users keep the normal cursor).
+The site uses `src/components/CustomCursor.tsx` from `src/app/layout.tsx`. It only activates when the device reports **fine pointer + hover**; touch users keep the default cursor.
 
-### Dwell ring (hover “preloader”)
+### Dwell ring
 
-While the pointer stays over an interactive target, a ring tracks **how long** you hover: a stroke fills **clockwise from the top** around a subtle track circle. Fill duration is controlled by **`HOVER_FILL_MS`** (default **1700** ms). The **visible** progress uses **ease-out cubic** easing so the stroke moves faster at first and eases into the finish; elapsed time is still capped at `HOVER_FILL_MS`.
+While the pointer stays on an interactive target, a ring tracks hover duration; fill duration is **`HOVER_FILL_MS`** (default **1700** ms), with **ease-out cubic** easing.
 
-Interactive targets are resolved to a **root** (`<a>`, `<button>`, or an element with `data-cursor="hover"`). Moving inside the same root does **not** reset the timer; switching to another control starts a new dwell.
+Targets resolve to a **root** (`<a>`, `<button>`, or `data-cursor="hover"`). Moving inside the same root does not reset the timer. Optional **`data-cursor-label`** enlarges the ring and shows a small label.
 
-Optional **`data-cursor-label`** (on the element or an ancestor) enlarges the ring and shows a small uppercase label.
+### Completion animation
 
-### Completion animation (cosmetic only)
-
-When the dwell completes, the ring content **shrinks** (scale toward zero with **ease-in cubic**) and **fades out** over **`EXIT_SHRINK_MS`** (default **400** ms). This is **purely ornamental**—it does **not** fire analytics, prefetch routes, or perform any other side effects.
-
-After that animation, the ring stays **invisible** until the pointer **leaves** that interactive root (e.g. moves to the page background or to a different control). Hovering the same control again after leaving will run the full dwell + exit sequence again.
+On completion, the ring **shrinks** and **fades** over **`EXIT_SHRINK_MS`** (default **400** ms). Cosmetic only (no analytics or prefetch).
 
 ### Accessibility
 
-If **`prefers-reduced-motion: reduce`** is set, the stroke does not animate in over time; after the same dwell window elapses, the ring **hides** without the animated shrink sequence.
+If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after the dwell window, the ring hides without the shrink animation.
 
-### Tuning
+| Constant | Role |
+| -------- | ---- |
+| `HOVER_FILL_MS` | Time for a full ring fill |
+| `EXIT_SHRINK_MS` | Shrink + fade after fill |
 
-| Constant            | Role                                      |
-| ------------------- | ----------------------------------------- |
-| `HOVER_FILL_MS`     | Wall-clock time for a full ring fill      |
-| `EXIT_SHRINK_MS`    | Shrink + fade duration after fill completes |
+---
 
-## Learn More
+## Deploying
 
-To learn more about Next.js, take a look at the following resources:
+1. Set **`DATABASE_URL`** (and **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI).
+2. Run **`npx prisma migrate deploy`** in CI or your release step (not `migrate dev`).
+3. Run **`npm run build`** then **`npm run start`**, or use your host’s Next.js preset.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Prisma `generate` is part of `npm run build`. Use HTTPS in production so admin cookies stay secure (`secure` flag is enabled when `NODE_ENV === "production"`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Learn more
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [Next.js documentation](https://nextjs.org/docs)
+- [Prisma documentation](https://www.prisma.io/docs)
+- [Prisma + Next.js bundling](https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-webpack-prisma)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Workspace notes for this repo’s Next.js version: `AGENTS.md` / `CLAUDE.md`.

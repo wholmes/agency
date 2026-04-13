@@ -1,0 +1,346 @@
+// BrandMeetsCode — content database (SQLite locally; use Postgres in production via DATABASE_URL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id           String @id
+  title        String
+  category     String
+  proofFit     String
+  year         String
+  result       String
+  resultDetail String
+  problem      String
+  approach     String
+  outcome      String
+  color        String
+  accent       String
+  services     String
+  sortOrder    Int    @default(0)
+}
+
+model SiteSettings {
+  id                    Int     @id @default(1)
+  contactEmail          String
+  availabilityAvailable Boolean @default(true)
+  availabilityLabel     String
+  availabilityNextOpen  String?
+}
+
+model SocialStat {
+  id        Int    @id @default(autoincrement())
+  value     String
+  label     String
+  sortOrder Int    @default(0)
+}
+
+model SocialClient {
+  id        Int    @id @default(autoincrement())
+  name      String
+  context   String
+  sortOrder Int    @default(0)
+}
+
+model FeaturedTestimonial {
+  id             Int    @id @default(1)
+  quote          String
+  authorName     String
+  authorTitle    String
+  authorInitials String
+  starCount      Int    @default(5)
+}
+
+model ServiceOffering {
+  id                 Int     @id @default(autoincrement())
+  slug               String  @unique
+  iconKey            String
+  sortOrder          Int
+  number             String?
+  title              String
+  subtitle           String?
+  descriptionHome    String
+  outcomesHome       String
+  descriptionListing String
+  outcomesListing    String
+  href               String
+  showOnHomepage     Boolean @default(true)
+}
+
+model ContinuityBlock {
+  id        Int    @id @default(autoincrement())
+  sortOrder Int
+  title     String
+  body      String
+}
+
+model LighthouseGuarantee {
+  id    Int    @id @default(1)
+  title String
+  body  String
+}
+
+model HomeHero {
+  id                  Int    @id @default(1)
+  overline            String
+  headlineLine1       String
+  headlineLine2Italic String
+  headlineLine3       String
+  body                String
+  primaryCtaLabel     String
+  primaryCtaHref      String
+  secondaryCtaLabel   String
+  secondaryCtaHref    String
+}
+
+model WorkPageHero {
+  id                  Int    @id @default(1)
+  overline            String
+  headlineLine1       String
+  headlineLine2Italic String
+  body                String
+}
+
+model ServicesPageHero {
+  id       Int    @id @default(1)
+  overline String
+  title    String
+  body     String
+}
+
+model ServicesHomeSection {
+  id                        Int    @id @default(1)
+  overline                  String
+  headingLine1              String
+  headingEmphasis           String
+  footerBeforeHighlight     String
+  footerHighlight           String
+  footerAfterHighlightBeforeLink String
+  footerLinkLabel           String
+  footerLinkHref            String
+  footerAfterLink           String
+}
+
+model FooterCopy {
+  id          Int    @id @default(1)
+  tagline     String
+  remoteBlurb String
+}
+
+model AboutValue {
+  id        Int    @id @default(autoincrement())
+  sortOrder Int
+  title     String
+  body      String
+}
+
+model AboutStoryParagraph {
+  id        Int    @id @default(autoincrement())
+  sortOrder Int
+  body      String
+}
+
+model AboutTeaserBelief {
+  id        Int    @id @default(autoincrement())
+  sortOrder Int
+  text      String
+}
+
+model AboutTeaserCard {
+  id       Int    @id @default(1)
+  body     String
+  ctaLabel String
+  ctaHref  String
+}
+
+model AboutPageHero {
+  id            Int    @id @default(1)
+  overline      String
+  line1         String
+  line2         String
+  line3BeforeEm String
+  line3Em       String
+  body          String
+}
+
+model WorkPreviewSection {
+  id              Int    @id @default(1)
+  overline        String
+  headingLine1    String
+  headingEmphasis String
+}
+
+model CtaSectionCopy {
+  id                Int    @id @default(1)
+  overline          String
+  headingBeforeEm   String
+  headingEmphasis   String
+  body              String
+  primaryCtaLabel   String
+  primaryCtaHref    String
+  secondaryCtaLabel String
+  secondaryCtaHref  String
+  footnote          String
+}
+
+/// Homepage “About teaser” column (not the full /about page)
+model AboutHomeTeaser {
+  id               Int    @id @default(1)
+  overline         String
+  headingBeforeEm  String
+  headingEmphasis  String
+  headingMid       String
+  headingLastLine  String
+  paragraph1       String
+  paragraph2       String
+}
+
+/// /services/[slug] — long-form service detail (hero, optional “who for”, inclusions, FAQ)
+model ServiceDetailPage {
+  slug              String  @id
+  metaTitle         String
+  metaDescription   String
+  heroHasGradient   Boolean @default(false)
+  heroOverline      String
+  heroTitle         String
+  heroBody          String
+  primaryCtaLabel   String
+  primaryCtaHref    String
+  backLinkLabel     String
+  backLinkHref      String  @default("/services")
+  whoForOverline    String
+  whoForHeading     String
+  whoForBullets     String
+  includedOverline       String
+  includedHeading        String
+  includedSectionBgSurface Boolean @default(false)
+  includedItemsUseSurfaceBg  Boolean @default(true)
+  inclusions             String
+  faqOverline       String
+  faqHeading        String
+  faqs              String
+}
+
+/// Intro copy above ContinuityBlock grid on /services
+model ServicesContinuityIntro {
+  id       Int    @id @default(1)
+  overline String
+  heading  String
+  body     String
+}
+
+/// Ballpark estimator: section header + option definitions (JSON strings)
+model ScopeEstimatorConfig {
+  id                 Int    @id @default(1)
+  sectionOverline    String
+  headingLine1       String
+  headingLine2Italic String
+  body               String
+  projectTypes       String
+  pageCounts         String
+  integrations       String
+  timelines          String
+  weeksByTimelineId  String
+  stepTitles         String
+  integrationsHint   String
+  resultOverline     String
+  resultDisclaimer   String
+  stepTemplate       String
+}
+
+/// /about — story column heading + BMC visual
+model AboutStorySection {
+  id              Int    @id @default(1)
+  headingBeforeEm String
+  headingEm       String
+  headingAfterEm  String
+  bmcMonogram     String
+  bmcTagline      String
+}
+
+/// /about — values section header
+model AboutValuesSectionHeader {
+  id       Int    @id @default(1)
+  overline String
+  heading  String
+}
+
+/// /contact — page copy (email address comes from SiteSettings)
+model ContactPageCopy {
+  id                   Int    @id @default(1)
+  metaTitle            String
+  metaDescription      String
+  overline             String
+  heroLineBeforeEm     String
+  heroEmphasis         String
+  heroLineAfterEm      String
+  introParagraph       String
+  whatHappensHeading   String
+  nextSteps            String
+  altRoutesHeading     String
+  emailCardTitle       String
+  calendarCardTitle    String
+  calendarCardSubtitle String
+  calendlyUrl          String
+}
+
+/// Labels for case study template (problem / approach / result / nav)
+model CaseStudyUiLabels {
+  id                     Int    @id @default(1)
+  backToWorkLabel        String
+  backToCaseStudiesLabel String
+  problemSectionLabel    String
+  approachSectionLabel   String
+  outcomeSectionLabel    String
+  similarProjectCtaLabel String
+}
+
+/// Contact form labels, options, and messages (JSON)
+model ContactFormConfig {
+  id         Int    @id @default(1)
+  configJson String
+}
+
+/// /industries index — hero copy, card link label, SEO
+model IndustriesHub {
+  id              Int    @id @default(1)
+  metaTitle       String
+  metaDescription String
+  overline        String
+  headline        String
+  introBody       String
+  cardCtaLabel    String
+}
+
+/// Vertical / industry pages (e.g. /industries/startups)
+model IndustryPage {
+  slug                  String @id
+  sortOrder             Int    @default(0)
+  listTitle             String
+  listBlurb             String
+  metaTitle             String
+  metaDescription       String
+  heroOverline          String
+  heroTitle             String
+  heroBody              String
+  introTitle            String
+  introBody             String
+  focusTitle            String
+  focusBullets          String
+  differentiatorTitle   String
+  differentiatorBody    String
+  ctaLabel              String
+  ctaHref               String
+}
+
+/// Global nav + footer link columns (JSON)
+model SiteChrome {
+  id         Int    @id @default(1)
+  configJson String
+}

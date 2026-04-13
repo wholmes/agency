@@ -3,23 +3,25 @@
 import ScrollReveal from "../ScrollReveal";
 import { IconStar } from "../icons";
 
-const stats = [
-  { value: "40+", label: "Projects Delivered" },
-  { value: "98%", label: "Client Retention" },
-  { value: "4.9★", label: "Average Rating" },
-  { value: "<2s", label: "Avg Load Time" },
-];
+export type SocialStatDTO = { value: string; label: string };
+export type SocialClientDTO = { name: string; context: string };
+export type FeaturedTestimonialDTO = {
+  quote: string;
+  authorName: string;
+  authorTitle: string;
+  authorInitials: string;
+  starCount: number;
+};
 
-const clients: { name: string; context: string }[] = [
-  { name: "Meridian SaaS", context: "B2B SaaS · pipeline & demo conversion" },
-  { name: "Croft & Webb", context: "Professional services · brand & lead gen" },
-  { name: "Arclight Labs", context: "Enterprise AI · Series A & enterprise pilots" },
-  { name: "Nova Analytics", context: "Product analytics · self-serve growth" },
-  { name: "Sable Studio", context: "Creative studio · profitability & ops reporting" },
-  { name: "Tether Finance", context: "Fintech · compliance-first UX" },
-];
-
-export default function SocialProof() {
+export default function SocialProof({
+  stats,
+  clients,
+  testimonial,
+}: {
+  stats: SocialStatDTO[];
+  clients: SocialClientDTO[];
+  testimonial: FeaturedTestimonialDTO;
+}) {
   return (
     <section
       aria-label="Social proof"
@@ -71,25 +73,24 @@ export default function SocialProof() {
 
         <ScrollReveal delay={200}>
           <div className="relative mx-auto mt-16 max-w-[720px] rounded-lg border border-border bg-surface-2 p-10">
-            <div className="mb-4 flex gap-1" aria-label="5 stars">
-              {[...Array(5)].map((_, i) => (
+            <div className="mb-4 flex gap-1" aria-label={`${testimonial.starCount} stars`}>
+              {[...Array(testimonial.starCount)].map((_, i) => (
                 <IconStar key={i} size={14} className="text-accent" />
               ))}
             </div>
             <blockquote className="mb-6 font-display text-xl font-light leading-snug tracking-tight text-text-primary italic">
-              &ldquo;They didn&rsquo;t just build our site — they understood the business. The result increased demo
-              requests by 40% in the first month.&rdquo;
+              &ldquo;{testimonial.quote}&rdquo;
             </blockquote>
             <div className="flex items-center gap-3">
               <div
                 className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--color-accent-muted),var(--color-accent))] text-sm font-semibold text-bg"
                 aria-hidden="true"
               >
-                JK
+                {testimonial.authorInitials}
               </div>
               <div>
-                <div className="text-sm font-medium text-text-primary">Jordan Kim</div>
-                <div className="text-xs text-text-tertiary">Head of Marketing, Meridian SaaS</div>
+                <div className="text-sm font-medium text-text-primary">{testimonial.authorName}</div>
+                <div className="text-xs text-text-tertiary">{testimonial.authorTitle}</div>
               </div>
             </div>
           </div>

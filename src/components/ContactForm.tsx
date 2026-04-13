@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IconArrowUpRight, IconCheck } from "./icons";
+import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -20,24 +21,17 @@ interface FormErrors {
   message?: string;
 }
 
-const budgetOptions = [
-  "Under $5,000",
-  "$5,000 – $15,000",
-  "$15,000 – $30,000",
-  "$30,000 – $60,000",
-  "$60,000+",
-  "Not sure yet",
-];
+function interpolateEmail(template: string, email: string): string {
+  return template.replace(/\{\{email\}\}/g, email);
+}
 
-const projectOptions = [
-  "New website",
-  "Site redesign",
-  "Brand strategy",
-  "Analytics setup",
-  "Multiple services",
-];
-
-export default function ContactForm() {
+export default function ContactForm({
+  config,
+  contactEmail,
+}: {
+  config: ContactFormConfigParsed;
+  contactEmail: string;
+}) {
   const [formState, setFormState] = useState<FormState>("idle");
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -49,21 +43,23 @@ export default function ContactForm() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const v = config.validation;
+
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.name.trim()) newErrors.name = v.nameRequired;
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = v.emailRequired;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = v.emailInvalid;
     }
-    if (!formData.message.trim()) newErrors.message = "Tell us about your project";
+    if (!formData.message.trim()) newErrors.message = v.messageRequired;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -86,6 +82,8 @@ export default function ContactForm() {
     }
   };
 
+  const { labels, placeholders, budgetOptions, projectOptions, submit, success, error, footerNote } = config;
+
   if (formState === "success") {
     return (
       <div
@@ -97,10 +95,9 @@ export default function ContactForm() {
           <IconCheck size={28} />
         </div>
         <div>
-          <h2 className="font-display mb-3 text-2xl font-light tracking-tight">Message sent</h2>
+          <h2 className="font-display mb-3 text-2xl font-light tracking-tight">{success.title}</h2>
           <p className="max-w-[300px] text-sm text-text-secondary">
-            We&rsquo;ll respond within one business day. Check your inbox — we&rsquo;ll reach out from
-            hello@brandmeetscode.com.
+            {interpolateEmail(success.body, contactEmail)}
           </p>
         </div>
       </div>
@@ -109,20 +106,20 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
-      <h2 className="font-display mb-8 text-xl font-normal tracking-tight">Tell us about your project</h2>
+      <h2 className="font-display mb-8 text-xl font-normal tracking-tight">{config.heading}</h2>
 
       <div className="flex flex-col gap-5">
         <div className="form-row">
           <div className="form-field">
             <label htmlFor="contact-name" className="form-label">
-              Name <span className="text-accent" aria-hidden="true">*</span>
+              {labels.name} <span className="text-accent" aria-hidden="true">*</span>
             </label>
             <input
               id="contact-name"
               name="name"
               type="text"
               className={`form-input${errors.name ? " error" : ""}`}
-              placeholder="Alex Chen"
+              placeholder={placeholders.name}
               value={formData.name}
               onChange={handleChange}
               autoComplete="name"
@@ -139,14 +136,14 @@ export default function ContactForm() {
 
           <div className="form-field">
             <label htmlFor="contact-email" className="form-label">
-              Email <span className="text-accent" aria-hidden="true">*</span>
+              {labels.email} <span className="text-accent" aria-hidden="true">*</span>
             </label>
             <input
               id="contact-email"
               name="email"
               type="email"
               className={`form-input${errors.email ? " error" : ""}`}
-              placeholder="alex@company.com"
+              placeholder={placeholders.email}
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
@@ -164,14 +161,14 @@ export default function ContactForm() {
 
         <div className="form-field">
           <label htmlFor="contact-company" className="form-label">
-            Company
+            {labels.company}
           </label>
           <input
             id="contact-company"
             name="company"
             type="text"
             className="form-input"
-            placeholder="Acme Inc."
+            placeholder={placeholders.company}
             value={formData.company}
             onChange={handleChange}
             autoComplete="organization"
@@ -181,7 +178,7 @@ export default function ContactForm() {
         <div className="form-row">
           <div className="form-field">
             <label htmlFor="contact-project" className="form-label">
-              Project Type
+              {labels.projectType}
             </label>
             <select
               id="contact-project"
@@ -190,7 +187,7 @@ export default function ContactForm() {
               value={formData.project}
               onChange={handleChange}
             >
-              <option value="">Select one</option>
+              <option value="">{config.selectPlaceholder}</option>
               {projectOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -201,7 +198,7 @@ export default function ContactForm() {
 
           <div className="form-field">
             <label htmlFor="contact-budget" className="form-label">
-              Budget Range
+              {labels.budgetRange}
             </label>
             <select
               id="contact-budget"
@@ -210,7 +207,7 @@ export default function ContactForm() {
               value={formData.budget}
               onChange={handleChange}
             >
-              <option value="">Select one</option>
+              <option value="">{config.selectPlaceholder}</option>
               {budgetOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
@@ -222,13 +219,13 @@ export default function ContactForm() {
 
         <div className="form-field">
           <label htmlFor="contact-message" className="form-label">
-            Tell us about your project <span className="text-accent" aria-hidden="true">*</span>
+            {labels.message} <span className="text-accent" aria-hidden="true">*</span>
           </label>
           <textarea
             id="contact-message"
             name="message"
             className={`form-input${errors.message ? " error" : ""}`}
-            placeholder="What are you building? What problem are you solving? What have you tried before?"
+            placeholder={placeholders.message}
             value={formData.message}
             onChange={handleChange}
             aria-required="true"
@@ -251,11 +248,11 @@ export default function ContactForm() {
           {formState === "loading" ? (
             <>
               <LoadingSpinner />
-              Sending…
+              {submit.sending}
             </>
           ) : (
             <>
-              Send Message
+              {submit.send}
               <IconArrowUpRight size={16} />
             </>
           )}
@@ -263,11 +260,11 @@ export default function ContactForm() {
 
         {formState === "error" && (
           <p className="text-center text-sm text-error" role="alert">
-            Something went wrong. Please try emailing us directly at hello@brandmeetscode.com
+            {interpolateEmail(error.generic, contactEmail)}
           </p>
         )}
 
-        <p className="text-center text-xs text-text-tertiary">No commitment. We respond within one business day.</p>
+        <p className="text-center text-xs text-text-tertiary">{footerNote}</p>
       </div>
     </form>
   );

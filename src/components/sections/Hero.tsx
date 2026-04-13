@@ -6,6 +6,7 @@ import { motion, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
 import MagneticButton from "../MagneticButton";
 import IsometricFieldCanvas from "../IsometricFieldCanvas";
+import type { HomeHero } from "@prisma/client";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -34,7 +35,7 @@ const clipVariant: Variants = {
   }),
 };
 
-export default function Hero() {
+export default function Hero({ content }: { content: HomeHero }) {
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function Hero() {
           custom={0.1}
           variants={enterVariant}
         >
-          Premium Web Development Agency
+          {content.overline}
         </motion.p>
 
         <h1 className="mb-6">
@@ -90,7 +91,7 @@ export default function Hero() {
             custom={0}
             variants={clipVariant}
           >
-            Brand
+            {content.headlineLine1}
           </motion.span>
           <motion.span
             className="text-display block overflow-hidden pb-[0.06em] pl-[clamp(2rem,10vw,12rem)] -mt-[20px]"
@@ -99,7 +100,7 @@ export default function Hero() {
             custom={0.12}
             variants={clipVariant}
           >
-            <em className="italic-display text-accent">meets</em>
+            <em className="italic-display text-accent">{content.headlineLine2Italic}</em>
           </motion.span>
           <motion.span
             className="text-display block overflow-hidden pb-[0.06em]"
@@ -108,7 +109,7 @@ export default function Hero() {
             custom={0.24}
             variants={clipVariant}
           >
-            Code.
+            {content.headlineLine3}
           </motion.span>
         </h1>
 
@@ -119,8 +120,7 @@ export default function Hero() {
           custom={0.55}
           variants={enterVariant}
         >
-          We build premium websites for B2B companies and SaaS founders who need both design precision and
-          engineering depth. Every pixel earns its place.
+          {content.body}
         </motion.p>
 
         <motion.div
@@ -131,14 +131,14 @@ export default function Hero() {
           variants={enterVariant}
         >
           <MagneticButton>
-            <Link href="/contact" className="btn btn-primary" data-cursor-label="Let's Build">
-              Start a Project
+            <Link href={content.primaryCtaHref} className="btn btn-primary" data-cursor-label="Let's Build">
+              {content.primaryCtaLabel}
               <IconArrowUpRight size={16} />
             </Link>
           </MagneticButton>
           <MagneticButton>
-            <Link href="/work" className="btn btn-secondary">
-              See the Work
+            <Link href={content.secondaryCtaHref} className="btn btn-secondary">
+              {content.secondaryCtaLabel}
               <IconArrowRight size={16} />
             </Link>
           </MagneticButton>

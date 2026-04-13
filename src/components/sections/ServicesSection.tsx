@@ -2,61 +2,31 @@
 
 import Link from "next/link";
 import ScrollReveal from "../ScrollReveal";
-import { IconCode, IconBrand, IconAnalytics, IconDesign, IconArrowUpRight } from "../icons";
+import { IconArrowUpRight } from "../icons";
+import { ServiceIconGlyph, parseOutcomeList } from "@/lib/service-icons";
+import type { ServiceOffering as ServiceOfferingModel } from "@prisma/client";
+import type { ServicesHomeSection } from "@prisma/client";
 
-const services = [
-  {
-    icon: IconDesign,
-    number: "01",
-    title: "Web Design",
-    description:
-      "Interfaces built with composition principles, not templates. Every decision — spacing, type, color, motion — is intentional.",
-    outcomes: ["Conversion-optimized layouts", "Design system included", "Mobile-first approach"],
-    href: "/services/web-design",
-  },
-  {
-    icon: IconCode,
-    number: "02",
-    title: "Web Development",
-    description:
-      "Production-grade code. Next.js, TypeScript, and infrastructure that scales without becoming someone else's problem.",
-    outcomes: ["Lighthouse ≥ 90 guaranteed", "Edge-deployed", "Handoff with full docs"],
-    href: "/services/web-design",
-  },
-  {
-    icon: IconBrand,
-    number: "03",
-    title: "Brand Strategy",
-    description:
-      "Positioning work that clarifies who you are and who you're for. Strategy first — then the visuals make sense.",
-    outcomes: ["Market positioning audit", "Messaging hierarchy", "Visual identity direction"],
-    href: "/services/brand-strategy",
-  },
-  {
-    icon: IconAnalytics,
-    number: "04",
-    title: "Analytics & Growth",
-    description:
-      "Instrumentation that actually answers business questions. No vanity dashboards — just the data that drives decisions.",
-    outcomes: ["GA4 + Segment setup", "Custom event tracking", "Monthly reporting included"],
-    href: "/services/analytics-integration",
-  },
-];
-
-export default function ServicesSection() {
+export default function ServicesSection({
+  offerings,
+  homeSection,
+}: {
+  offerings: ServiceOfferingModel[];
+  homeSection: ServicesHomeSection;
+}) {
   return (
     <section aria-labelledby="services-heading" className="section">
       <div className="container">
         <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
           <div>
             <ScrollReveal>
-              <p className="text-overline mb-4">What We Do</p>
+              <p className="text-overline mb-4">{homeSection.overline}</p>
             </ScrollReveal>
             <ScrollReveal delay={100}>
               <h2 id="services-heading" className="text-h2">
-                Built for brands that
+                {homeSection.headingLine1}
                 <br />
-                <em className="italic-display text-accent">mean business</em>
+                <em className="italic-display text-accent">{homeSection.headingEmphasis}</em>
               </h2>
             </ScrollReveal>
           </div>
@@ -69,10 +39,25 @@ export default function ServicesSection() {
         </div>
 
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
-          {services.map((service, i) => (
-            <ServiceCard key={service.number} service={service} delay={i * 80} />
+          {offerings.map((service, i) => (
+            <ServiceCard key={service.slug} service={service} delay={i * 80} />
           ))}
         </div>
+
+        <ScrollReveal delay={400} className="mt-12 max-w-[720px]">
+          <p className="text-sm leading-relaxed text-text-secondary">
+            {homeSection.footerBeforeHighlight}
+            <span className="text-text-primary">{homeSection.footerHighlight}</span>
+            {homeSection.footerAfterHighlightBeforeLink}
+            <Link
+              href={homeSection.footerLinkHref}
+              className="text-accent no-underline transition-opacity hover:opacity-80"
+            >
+              {homeSection.footerLinkLabel}
+            </Link>
+            {homeSection.footerAfterLink}
+          </p>
+        </ScrollReveal>
       </div>
     </section>
   );
@@ -82,10 +67,11 @@ function ServiceCard({
   service,
   delay,
 }: {
-  service: (typeof services)[0];
+  service: ServiceOfferingModel;
   delay: number;
 }) {
-  const Icon = service.icon;
+  const outcomes = parseOutcomeList(service.outcomesHome);
+  const num = service.number ?? "";
 
   return (
     <ScrollReveal delay={delay}>
@@ -98,17 +84,17 @@ function ServiceCard({
         <div className="mb-6 flex items-start justify-between gap-4">
           <div className="flex items-start gap-5">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-accent-muted bg-accent-subtle text-accent transition-[background,transform] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] group-hover:scale-105 group-hover:bg-accent-muted">
-              <Icon size={22} />
+              <ServiceIconGlyph iconKey={service.iconKey} size={22} />
             </div>
             <h3 className="font-display text-xl font-normal tracking-tight text-text-primary">{service.title}</h3>
           </div>
-          <span className="font-mono text-xs tracking-wider text-text-tertiary">{service.number}</span>
+          <span className="font-mono text-xs tracking-wider text-text-tertiary">{num}</span>
         </div>
 
-        <p className="mb-6 text-sm leading-relaxed text-text-secondary">{service.description}</p>
+        <p className="mb-6 text-sm leading-relaxed text-text-secondary">{service.descriptionHome}</p>
 
         <ul className="flex list-none flex-col gap-2">
-          {service.outcomes.map((outcome) => (
+          {outcomes.map((outcome) => (
             <li key={outcome} className="flex items-center gap-2 text-xs text-text-tertiary">
               <span className="size-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
               {outcome}
