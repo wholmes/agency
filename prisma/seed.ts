@@ -38,6 +38,7 @@ async function main() {
     prisma.featuredTestimonial.deleteMany(),
     prisma.socialClient.deleteMany(),
     prisma.socialStat.deleteMany(),
+    prisma.emailSettings.deleteMany(),
     prisma.siteSettings.deleteMany(),
     prisma.project.deleteMany(),
   ]);
@@ -49,6 +50,19 @@ async function main() {
       availabilityAvailable: true,
       availabilityLabel: "1 project slot open for Q3 2026",
       availabilityNextOpen: "September 2026",
+    },
+  });
+
+  await prisma.emailSettings.create({
+    data: {
+      id: 1,
+      notifyEmail: "hello@brandmeetscode.com",
+      fromName: "BrandMeetsCode",
+      fromAddress: "onboarding@resend.dev",
+      autoReplyEnabled: true,
+      autoReplySubject: "Got your message — I'll be in touch shortly",
+      autoReplyOpening:
+        "Thanks for reaching out — I've received your message and will get back to you within 1–2 business days.",
     },
   });
 

@@ -39,6 +39,10 @@
  *   EASING    -> "how soon" the effect starts
  *   AMPLITUDE -> "how much" the bars grow
  *   WAVE SPEED -> energy/chaos feel as the hero scrolls away
+ *
+ * TAB BACKGROUNDING: wave time uses (now - t0 - accumulatedHiddenMs) so the
+ * animation clock pauses while the tab is hidden — otherwise wall-clock keeps
+ * advancing and returning feels like a huge phase jump / “fast” scrub.
  * -----------------------------------------------------------------------------
  */
 
@@ -256,7 +260,18 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     };
 
     let tabVisible = !document.hidden;
+    /** Wall-clock time spent in background tabs — subtract from `now - t0` so waves don't jump ahead. */
+    let accumulatedHiddenMs = 0;
+    let hiddenAtMs = 0;
     const onVisibility = () => {
+      const now = performance.now();
+      if (document.hidden) {
+        hiddenAtMs = now;
+      } else if (hiddenAtMs > 0) {
+        accumulatedHiddenMs += now - hiddenAtMs;
+        hiddenAtMs = 0;
+        onScroll();
+      }
       tabVisible = !document.hidden;
     };
 
@@ -276,7 +291,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       rafId = requestAnimationFrame(loop);
       if (!tabVisible) return;
 
-      const t = reduced ? 0.5 : (now - t0) * 0.001;
+      const t = reduced ? 0.5 : (now - t0 - accumulatedHiddenMs) * 0.001;
       // sqrt easing: front-loads scroll response so the first ~20% of scroll
       // delivers ~45% of the visual effect — computed once per frame, not per bar
       const sp = Math.sqrt(scroll.pct);

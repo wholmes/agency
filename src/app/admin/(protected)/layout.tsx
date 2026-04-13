@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { isAdminSession } from "@/lib/admin/session";
+import { isAdminSession, isDefaultAdminPassword } from "@/lib/admin/session";
 import { logoutAction } from "./actions";
 
 const navGroups: { heading: string; items: { href: string; label: string }[] }[] = [
@@ -8,6 +8,7 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
     heading: "Site-wide",
     items: [
       { href: "/admin/settings", label: "Site & availability" },
+      { href: "/admin/email", label: "Email settings" },
       { href: "/admin/footer", label: "Footer" },
       { href: "/admin/chrome", label: "Nav & footer links" },
     ],
@@ -81,8 +82,18 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     redirect("/admin/login");
   }
 
+  const weakPassword = isDefaultAdminPassword();
+
   return (
-    <div className="flex min-h-[calc(100dvh-var(--nav-height))]">
+    <div className="flex min-h-[calc(100dvh-var(--nav-height))] flex-col">
+      {weakPassword && (
+        <div role="alert" className="border-b border-yellow-600/40 bg-yellow-950/60 px-4 py-2.5 text-xs text-yellow-300">
+          <strong>Security warning:</strong> You're using a weak or default{" "}
+          <code className="font-mono">ADMIN_PASSWORD</code>. Set a strong password (16+ random characters) in your{" "}
+          environment variables before going to production.
+        </div>
+      )}
+      <div className="flex flex-1">
       <aside className="hidden w-56 shrink-0 overflow-y-auto border-r border-border bg-surface md:block">
         <div className="flex min-h-full flex-col p-6">
           <p className="mb-4 font-display text-sm font-normal tracking-tight text-accent">CMS</p>
@@ -122,6 +133,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
           </nav>
         </header>
         <main className="p-6 md:p-10">{children}</main>
+      </div>
       </div>
     </div>
   );

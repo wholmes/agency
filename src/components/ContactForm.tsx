@@ -75,8 +75,18 @@ export default function ContactForm({
     setFormState("loading");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setFormState("success");
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        console.error("Contact form error:", data.error);
+        setFormState("error");
+      } else {
+        setFormState("success");
+      }
     } catch {
       setFormState("error");
     }

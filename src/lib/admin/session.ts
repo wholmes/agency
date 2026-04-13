@@ -80,3 +80,15 @@ export function isAdminPasswordConfigured(): boolean {
   const p = process.env.ADMIN_PASSWORD;
   return typeof p === "string" && p.length >= 8;
 }
+
+const KNOWN_WEAK = new Set([
+  "change-me-to-a-long-secret",
+  "password",
+  "admin123",
+  "secret",
+]);
+
+export function isDefaultAdminPassword(): boolean {
+  const p = process.env.ADMIN_PASSWORD ?? "";
+  return KNOWN_WEAK.has(p) || p.length < 16;
+}

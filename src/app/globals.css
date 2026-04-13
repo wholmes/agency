@@ -69,6 +69,11 @@
    Base
    -------------------------------------------------------------------------- */
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
 @layer base {
   *,
   *::before,
@@ -517,6 +522,11 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* Pause marquee when reduced motion is requested */
+  .animate-\\[marquee_36s_linear_infinite\\] {
+    animation: none !important;
   }
 
   .reveal,

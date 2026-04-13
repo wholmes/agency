@@ -8,6 +8,9 @@
  * dropped in water. No geometry, no grid. Pure fragment shader.
  *
  * Scroll drives the drift speed. Reduced-motion freezes time at t=0.
+ *
+ * Tab backgrounding: animation time subtracts hidden duration (same idea as
+ * HeroFieldCanvas) so returning to the tab doesn’t jump the shader clock.
  */
 
 import { useLayoutEffect, useRef } from "react";
@@ -210,9 +213,22 @@ export default function AboutInkCanvas() {
       scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
 
     let tabVisible = !document.hidden;
-    const onVisibility = () => { tabVisible = !document.hidden; };
+    let accumulatedHiddenMs = 0;
+    let hiddenAtMs = 0;
+    const onVisibility = () => {
+      const now = performance.now();
+      if (document.hidden) {
+        hiddenAtMs = now;
+      } else if (hiddenAtMs > 0) {
+        accumulatedHiddenMs += now - hiddenAtMs;
+        hiddenAtMs = 0;
+        onScroll();
+      }
+      tabVisible = !document.hidden;
+    };
     document.addEventListener("visibilitychange", onVisibility);
 
     const t0 = performance.now();
@@ -224,7 +240,7 @@ export default function AboutInkCanvas() {
       rafId = requestAnimationFrame(loop);
       if (!tabVisible) return;
 
-      const t = reduced ? 1.0 : (now - t0) * 0.001;
+      const t = reduced ? 1.0 : (now - t0 - accumulatedHiddenMs) * 0.001;
       gl!.uniform1f(uT, t);
       gl!.uniform1f(uScroll, scroll.pct);
       gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);

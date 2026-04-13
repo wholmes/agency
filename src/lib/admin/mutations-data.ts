@@ -554,6 +554,33 @@ export async function createIndustryPage(
   redirect(`/admin/industries/${slug}`);
 }
 
+// --- Email settings ---
+
+export async function updateEmailSettings(formData: FormData) {
+  await requireAdminSession();
+  await prisma.emailSettings.upsert({
+    where: { id: 1 },
+    create: {
+      id: 1,
+      notifyEmail: String(formData.get("notifyEmail") ?? ""),
+      fromName: String(formData.get("fromName") ?? "BrandMeetsCode"),
+      fromAddress: String(formData.get("fromAddress") ?? "onboarding@resend.dev"),
+      autoReplyEnabled: formData.get("autoReplyEnabled") === "on",
+      autoReplySubject: String(formData.get("autoReplySubject") ?? ""),
+      autoReplyOpening: String(formData.get("autoReplyOpening") ?? ""),
+    },
+    update: {
+      notifyEmail: String(formData.get("notifyEmail") ?? ""),
+      fromName: String(formData.get("fromName") ?? "BrandMeetsCode"),
+      fromAddress: String(formData.get("fromAddress") ?? "onboarding@resend.dev"),
+      autoReplyEnabled: formData.get("autoReplyEnabled") === "on",
+      autoReplySubject: String(formData.get("autoReplySubject") ?? ""),
+      autoReplyOpening: String(formData.get("autoReplyOpening") ?? ""),
+    },
+  });
+  revalidatePath("/admin/email");
+}
+
 export async function updateIndustryPage(slug: string, formData: FormData) {
   await requireAdminSession();
   const focusBullets = parseJsonField(String(formData.get("focusBullets") ?? "[]"), []);
