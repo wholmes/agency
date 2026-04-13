@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// Seeds run directly against the database — use the direct URL (not Accelerate)
+// so that bulk writes and transactions don't go through the edge proxy.
+const prisma = new PrismaClient({
+  datasources: { db: { url: process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL } },
+});
 
 async function main() {
   await prisma.$transaction([

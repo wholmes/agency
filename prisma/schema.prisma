@@ -1,11 +1,24 @@
-// BrandMeetsCode — content database (SQLite locally; use Postgres in production via DATABASE_URL)
+// BrandMeetsCode — content database (PostgreSQL via Vercel / Prisma Postgres)
+//
+// Env vars required:
+//   DATABASE_URL        — postgresql://... (direct URL for local dev and migrations)
+//
+// When using Prisma Postgres Accelerate in production, add:
+//   DATABASE_URL        — prisma+postgres://... (Accelerate URL, used at runtime)
+//   DIRECT_DATABASE_URL — postgresql://...      (direct URL, used for migrations & seeding)
+// and restore the `directUrl` line below + withAccelerate() in src/lib/prisma.ts.
+//
+// To provision: vercel integration add prisma  OR  npx prisma init --db
+// Then pull:    vercel env pull .env.local
+// Then migrate: npx prisma migrate dev --name init
+// Then seed:    npx prisma db seed
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
