@@ -9,9 +9,15 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((p) => ({ id: p.id }));
+  try {
+    const projects = await getProjects();
+    return projects.map((p) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
