@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion, type Variants } from "framer-motion";
-import AboutInkCanvas from "@/components/AboutInkCanvas";
 import type { AboutPageHero } from "@prisma/client";
+
+const AboutInkCanvas = dynamic(() => import("@/components/AboutInkCanvas"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-background" />,
+});
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 

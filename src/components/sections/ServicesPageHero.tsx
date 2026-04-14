@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { motion, type Variants } from "framer-motion";
-import HeroFieldCanvas from "../HeroFieldCanvas";
 import type { ServicesPageHero as ServicesPageHeroModel } from "@prisma/client";
+
+const HeroFieldCanvas = dynamic(() => import("../HeroFieldCanvas"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-background" />,
+});
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
