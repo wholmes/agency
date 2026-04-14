@@ -7,7 +7,16 @@ import type { ServicesPageHero as ServicesPageHeroModel } from "@prisma/client";
 
 const HeroFieldCanvas = dynamic(() => import("../HeroFieldCanvas"), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-background" />,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0"
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse 80% 60% at 60% 35%, #191614 0%, #0c0c0b 65%)",
+      }}
+    />
+  ),
 });
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];

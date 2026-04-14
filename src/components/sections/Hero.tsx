@@ -10,7 +10,19 @@ import type { HomeHero } from "@prisma/client";
 
 const IsometricFieldCanvas = dynamic(() => import("../IsometricFieldCanvas"), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-background" />,
+  // Background-image gradient paints immediately (no JS) and is large enough
+  // for Lighthouse to treat it as the LCP element — avoiding the 4–5 s wait
+  // for Three.js to load and render its first frame.
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0"
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse 80% 60% at 65% 40%, #1f1c17 0%, #0c0c0b 65%)",
+      }}
+    />
+  ),
 });
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
