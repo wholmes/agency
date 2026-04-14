@@ -232,12 +232,21 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     const onResize = () => {
       W = window.innerWidth;
       H = window.innerHeight;
-      const portraitHome = variant === "home" && W < H;
-      const renderW = portraitHome ? Math.round(H * 1.5) : W;
+      const portrait = W < H;
+      // On portrait mobile, render at H×1.5 (landscape buffer) anchored right:0
+      // so the grid enters as a corner accent without distortion.
+      const portraitField = portrait;
+      // On narrow desktop (home only), render at min 1200px anchored left:0 so
+      // the grid entry diagonal stays consistent as the viewport narrows.
+      const narrowDesktop = variant === "home" && !portrait && W < 1200;
+      const renderW = portraitField ? Math.round(H * 1.5) : narrowDesktop ? 1200 : W;
       renderer?.setSize(renderW, H, true);
-      if (portraitHome) {
+      if (portraitField) {
         canvas.style.left = "auto";
         canvas.style.right = "0";
+      } else if (narrowDesktop) {
+        canvas.style.left = "0";
+        canvas.style.right = "auto";
       } else {
         canvas.style.left = "";
         canvas.style.right = "";
@@ -254,7 +263,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         camera.bottom = -frustumH / 2;
         // On portrait mobile, look left of the grid so the right-aligned canvas
         // shows empty space on the left and the grid's entry diagonal on the right.
-        const lookX = portraitHome ? -3 : GX;
+        const lookX = portraitField ? -3 : GX;
         camera.position.set(lookX + 80, 80, GZ + 80);
         camera.lookAt(lookX, cfg.maxH * 0.25, GZ);
         camera.updateProjectionMatrix();
@@ -310,12 +319,16 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
 
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setClearColor(0x000000, 0);
-      const portraitHome0 = variant === "home" && W < H;
-      const initRenderW = portraitHome0 ? Math.round(H * 1.5) : W;
+      const portrait0 = W < H;
+      const narrowDesktop0 = variant === "home" && !portrait0 && W < 1200;
+      const initRenderW = portrait0 ? Math.round(H * 1.5) : narrowDesktop0 ? 1200 : W;
       renderer.setSize(initRenderW, H, true);
-      if (portraitHome0) {
+      if (portrait0) {
         canvas.style.left = "auto";
         canvas.style.right = "0";
+      } else if (narrowDesktop0) {
+        canvas.style.left = "0";
+        canvas.style.right = "auto";
       }
 
       const scene = new THREE.Scene();
@@ -361,7 +374,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       );
       // On portrait mobile, look left of the grid so the right-aligned canvas
       // shows empty space on the left and the grid's entry diagonal on the right.
-      const lookX0 = portraitHome0 ? -3 : GX;
+      const lookX0 = portrait0 ? -3 : GX;
       camera.position.set(lookX0 + 80, 80, GZ + 80);
       camera.lookAt(lookX0, cfg.maxH * 0.25, GZ);
 

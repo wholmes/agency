@@ -29,4 +29,10 @@ export type ScopeEstimatorData = {
   resultOverline: string;
   resultDisclaimer: string;
   stepTemplate: string;
+  /** Multiplier on (base + integrations) × page mult × timeline rush — low end */
+  rangeLowMultiplier: number;
+  /** High end of range */
+  rangeHighMultiplier: number;
+  /** Round estimates to nearest N dollars (e.g. 1000) */
+  roundingIncrement: number;
 };

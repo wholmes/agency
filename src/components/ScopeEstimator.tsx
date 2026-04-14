@@ -37,9 +37,13 @@ function calcRange(
 
   if (!type || !pages || !timeline) return { low: 0, high: 0, weeks: "" };
 
+  const lowM = data.rangeLowMultiplier;
+  const highM = data.rangeHighMultiplier;
+  const inc = Math.max(1, data.roundingIncrement);
+
   const base = type.base * pages.multiplier + integCost;
-  const low = Math.round((base * timeline.rush * 0.9) / 1000) * 1000;
-  const high = Math.round((base * timeline.rush * 1.2) / 1000) * 1000;
+  const low = Math.round((base * timeline.rush * lowM) / inc) * inc;
+  const high = Math.round((base * timeline.rush * highM) / inc) * inc;
 
   const weeks = data.weeksByTimelineId[sel.timeline] ?? "";
   return { low, high, weeks };

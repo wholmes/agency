@@ -745,6 +745,9 @@ async function main() {
       resultDisclaimer:
         "This is a rough range based on your inputs — not a quote. Real projects are scoped after a 30-minute discovery call where we can understand your actual goals.",
       stepTemplate: "Step {current} of {total}",
+      rangeLowMultiplier: 0.9,
+      rangeHighMultiplier: 1.2,
+      roundingIncrement: 1000,
     },
   });
 

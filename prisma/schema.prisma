@@ -298,6 +298,9 @@ model ScopeEstimatorConfig {
   resultOverline     String
   resultDisclaimer   String
   stepTemplate       String
+  rangeLowMultiplier  Float @default(0.9)
+  rangeHighMultiplier Float @default(1.2)
+  roundingIncrement   Int   @default(1000)
 }
 
 /// /about — story column heading + BMC visual

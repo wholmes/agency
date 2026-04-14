@@ -201,6 +201,65 @@ export default async function AdminServicesContentPage() {
             <label className="form-label">Intro body</label>
             <textarea name="body" required rows={3} defaultValue={scope.body} className="form-input" />
           </div>
+          <div className="rounded-lg border border-border bg-surface-2/50 p-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-text-tertiary">
+              Estimate math (how the $ range is built)
+            </p>
+            <p className="mb-4 text-xs leading-relaxed text-text-tertiary">
+              For each selection:{" "}
+              <code className="font-mono text-[11px] text-text-secondary">
+                (project base × page multiplier + integration costs) × timeline rush
+              </code>
+              , then low/high use the multipliers below, then amounts round to the increment.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="form-field">
+                <label className="form-label" htmlFor="rangeLowMultiplier">
+                  Low range multiplier
+                </label>
+                <input
+                  id="rangeLowMultiplier"
+                  name="rangeLowMultiplier"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  defaultValue={scope.rangeLowMultiplier}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label" htmlFor="rangeHighMultiplier">
+                  High range multiplier
+                </label>
+                <input
+                  id="rangeHighMultiplier"
+                  name="rangeHighMultiplier"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  defaultValue={scope.rangeHighMultiplier}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label" htmlFor="roundingIncrement">
+                  Round to nearest ($)
+                </label>
+                <input
+                  id="roundingIncrement"
+                  name="roundingIncrement"
+                  type="number"
+                  step="1"
+                  min="1"
+                  required
+                  defaultValue={scope.roundingIncrement}
+                  className="form-input"
+                />
+              </div>
+            </div>
+          </div>
           <div className="form-field">
             <label className="form-label">projectTypes (JSON)</label>
             <textarea name="projectTypes" required rows={8} defaultValue={prettyJson(scope.projectTypes)} className="form-input font-mono text-xs" spellCheck={false} />

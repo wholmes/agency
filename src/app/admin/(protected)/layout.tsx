@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AdminToastProvider } from "@/components/admin/AdminToast";
+import AdminKeyboardSave from "@/components/admin/AdminKeyboardSave";
 import AdminUrlToast from "@/components/admin/AdminUrlToast";
 import { isAdminSession, isDefaultAdminPassword } from "@/lib/admin/session";
 import { logoutAction } from "./actions";
@@ -90,6 +91,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
 
   return (
     <AdminToastProvider>
+    <AdminKeyboardSave />
     <div className="flex min-h-[calc(100dvh-var(--nav-height))] flex-col">
       <Suspense fallback={null}>
         <AdminUrlToast />

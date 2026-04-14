@@ -224,6 +224,18 @@ export async function updateScopeEstimatorConfig(formData: FormData) {
       resultOverline: String(formData.get("resultOverline") ?? ""),
       resultDisclaimer: String(formData.get("resultDisclaimer") ?? ""),
       stepTemplate: String(formData.get("stepTemplate") ?? ""),
+      rangeLowMultiplier: (() => {
+        const v = Number(formData.get("rangeLowMultiplier"));
+        return Number.isFinite(v) && v > 0 ? v : 0.9;
+      })(),
+      rangeHighMultiplier: (() => {
+        const v = Number(formData.get("rangeHighMultiplier"));
+        return Number.isFinite(v) && v > 0 ? v : 1.2;
+      })(),
+      roundingIncrement: (() => {
+        const v = Math.round(Number(formData.get("roundingIncrement")));
+        return Number.isFinite(v) && v >= 1 ? v : 1000;
+      })(),
     },
   });
   revalidatePath("/services");

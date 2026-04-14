@@ -101,6 +101,9 @@ function scopeRowToData(row: {
   resultOverline: string;
   resultDisclaimer: string;
   stepTemplate: string;
+  rangeLowMultiplier: number;
+  rangeHighMultiplier: number;
+  roundingIncrement: number;
 }): ScopeEstimatorData {
   const emptySteps = {
     type: "",
@@ -128,6 +131,9 @@ function scopeRowToData(row: {
     resultOverline: row.resultOverline,
     resultDisclaimer: row.resultDisclaimer,
     stepTemplate: row.stepTemplate,
+    rangeLowMultiplier: row.rangeLowMultiplier,
+    rangeHighMultiplier: row.rangeHighMultiplier,
+    roundingIncrement: row.roundingIncrement,
   };
 }
 

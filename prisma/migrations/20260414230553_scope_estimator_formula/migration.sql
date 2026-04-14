@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "ScopeEstimatorConfig" ADD COLUMN     "rangeHighMultiplier" DOUBLE PRECISION NOT NULL DEFAULT 1.2,
+ADD COLUMN     "rangeLowMultiplier" DOUBLE PRECISION NOT NULL DEFAULT 0.9,
+ADD COLUMN     "roundingIncrement" INTEGER NOT NULL DEFAULT 1000;

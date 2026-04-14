@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LogoMark } from "./icons";
 import StackLogos from "./StackLogos";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
@@ -30,7 +29,12 @@ export default function Footer({
               className="mb-5 inline-flex items-center gap-3"
               aria-label="BrandMeetsCode — Home"
             >
-              <LogoMark size={26} className="text-accent opacity-90" />
+              <span
+                className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-accent/50 text-accent opacity-90"
+                aria-hidden="true"
+              >
+                <span className="font-mono text-[0.8125rem] font-semibold leading-none">B</span>
+              </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
                 Brand<span className="text-accent">Meets</span>Code
               </span>
