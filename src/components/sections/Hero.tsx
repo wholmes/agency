@@ -71,16 +71,25 @@ export default function Hero({ content }: { content: HomeHero }) {
       aria-label="Hero"
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
-      <IsometricFieldCanvas />
+      {/* Mobile: still slightly softer than desktop so type stays legible — field stays visible */}
+      <div className="absolute inset-0 z-0 max-md:opacity-[0.78] md:opacity-100">
+        <IsometricFieldCanvas />
+      </div>
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.03)_1px,transparent_1px)] bg-size-[80px_80px]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.03)_1px,transparent_1px)] bg-size-[80px_80px] max-md:bg-[linear-gradient(rgba(201,165,90,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.055)_1px,transparent_1px)]"
       />
 
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-[20%] -right-[10%] size-[600px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.06)_0%,transparent_70%)]"
+      />
+
+      {/* Mobile: light edge darkening only — keeps the isometric field visible; no heavy center wash */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_115%_95%_at_50%_35%,rgb(12_12_11_/_0)_0%,rgb(12_12_11_/_0.12)_50%,rgb(12_12_11_/_0.38)_100%)] md:bg-transparent"
       />
 
       {/* Editorial hairline — aligns with container padding */}
@@ -90,76 +99,78 @@ export default function Hero({ content }: { content: HomeHero }) {
       />
 
       <div className="container relative z-[1]">
-        <motion.p
-          className="text-overline mb-6"
-          initial="hidden"
-          animate="visible"
-          custom={0.1}
-          variants={enterVariant}
-        >
-          {content.overline}
-        </motion.p>
-
-        <h1 className="mb-6">
-          <motion.span
-            className="text-display block overflow-hidden pb-[0.06em]"
+        <div className="max-md:rounded-md max-md:border max-md:border-border/25 max-md:bg-bg/58 max-md:px-5 max-md:py-8 max-md:shadow-[0_8px_40px_rgb(0_0_0_/_0.35)] md:border-transparent md:bg-transparent md:p-0 md:shadow-none">
+          <motion.p
+            className="text-overline mb-6"
             initial="hidden"
             animate="visible"
-            custom={0}
-            variants={clipVariant}
+            custom={0.1}
+            variants={enterVariant}
           >
-            {content.headlineLine1}
-          </motion.span>
-          <motion.span
-            className="text-display block overflow-hidden pb-[0.06em] pl-[clamp(2rem,10vw,12rem)] -mt-[20px]"
+            {content.overline}
+          </motion.p>
+
+          <h1 className="mb-6 flex flex-col max-md:gap-3 max-md:[&_.text-display]:text-[clamp(3.875rem,12vw_+_0.5rem,6.25rem)] md:block md:gap-0">
+            <motion.span
+              className="text-display block overflow-hidden pb-[0.06em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
+              initial="hidden"
+              animate="visible"
+              custom={0}
+              variants={clipVariant}
+            >
+              {content.headlineLine1}
+            </motion.span>
+            <motion.span
+              className="text-display block overflow-hidden pb-[0.06em] max-md:mt-0 max-md:pl-4 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
+              initial="hidden"
+              animate="visible"
+              custom={0.12}
+              variants={clipVariant}
+            >
+              <em className="italic-display text-accent">{content.headlineLine2Italic}</em>
+            </motion.span>
+            <motion.span
+              className="text-display block overflow-hidden pb-[0.06em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
+              initial="hidden"
+              animate="visible"
+              custom={0.24}
+              variants={clipVariant}
+            >
+              {content.headlineLine3}
+            </motion.span>
+          </h1>
+
+          <motion.p
+            className="text-body-lg mb-8 max-w-[480px] max-md:leading-[1.85] max-md:text-text-primary/88"
             initial="hidden"
             animate="visible"
-            custom={0.12}
-            variants={clipVariant}
+            custom={0.55}
+            variants={enterVariant}
           >
-            <em className="italic-display text-accent">{content.headlineLine2Italic}</em>
-          </motion.span>
-          <motion.span
-            className="text-display block overflow-hidden pb-[0.06em]"
+            {content.body}
+          </motion.p>
+
+          <motion.div
+            className="flex flex-wrap gap-4"
             initial="hidden"
             animate="visible"
-            custom={0.24}
-            variants={clipVariant}
+            custom={0.7}
+            variants={enterVariant}
           >
-            {content.headlineLine3}
-          </motion.span>
-        </h1>
-
-        <motion.p
-          className="text-body-lg mb-8 max-w-[480px]"
-          initial="hidden"
-          animate="visible"
-          custom={0.55}
-          variants={enterVariant}
-        >
-          {content.body}
-        </motion.p>
-
-        <motion.div
-          className="flex flex-wrap gap-4"
-          initial="hidden"
-          animate="visible"
-          custom={0.7}
-          variants={enterVariant}
-        >
-          <MagneticButton>
-            <Link href={content.primaryCtaHref} className="btn btn-primary" data-cursor-label="Let's Build">
-              {content.primaryCtaLabel}
-              <IconArrowUpRight size={16} />
-            </Link>
-          </MagneticButton>
-          <MagneticButton>
-            <Link href={content.secondaryCtaHref} className="btn btn-secondary">
-              {content.secondaryCtaLabel}
-              <IconArrowRight size={16} />
-            </Link>
-          </MagneticButton>
-        </motion.div>
+            <MagneticButton>
+              <Link href={content.primaryCtaHref} className="btn btn-primary" data-cursor-label="Let's Build">
+                {content.primaryCtaLabel}
+                <IconArrowUpRight size={16} />
+              </Link>
+            </MagneticButton>
+            <MagneticButton>
+              <Link href={content.secondaryCtaHref} className="btn btn-secondary">
+                {content.secondaryCtaLabel}
+                <IconArrowRight size={16} />
+              </Link>
+            </MagneticButton>
+          </motion.div>
+        </div>
       </div>
 
       <div
