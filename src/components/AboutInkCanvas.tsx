@@ -259,6 +259,7 @@ export default function AboutInkCanvas() {
       window.addEventListener("resize", resize);
 
       const t0 = performance.now();
+      let frameCount = 0;
 
       const loop = (now: number) => {
         if (disposed) return;
@@ -268,22 +269,25 @@ export default function AboutInkCanvas() {
         const t = reduced ? 1.0 : (now - t0 - accumulatedHiddenMs) * 0.001;
         gl!.uniform1f(uT, t);
         gl!.uniform1f(uScroll, scroll.pct);
+
+        const renderStart = performance.now();
         gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+        const renderMs = performance.now() - renderStart;
+
+        frameCount++;
+        // Adaptive quality: stop loop if first frames are slow (software rendering).
+        if (frameCount <= 5 && renderMs > 60) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
       };
       rafId = requestAnimationFrame(loop);
     };
 
-    let cancelIdle: (() => void) | undefined;
-    if (typeof window.requestIdleCallback !== "undefined") {
-      const id = window.requestIdleCallback(init, { timeout: 2000 });
-      cancelIdle = () => window.cancelIdleCallback(id);
-    } else {
-      const id = setTimeout(init, 200);
-      cancelIdle = () => clearTimeout(id);
-    }
+    // Start immediately — adaptive quality bails out after first slow frame.
+    init();
 
     return () => {
-      cancelIdle?.();
       cleanup();
     };
   }, []);

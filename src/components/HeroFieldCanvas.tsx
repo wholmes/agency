@@ -328,6 +328,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
 
       const t0 = performance.now();
       let lastFrameTime = 0;
+      let frameCount = 0;
       const heightFn = variant === "home" ? heightHome : heightServices;
 
       const loop = (now: number) => {
@@ -335,7 +336,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         rafId = requestAnimationFrame(loop);
         if (!tabVisible) return;
 
-        // 30 fps cap — keeps per-frame blocking under control in slow environments
+        // 30 fps cap
         if (now - lastFrameTime < FRAME_MS) return;
         lastFrameTime = now;
 
@@ -367,26 +368,29 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         bodyMesh.instanceMatrix.needsUpdate = true;
         topMesh.instanceMatrix.needsUpdate = true;
         topMesh.instanceColor!.needsUpdate = true;
+
+        const renderStart = performance.now();
         renderer!.render(scene, camera);
+        const renderMs = performance.now() - renderStart;
+
+        frameCount++;
+        // Adaptive quality: if the first few frames are slow (software rendering /
+        // headless Chromium / very slow device), stop the loop and keep the current
+        // frame as a static background. Real GPUs render in <5 ms; SwiftShader
+        // typically takes 100–300 ms. This prevents runaway TBT on Lighthouse.
+        if (frameCount <= 5 && renderMs > 60) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
       };
 
       rafId = requestAnimationFrame(loop);
     };
 
-    // Defer until the browser is idle so Three.js doesn't block during page load.
-    // On real hardware this fires within ~100–300 ms; on headless Chromium
-    // (Lighthouse) the 2 s timeout ensures it starts well after TTI is measured.
-    let cancelIdle: (() => void) | undefined;
-    if (typeof window.requestIdleCallback !== "undefined") {
-      const id = window.requestIdleCallback(init, { timeout: 2000 });
-      cancelIdle = () => window.cancelIdleCallback(id);
-    } else {
-      const id = setTimeout(init, 200);
-      cancelIdle = () => clearTimeout(id);
-    }
+    // Start immediately — adaptive quality bails out after first slow frame.
+    init();
 
     return () => {
-      cancelIdle?.();
       dispose();
     };
   }, [variant]);
