@@ -347,6 +347,7 @@ function HamburgerIcon({ open }: { open: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <motion.path
+        d="M3 8h18"
         animate={open ? { d: "M6 6l12 12" } : { d: "M3 8h18" }}
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         stroke="currentColor"
@@ -363,6 +364,7 @@ function HamburgerIcon({ open }: { open: boolean }) {
         className="origin-left"
       />
       <motion.path
+        d="M3 16h18"
         animate={open ? { d: "M18 6L6 18" } : { d: "M3 16h18" }}
         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
         stroke="currentColor"

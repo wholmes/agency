@@ -2,8 +2,8 @@
 
 /**
  * Single WebGL hero field — one context, one animation loop per mount.
- * `home`: cartesian waves, 22×22, warm gold.
- * `services`: radial ripples, 16×16, cooler gold.
+ * `home`: cartesian waves, 18×18, warm gold.
+ * `services`: radial ripples, 14×14, cooler gold.
  *
  * Both share the same camera treatment (right-biased orthographic) and scroll
  * response so we don’t run two diverging Three.js lifecycles.
@@ -212,25 +212,55 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     let W = window.innerWidth;
     let H = window.innerHeight;
     let camera: THREE.OrthographicCamera;
+
+    /**
+     * On portrait phones the screen aspect is ~0.46 (430×932).
+     * If we render into that canvas with a landscape-equivalent frustum the
+     * scene is horizontally squashed ("smushed"). The fix: render into a
+     * landscape-sized buffer (H × 1.5 wide) and anchor it to the right edge of
+     * the hero so the section's overflow-hidden clips the left overhang.
+     * frustumW / renderW  then equals frustumH / H and there's no distortion.
+     */
+    const applyPortraitHome = () => {
+      if (variant !== "home" || W >= H) return;
+      const rW = Math.round(H * 1.5);
+      renderer?.setSize(rW, H, true);
+      canvas.style.left = "auto";
+      canvas.style.right = "0";
+    };
+
     const onResize = () => {
       W = window.innerWidth;
       H = window.innerHeight;
-      renderer?.setSize(W, H, false);
+      const portraitHome = variant === "home" && W < H;
+      const renderW = portraitHome ? Math.round(H * 1.5) : W;
+      renderer?.setSize(renderW, H, true);
+      if (portraitHome) {
+        canvas.style.left = "auto";
+        canvas.style.right = "0";
+      } else {
+        canvas.style.left = "";
+        canvas.style.right = "";
+      }
       if (camera) {
         const cfg = CONFIG[variant];
         const GX = ((cfg.cols - 1) * cfg.gap) / 2;
         const GZ = ((cfg.rows - 1) * cfg.gap) / 2;
         const frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
-        const frustumW = frustumH * (W / H);
+        const frustumW = frustumH * (renderW / Math.max(H, 1));
         camera.left = -frustumW * 0.76;
         camera.right = frustumW * 0.24;
         camera.top = frustumH / 2;
         camera.bottom = -frustumH / 2;
-        camera.position.set(GX + 80, 80, GZ + 80);
-        camera.lookAt(GX, cfg.maxH * 0.25, GZ);
+        // On portrait mobile, look left of the grid so the right-aligned canvas
+        // shows empty space on the left and the grid's entry diagonal on the right.
+        const lookX = portraitHome ? -3 : GX;
+        camera.position.set(lookX + 80, 80, GZ + 80);
+        camera.lookAt(lookX, cfg.maxH * 0.25, GZ);
         camera.updateProjectionMatrix();
       }
     };
+    void applyPortraitHome;
 
     let tabVisible = !document.hidden;
     let accumulatedHiddenMs = 0;
@@ -280,7 +310,13 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
 
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setClearColor(0x000000, 0);
-      renderer.setSize(W, H, false);
+      const portraitHome0 = variant === "home" && W < H;
+      const initRenderW = portraitHome0 ? Math.round(H * 1.5) : W;
+      renderer.setSize(initRenderW, H, true);
+      if (portraitHome0) {
+        canvas.style.left = "auto";
+        canvas.style.right = "0";
+      }
 
       const scene = new THREE.Scene();
       const GX = ((cfg.cols - 1) * cfg.gap) / 2;
@@ -297,7 +333,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       bodyMesh.frustumCulled = false;
       scene.add(bodyMesh);
 
-      const topH = variant === "home" ? 0.06 : 0.055;
+      const topH = variant === "services" ? 0.055 : 0.06;
       topGeo = new THREE.BoxGeometry(cfg.boxTop, topH, cfg.boxTop);
       topMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
       const topMesh = new THREE.InstancedMesh(topGeo, topMat, N);
@@ -314,7 +350,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       const topCol = new THREE.Color();
 
       const frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
-      const frustumW = frustumH * (W / H);
+      const frustumW = frustumH * (initRenderW / Math.max(H, 1));
       camera = new THREE.OrthographicCamera(
         -frustumW * 0.76,
         frustumW * 0.24,
@@ -323,13 +359,16 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         0.1,
         500,
       );
-      camera.position.set(GX + 80, 80, GZ + 80);
-      camera.lookAt(GX, cfg.maxH * 0.25, GZ);
+      // On portrait mobile, look left of the grid so the right-aligned canvas
+      // shows empty space on the left and the grid's entry diagonal on the right.
+      const lookX0 = portraitHome0 ? -3 : GX;
+      camera.position.set(lookX0 + 80, 80, GZ + 80);
+      camera.lookAt(lookX0, cfg.maxH * 0.25, GZ);
 
       const t0 = performance.now();
       let lastFrameTime = 0;
       let frameCount = 0;
-      const heightFn = variant === "home" ? heightHome : heightServices;
+      const heightFn = variant === "services" ? heightServices : heightHome;
 
       const loop = (now: number) => {
         if (disposed) return;
@@ -389,6 +428,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
 
     // Start immediately — adaptive quality bails out after first slow frame.
     init();
+    onResize();
 
     return () => {
       dispose();
