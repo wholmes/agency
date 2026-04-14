@@ -436,7 +436,7 @@ export default function Navigation({
 
   const scheduleClose = useCallback(() => {
     if (openTimer.current) clearTimeout(openTimer.current);
-    closeTimer.current = setTimeout(() => setActiveDropdown(null), 140);
+    closeTimer.current = setTimeout(() => setActiveDropdown(null), 250);
   }, []);
 
   const cancelClose = useCallback(() => {
@@ -478,6 +478,7 @@ export default function Navigation({
             role="navigation"
             aria-label="Main navigation"
             className="hidden items-center gap-8 md:flex"
+            onMouseLeave={scheduleClose}
           >
             {navLinks.map((link) => {
               const hasDrop = hasDropdown(link.href);
@@ -485,7 +486,6 @@ export default function Navigation({
                 <div
                   key={link.href}
                   onMouseEnter={() => (hasDrop ? openDropdown(link.href) : scheduleClose())}
-                  onMouseLeave={scheduleClose}
                 >
                   <NavLink
                     href={link.href}
