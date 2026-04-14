@@ -8,6 +8,8 @@ export default async function AdminSeoPage() {
 
   const hasGa = s.googleAnalyticsId.startsWith("G-");
   const hasGtm = s.googleTagManagerId.startsWith("GTM-");
+  const hasApiSecret = s.googleAnalyticsApiSecret.length > 0;
+  const serverSideActive = hasGa && hasApiSecret;
 
   return (
     <div className="mx-auto max-w-xl">
@@ -114,7 +116,28 @@ export default async function AdminSeoPage() {
           <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
             Google Analytics 4
           </legend>
-          <div className="mt-4 flex flex-col gap-3">
+          <div className="mt-4 flex flex-col gap-4">
+            {/* Status row */}
+            {(hasGa || hasGtm) && (
+              <div className="flex flex-wrap gap-2">
+                {hasGa && !hasGtm && (
+                  <span className="rounded-full border border-green-700/40 bg-green-950/30 px-2.5 py-1 text-[11px] font-medium text-green-400">
+                    ✓ Client-side tracking active
+                  </span>
+                )}
+                {serverSideActive && (
+                  <span className="rounded-full border border-green-700/40 bg-green-950/30 px-2.5 py-1 text-[11px] font-medium text-green-400">
+                    ✓ Server-side tracking active
+                  </span>
+                )}
+                {hasGa && hasGtm && (
+                  <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-text-tertiary">
+                    GA4 script suppressed — using GTM
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="form-field">
               <label className="form-label" htmlFor="googleAnalyticsId">
                 Measurement ID
@@ -130,17 +153,34 @@ export default async function AdminSeoPage() {
                 title="Must start with G- or be empty"
               />
               <p className="mt-1 text-xs text-text-tertiary">
-                Found in Google Analytics → Admin → Data Streams → your stream.
-                Leave blank to disable.
+                Google Analytics → Admin → Data Streams → your stream.
               </p>
             </div>
-            {hasGa && !hasGtm && (
-              <p className="text-xs font-medium text-green-400">✓ GA4 is active</p>
-            )}
-            {hasGa && hasGtm && (
-              <p className="text-xs text-text-tertiary">
-                GTM is active — GA4 script is suppressed to avoid double-counting. Configure GA4 inside GTM instead.
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="googleAnalyticsApiSecret">
+                Measurement Protocol API Secret
+              </label>
+              <input
+                id="googleAnalyticsApiSecret"
+                name="googleAnalyticsApiSecret"
+                type="password"
+                autoComplete="off"
+                defaultValue={s.googleAnalyticsApiSecret}
+                className="form-input font-mono text-sm"
+                placeholder="••••••••••••••••"
+              />
+              <p className="mt-1 text-xs text-text-tertiary">
+                Required for server-side event tracking (contact form leads, etc.).
+                GA4 → Admin → Data Streams → your stream → Measurement Protocol → <strong className="text-text-secondary">Create API Secret</strong>.
+                Leave blank to disable server-side tracking.
               </p>
+            </div>
+
+            {hasGa && !hasApiSecret && (
+              <div className="rounded-md border border-yellow-700/30 bg-yellow-950/20 px-4 py-3 text-xs text-yellow-300">
+                <strong>Add an API Secret</strong> to enable server-side tracking — form submissions and other server events will appear in GA4 alongside client-side page views.
+              </div>
             )}
           </div>
         </fieldset>

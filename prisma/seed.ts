@@ -52,6 +52,7 @@ async function main() {
       metaDescription:
         "BrandMeetsCode builds premium websites where brand strategy meets technical execution. Trusted by B2B companies, SaaS founders, and marketing leaders who demand both design and engineering excellence.",
       googleAnalyticsId: "",
+      googleAnalyticsApiSecret: "",
       googleTagManagerId: "",
       noIndex: false,
     },

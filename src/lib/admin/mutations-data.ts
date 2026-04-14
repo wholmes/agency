@@ -657,25 +657,19 @@ export async function createProject(
 
 export async function updateSeoSettings(formData: FormData) {
   await requireAdminSession();
+  const data = {
+    siteTitle: String(formData.get("siteTitle") ?? ""),
+    titleTemplate: String(formData.get("titleTemplate") ?? "%s | BrandMeetsCode"),
+    metaDescription: String(formData.get("metaDescription") ?? ""),
+    googleAnalyticsId: String(formData.get("googleAnalyticsId") ?? "").trim(),
+    googleAnalyticsApiSecret: String(formData.get("googleAnalyticsApiSecret") ?? "").trim(),
+    googleTagManagerId: String(formData.get("googleTagManagerId") ?? "").trim(),
+    noIndex: formData.get("noIndex") === "on",
+  };
   await prisma.seoSettings.upsert({
     where: { id: 1 },
-    create: {
-      id: 1,
-      siteTitle: String(formData.get("siteTitle") ?? ""),
-      titleTemplate: String(formData.get("titleTemplate") ?? "%s | BrandMeetsCode"),
-      metaDescription: String(formData.get("metaDescription") ?? ""),
-      googleAnalyticsId: String(formData.get("googleAnalyticsId") ?? "").trim(),
-      googleTagManagerId: String(formData.get("googleTagManagerId") ?? "").trim(),
-      noIndex: formData.get("noIndex") === "on",
-    },
-    update: {
-      siteTitle: String(formData.get("siteTitle") ?? ""),
-      titleTemplate: String(formData.get("titleTemplate") ?? "%s | BrandMeetsCode"),
-      metaDescription: String(formData.get("metaDescription") ?? ""),
-      googleAnalyticsId: String(formData.get("googleAnalyticsId") ?? "").trim(),
-      googleTagManagerId: String(formData.get("googleTagManagerId") ?? "").trim(),
-      noIndex: formData.get("noIndex") === "on",
-    },
+    create: { id: 1, ...data },
+    update: data,
   });
   revalidatePath("/admin/seo");
   revalidatePath("/", "layout");

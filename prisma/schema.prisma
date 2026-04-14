@@ -364,6 +364,9 @@ model SeoSettings {
   metaDescription    String  @default("BrandMeetsCode builds premium websites where brand strategy meets technical execution.")
   /// Google Analytics 4 Measurement ID (G-XXXXXXXXXX). Leave blank to disable.
   googleAnalyticsId  String  @default("")
+  /// GA4 Measurement Protocol API Secret — used for server-side event tracking.
+  /// Generate in GA4: Admin → Data Streams → stream → Measurement Protocol → API Secrets.
+  googleAnalyticsApiSecret String @default("")
   /// Google Tag Manager Container ID (GTM-XXXXXXX). Leave blank to disable.
   googleTagManagerId String  @default("")
   /// When true, adds <meta name="robots" content="noindex,nofollow"> sitewide.

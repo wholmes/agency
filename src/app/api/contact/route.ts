@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { trackEvent } from "@/lib/analytics";
 
 export async function POST(req: Request) {
   let body: Record<string, string>;
@@ -92,6 +93,13 @@ export async function POST(req: Request) {
       html: buildAutoReplyHtml({ name, opening, notifyEmail }),
     });
   }
+
+  // Server-side GA4 event — fire and forget
+  void trackEvent("generate_lead", {
+    form_name: "contact",
+    ...(project ? { project_type: project } : {}),
+    ...(budget ? { budget_range: budget } : {}),
+  });
 
   return Response.json({ ok: true });
 }
