@@ -15,8 +15,8 @@ export default async function Image({ params }: Props) {
 
   return new ImageResponse(
     <OgCard
-      title={page?.heroHeadline ?? page?.name ?? "Industry Focus"}
-      description={page?.heroSubheadline ?? undefined}
+      title={page?.heroTitle ?? page?.listTitle ?? "Industry Focus"}
+      description={page?.heroBody ?? undefined}
       eyebrow="BrandMeetsCode · Industry"
     />,
     { ...size },
