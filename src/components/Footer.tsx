@@ -75,9 +75,15 @@ export default function Footer({
           </div>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
-              &copy; {year} {chrome.copyrightBrandName}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
+                &copy; {year} {chrome.copyrightBrandName}
+              </p>
+              <span aria-hidden="true" className="text-border">·</span>
+              <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
+                Chicago, IL
+              </p>
+            </div>
             <nav aria-label="Legal and utility" className="flex flex-wrap gap-x-8 gap-y-2">
               {chrome.footerUtilityLinks.map((link) => (
                 <Link
@@ -90,6 +96,7 @@ export default function Footer({
               ))}
             </nav>
           </div>
+
 
           <p className="mt-6 font-mono text-[10px] tracking-[0.12em] text-text-tertiary uppercase">
             {chrome.rightsReservedLine}

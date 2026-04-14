@@ -50,7 +50,7 @@ async function main() {
       siteTitle: "BrandMeetsCode — Premium Web Development Agency",
       titleTemplate: "%s | BrandMeetsCode",
       metaDescription:
-        "BrandMeetsCode builds premium websites where brand strategy meets technical execution. Trusted by B2B companies, SaaS founders, and marketing leaders who demand both design and engineering excellence.",
+        "Chicago-based web development agency where brand strategy meets technical execution. BrandMeetsCode builds premium websites for B2B companies, SaaS founders, and marketing leaders worldwide.",
       googleAnalyticsId: "",
       googleAnalyticsApiSecret: "",
       googleTagManagerId: "",

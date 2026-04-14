@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "About — The BrandMeetsCode Story",
   description:
-    "The story of BrandMeetsCode — a premium web development agency built at the intersection of brand strategy and technical execution. Values, approach, and the team behind the work.",
+    "The story of BrandMeetsCode — a Chicago-based web development agency built at the intersection of brand strategy and technical execution. Values, approach, and the work behind the work.",
   alternates: {
     canonical: "https://brandmeetscode.com/about",
   },

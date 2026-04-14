@@ -158,7 +158,13 @@ export default async function RootLayout({
               description:
                 "Premium web development agency where brand strategy meets technical execution.",
               serviceType: "Web Development",
-              areaServed: "Worldwide",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Chicago",
+                addressRegion: "IL",
+                addressCountry: "US",
+              },
+              areaServed: ["Chicago", "United States", "Worldwide"],
               priceRange: "$$$",
             }),
           }}
