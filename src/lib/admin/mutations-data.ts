@@ -653,6 +653,34 @@ export async function createProject(
   redirect(`/admin/projects/${id}`);
 }
 
+// --- SEO settings ---
+
+export async function updateSeoSettings(formData: FormData) {
+  await requireAdminSession();
+  await prisma.seoSettings.upsert({
+    where: { id: 1 },
+    create: {
+      id: 1,
+      siteTitle: String(formData.get("siteTitle") ?? ""),
+      titleTemplate: String(formData.get("titleTemplate") ?? "%s | BrandMeetsCode"),
+      metaDescription: String(formData.get("metaDescription") ?? ""),
+      googleAnalyticsId: String(formData.get("googleAnalyticsId") ?? "").trim(),
+      googleTagManagerId: String(formData.get("googleTagManagerId") ?? "").trim(),
+      noIndex: formData.get("noIndex") === "on",
+    },
+    update: {
+      siteTitle: String(formData.get("siteTitle") ?? ""),
+      titleTemplate: String(formData.get("titleTemplate") ?? "%s | BrandMeetsCode"),
+      metaDescription: String(formData.get("metaDescription") ?? ""),
+      googleAnalyticsId: String(formData.get("googleAnalyticsId") ?? "").trim(),
+      googleTagManagerId: String(formData.get("googleTagManagerId") ?? "").trim(),
+      noIndex: formData.get("noIndex") === "on",
+    },
+  });
+  revalidatePath("/admin/seo");
+  revalidatePath("/", "layout");
+}
+
 // --- Email settings ---
 
 export async function updateEmailSettings(formData: FormData) {

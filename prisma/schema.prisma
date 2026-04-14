@@ -353,6 +353,24 @@ model IndustryPage {
   ctaHref               String
 }
 
+/// Global SEO defaults and analytics script IDs
+model SeoSettings {
+  id                 Int     @id @default(1)
+  /// Default <title> for the homepage and fallback for pages without their own title
+  siteTitle          String  @default("BrandMeetsCode — Premium Web Development Agency")
+  /// printf-style title template — %s is replaced with the page title
+  titleTemplate      String  @default("%s | BrandMeetsCode")
+  /// Default meta description (used when a page doesn't override it)
+  metaDescription    String  @default("BrandMeetsCode builds premium websites where brand strategy meets technical execution.")
+  /// Google Analytics 4 Measurement ID (G-XXXXXXXXXX). Leave blank to disable.
+  googleAnalyticsId  String  @default("")
+  /// Google Tag Manager Container ID (GTM-XXXXXXX). Leave blank to disable.
+  googleTagManagerId String  @default("")
+  /// When true, adds <meta name="robots" content="noindex,nofollow"> sitewide.
+  /// Useful for staging / pre-launch environments.
+  noIndex            Boolean @default(false)
+}
+
 /// Global nav + footer link columns (JSON)
 model SiteChrome {
   id         Int    @id @default(1)

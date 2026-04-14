@@ -38,10 +38,24 @@ async function main() {
     prisma.featuredTestimonial.deleteMany(),
     prisma.socialClient.deleteMany(),
     prisma.socialStat.deleteMany(),
+    prisma.seoSettings.deleteMany(),
     prisma.emailSettings.deleteMany(),
     prisma.siteSettings.deleteMany(),
     prisma.project.deleteMany(),
   ]);
+
+  await prisma.seoSettings.create({
+    data: {
+      id: 1,
+      siteTitle: "BrandMeetsCode — Premium Web Development Agency",
+      titleTemplate: "%s | BrandMeetsCode",
+      metaDescription:
+        "BrandMeetsCode builds premium websites where brand strategy meets technical execution. Trusted by B2B companies, SaaS founders, and marketing leaders who demand both design and engineering excellence.",
+      googleAnalyticsId: "",
+      googleTagManagerId: "",
+      noIndex: false,
+    },
+  });
 
   await prisma.siteSettings.create({
     data: {

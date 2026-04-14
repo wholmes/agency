@@ -6,11 +6,13 @@ import type { NavDropdownData } from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import AdminEditLink from "@/components/AdminEditLink";
+import AnalyticsScripts from "@/components/AnalyticsScripts";
 import { isAdminSession } from "@/lib/admin/session";
 import {
   getFooterCopy,
   getIndustryPagesForList,
   getProjects,
+  getSeoSettings,
   getServiceOfferings,
   getSiteChrome,
   getSiteSettings,
@@ -41,69 +43,80 @@ const dmMono = DM_Mono({
   weight: ["300", "400", "500"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://brandmeetscode.com"),
-  title: {
-    default: "BrandMeetsCode — Premium Web Development Agency",
-    template: "%s | BrandMeetsCode",
-  },
-  description:
-    "BrandMeetsCode builds premium websites where brand strategy meets technical execution. Trusted by B2B companies, SaaS founders, and marketing leaders who demand both design and engineering excellence.",
-  keywords: [
-    "web development agency",
-    "brand strategy",
-    "premium website design",
-    "SaaS website development",
-    "B2B web design",
-    "Next.js agency",
-    "design engineering",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://brandmeetscode.com",
-    siteName: "BrandMeetsCode",
-    title: "BrandMeetsCode — Premium Web Development Agency",
-    description:
-      "Premium websites where brand strategy meets technical execution.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "BrandMeetsCode — Premium Web Development Agency",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "BrandMeetsCode — Premium Web Development Agency",
-    description:
-      "Premium websites where brand strategy meets technical execution.",
-    images: ["/og-image.jpg"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+const SITE_URL = "https://brandmeetscode.com";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let seo = {
+    siteTitle: "BrandMeetsCode — Premium Web Development Agency",
+    titleTemplate: "%s | BrandMeetsCode",
+    metaDescription:
+      "BrandMeetsCode builds premium websites where brand strategy meets technical execution. Trusted by B2B companies, SaaS founders, and marketing leaders who demand both design and engineering excellence.",
+    noIndex: false,
+  };
+  try {
+    const db = await getSeoSettings();
+    seo = {
+      siteTitle: db.siteTitle || seo.siteTitle,
+      titleTemplate: db.titleTemplate || seo.titleTemplate,
+      metaDescription: db.metaDescription || seo.metaDescription,
+      noIndex: db.noIndex,
+    };
+  } catch { /* fall back to defaults */ }
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: seo.siteTitle,
+      template: seo.titleTemplate,
     },
-  },
-  alternates: {
-    canonical: "https://brandmeetscode.com",
-  },
-};
+    description: seo.metaDescription,
+    keywords: [
+      "web development agency",
+      "brand strategy",
+      "premium website design",
+      "SaaS website development",
+      "B2B web design",
+      "Next.js agency",
+      "design engineering",
+    ],
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: SITE_URL,
+      siteName: "BrandMeetsCode",
+      title: seo.siteTitle,
+      description: seo.metaDescription,
+      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: seo.siteTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.siteTitle,
+      description: seo.metaDescription,
+      images: ["/og-image.jpg"],
+    },
+    robots: seo.noIndex
+      ? { index: false, follow: false }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
+        },
+    alternates: { canonical: SITE_URL },
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, footer, chrome, isAdmin, serviceOfferings, industries, allProjects] =
+  const [settings, footer, chrome, isAdmin, serviceOfferings, industries, allProjects, seo] =
     await Promise.all([
       getSiteSettings(),
       getFooterCopy(),
@@ -112,6 +125,7 @@ export default async function RootLayout({
       getServiceOfferings(),
       getIndustryPagesForList(),
       getProjects(),
+      getSeoSettings().catch(() => ({ googleAnalyticsId: "", googleTagManagerId: "" })),
     ]);
 
   const dropdownData: NavDropdownData = {
@@ -161,6 +175,10 @@ export default async function RootLayout({
           chrome={chrome}
         />
         <AdminEditLink isAdmin={isAdmin} />
+        <AnalyticsScripts
+          gaId={seo.googleAnalyticsId || undefined}
+          gtmId={seo.googleTagManagerId || undefined}
+        />
       </body>
     </html>
   );

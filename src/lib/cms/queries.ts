@@ -232,6 +232,10 @@ export const getSiteSettings = cache(async () => {
   return prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } });
 });
 
+export const getSeoSettings = cache(async () => {
+  return prisma.seoSettings.findUniqueOrThrow({ where: { id: 1 } });
+});
+
 export const getSocialStats = cache(async () => {
   return prisma.socialStat.findMany({ orderBy: { sortOrder: "asc" } });
 });

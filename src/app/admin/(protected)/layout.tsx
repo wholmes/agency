@@ -8,6 +8,7 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
     heading: "Site-wide",
     items: [
       { href: "/admin/settings", label: "Site & availability" },
+      { href: "/admin/seo", label: "SEO & Analytics" },
       { href: "/admin/email", label: "Email settings" },
       { href: "/admin/footer", label: "Footer" },
       { href: "/admin/chrome", label: "Nav & footer links" },
