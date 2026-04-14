@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import {
   updateAboutHomeTeaser,
@@ -19,7 +20,7 @@ export default async function AdminHomeTeaserPage() {
       <div>
         <h1 className="font-display mb-2 text-2xl font-light tracking-tight">Home — About teaser column</h1>
         <p className="mb-8 text-sm text-text-secondary">The “Difference” block on the homepage (not the full /about page).</p>
-        <form action={updateAboutHomeTeaser} className="flex flex-col gap-5">
+        <AdminSaveForm action={updateAboutHomeTeaser} className="flex flex-col gap-5">
         <div className="form-field">
           <label className="form-label" htmlFor="overline">
             Overline
@@ -67,14 +68,14 @@ export default async function AdminHomeTeaserPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
       </div>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Belief chips</h2>
         <div className="space-y-6">
           {beliefs.map((b) => (
-            <form key={b.id} action={updateAboutTeaserBelief} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={b.id} action={updateAboutTeaserBelief} className="rounded-lg border border-border bg-surface p-5" successMessage="Belief saved">
               <input type="hidden" name="id" value={b.id} />
               <div className="form-field">
                 <label className="form-label">Text</label>
@@ -87,14 +88,14 @@ export default async function AdminHomeTeaserPage() {
               <button type="submit" className="btn btn-secondary text-xs">
                 Save belief
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Teaser card</h2>
-        <form action={updateAboutTeaserCard} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateAboutTeaserCard} className="flex flex-col gap-4" successMessage="Teaser card saved">
           <div className="form-field">
             <label className="form-label">Body</label>
             <textarea name="body" required rows={4} defaultValue={teaserCard.body} className="form-input" />
@@ -110,7 +111,7 @@ export default async function AdminHomeTeaserPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save teaser card
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
     </div>
   );

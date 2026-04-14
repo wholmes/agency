@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateContactPageCopy } from "@/lib/admin/mutations-data";
 import ContactFormEditor from "./ContactFormEditor";
@@ -24,7 +25,7 @@ export default async function AdminContactPage() {
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Page copy</h2>
-        <form action={updateContactPageCopy} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateContactPageCopy} className="flex flex-col gap-4" successMessage="Page copy saved">
           <div className="form-field">
             <label className="form-label">Meta title</label>
             <input name="metaTitle" required defaultValue={copy.metaTitle} className="form-input" />
@@ -91,7 +92,7 @@ export default async function AdminContactPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save copy
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>

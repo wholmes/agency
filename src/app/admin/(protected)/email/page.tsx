@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateEmailSettings } from "@/lib/admin/mutations-data";
 
@@ -49,7 +50,7 @@ export default async function AdminEmailPage() {
         </span>
       </div>
 
-      <form action={updateEmailSettings} className="flex flex-col gap-6">
+      <AdminSaveForm action={updateEmailSettings} className="flex flex-col gap-6">
         {/* Delivery */}
         <fieldset className="rounded-lg border border-border p-5">
           <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
@@ -180,7 +181,7 @@ export default async function AdminEmailPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

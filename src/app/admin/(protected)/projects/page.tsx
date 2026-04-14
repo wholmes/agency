@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { getAllProjectsForAdmin } from "@/lib/cms/queries";
 import { moveProjectUp, moveProjectDown, toggleProjectPublished } from "@/lib/admin/mutations-data";
 
@@ -38,7 +39,7 @@ export default async function AdminProjectsPage() {
             >
               {/* Reorder buttons */}
               <div className="flex shrink-0 flex-col gap-0.5">
-                <form action={moveUp}>
+                <AdminSaveForm action={moveUp} className="contents" successMessage="Moved up">
                   <button
                     type="submit"
                     disabled={i === 0}
@@ -48,8 +49,8 @@ export default async function AdminProjectsPage() {
                   >
                     ↑
                   </button>
-                </form>
-                <form action={moveDown}>
+                </AdminSaveForm>
+                <AdminSaveForm action={moveDown} className="contents" successMessage="Moved down">
                   <button
                     type="submit"
                     disabled={i === total - 1}
@@ -59,7 +60,7 @@ export default async function AdminProjectsPage() {
                   >
                     ↓
                   </button>
-                </form>
+                </AdminSaveForm>
               </div>
 
               {/* Title + meta */}
@@ -80,7 +81,7 @@ export default async function AdminProjectsPage() {
               {/* Actions */}
               <div className="flex shrink-0 items-center gap-2">
                 {/* Publish toggle */}
-                <form action={togglePublish}>
+                <AdminSaveForm action={togglePublish} className="contents" successMessage="Updated">
                   <button
                     type="submit"
                     title={p.published ? "Set to draft" : "Publish"}
@@ -92,7 +93,7 @@ export default async function AdminProjectsPage() {
                   >
                     {p.published ? "Unpublish" : "Publish"}
                   </button>
-                </form>
+                </AdminSaveForm>
 
                 <Link
                   href={`/admin/projects/${p.id}`}

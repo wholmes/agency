@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import {
   updateContinuityBlock,
@@ -34,7 +35,7 @@ export default async function AdminServicesContentPage() {
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">/services hero</h2>
-        <form action={updateServicesPageHero} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateServicesPageHero} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" required defaultValue={pageHero.overline} className="form-input" />
@@ -50,12 +51,12 @@ export default async function AdminServicesContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Home — services strip</h2>
-        <form action={updateServicesHomeSection} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateServicesHomeSection} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" required defaultValue={homeSection.overline} className="form-input" />
@@ -95,12 +96,12 @@ export default async function AdminServicesContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Scope &amp; continuity intro</h2>
-        <form action={updateServicesContinuityIntro} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateServicesContinuityIntro} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" required defaultValue={continuityIntro.overline} className="form-input" />
@@ -116,14 +117,14 @@ export default async function AdminServicesContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Continuity blocks</h2>
         <div className="space-y-8">
           {blocks.map((b) => (
-            <form key={b.id} action={updateContinuityBlock} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={b.id} action={updateContinuityBlock} className="rounded-lg border border-border bg-surface p-5" successMessage="Block saved">
               <input type="hidden" name="id" value={b.id} />
               <div className="form-field">
                 <label className="form-label">Title</label>
@@ -140,14 +141,14 @@ export default async function AdminServicesContentPage() {
               <button type="submit" className="btn btn-secondary text-xs">
                 Save block
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Lighthouse guarantee</h2>
-        <form action={updateLighthouseGuarantee} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateLighthouseGuarantee} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Title</label>
             <input name="title" required defaultValue={guarantee.title} className="form-input" />
@@ -159,12 +160,12 @@ export default async function AdminServicesContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Ballpark estimator</h2>
-        <form action={updateScopeEstimatorConfig} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateScopeEstimatorConfig} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Section overline</label>
             <input name="sectionOverline" required defaultValue={scope.sectionOverline} className="form-input" />
@@ -224,7 +225,7 @@ export default async function AdminServicesContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save estimator
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
     </div>
   );

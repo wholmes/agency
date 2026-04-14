@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import {
   updateAboutPageHero,
@@ -24,7 +25,7 @@ export default async function AdminAboutPage() {
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Hero</h2>
-        <form action={updateAboutPageHero} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateAboutPageHero} className="flex flex-col gap-4" successMessage="Hero saved">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" required defaultValue={hero.overline} className="form-input" />
@@ -52,12 +53,12 @@ export default async function AdminAboutPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save hero
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Story column</h2>
-        <form action={updateAboutStorySection} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateAboutStorySection} className="flex flex-col gap-4" successMessage="Story header saved">
           <div className="form-field">
             <label className="form-label">Heading (before emphasis)</label>
             <input name="headingBeforeEm" required defaultValue={storySection.headingBeforeEm} className="form-input" />
@@ -81,12 +82,12 @@ export default async function AdminAboutPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save story header
           </button>
-        </form>
+        </AdminSaveForm>
 
         <div className="mt-10 space-y-8">
           <h3 className="text-sm font-medium text-text-secondary">Paragraphs</h3>
           {paragraphs.map((para) => (
-            <form key={para.id} action={updateAboutStoryParagraph} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={para.id} action={updateAboutStoryParagraph} className="rounded-lg border border-border bg-surface p-5" successMessage="Paragraph saved">
               <input type="hidden" name="id" value={para.id} />
               <div className="form-field">
                 <label className="form-label">Body</label>
@@ -99,14 +100,14 @@ export default async function AdminAboutPage() {
               <button type="submit" className="btn btn-secondary text-xs">
                 Save paragraph
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Values</h2>
-        <form action={updateAboutValuesSectionHeader} className="mb-10 flex flex-col gap-4">
+        <AdminSaveForm action={updateAboutValuesSectionHeader} className="mb-10 flex flex-col gap-4" successMessage="Values header saved">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" required defaultValue={valuesHeader.overline} className="form-input" />
@@ -118,11 +119,11 @@ export default async function AdminAboutPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save values header
           </button>
-        </form>
+        </AdminSaveForm>
 
         <div className="space-y-8">
           {values.map((v) => (
-            <form key={v.id} action={updateAboutValue} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={v.id} action={updateAboutValue} className="rounded-lg border border-border bg-surface p-5" successMessage="Value saved">
               <input type="hidden" name="id" value={v.id} />
               <div className="form-field">
                 <label className="form-label">Title</label>
@@ -139,7 +140,7 @@ export default async function AdminAboutPage() {
               <button type="submit" className="btn btn-secondary text-xs">
                 Save value
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </section>

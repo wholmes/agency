@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateProject } from "../../mutations";
 
@@ -49,7 +50,7 @@ export default async function AdminProjectEditPage({ params }: Props) {
         </div>
       </div>
 
-      <form action={updateWithId} className="flex flex-col gap-5">
+      <AdminSaveForm action={updateWithId} className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="form-field sm:col-span-2">
             <label className="form-label" htmlFor="title">
@@ -168,7 +169,7 @@ export default async function AdminProjectEditPage({ params }: Props) {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

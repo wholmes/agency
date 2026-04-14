@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import {
   updateContactFormJson,
   type ContactFormJsonState,
@@ -8,6 +9,15 @@ import {
 
 export default function ContactFormEditor({ initialJson }: { initialJson: string }) {
   const [state, formAction, pending] = useActionState(updateContactFormJson, null as ContactFormJsonState);
+  const { success } = useAdminToast();
+  const wasPending = useRef(false);
+
+  useEffect(() => {
+    if (wasPending.current && !pending && !state?.error) {
+      success("Form config saved");
+    }
+    wasPending.current = pending;
+  }, [pending, state?.error, success]);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateIndustryPage } from "@/lib/admin/mutations-data";
 
@@ -42,7 +43,7 @@ export default async function AdminIndustryEditPage({ params }: Props) {
         </p>
       </div>
 
-      <form action={save} className="flex flex-col gap-4">
+      <AdminSaveForm action={save} className="flex flex-col gap-4">
         <div className="form-field">
           <label className="form-label">Sort order</label>
           <input name="sortOrder" type="number" required defaultValue={row.sortOrder} className="form-input" />
@@ -121,7 +122,7 @@ export default async function AdminIndustryEditPage({ params }: Props) {
         <button type="submit" className="btn btn-primary mt-4 w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

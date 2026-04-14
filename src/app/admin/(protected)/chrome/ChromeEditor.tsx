@@ -1,10 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import { updateSiteChromeJson, type ChromeFormState } from "../mutations";
 
 export default function ChromeEditor({ initialJson }: { initialJson: string }) {
   const [state, formAction, pending] = useActionState(updateSiteChromeJson, null as ChromeFormState);
+  const { success } = useAdminToast();
+  const wasPending = useRef(false);
+
+  useEffect(() => {
+    if (wasPending.current && !pending && !state?.error) {
+      success("Saved");
+    }
+    wasPending.current = pending;
+  }, [pending, state?.error, success]);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

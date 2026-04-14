@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateCaseStudyUiLabels, updateWorkPageHero, updateWorkPreviewSection } from "@/lib/admin/mutations-data";
 
@@ -15,7 +16,7 @@ export default async function AdminWorkContentPage() {
       <section>
         <h1 className="font-display mb-8 text-2xl font-light tracking-tight">Work listing</h1>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">/work hero</h2>
-        <form action={updateWorkPageHero} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateWorkPageHero} className="flex flex-col gap-4" successMessage="Work hero saved">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" type="text" required defaultValue={workHero.overline} className="form-input" />
@@ -35,12 +36,12 @@ export default async function AdminWorkContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save work hero
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Home — work preview strip</h2>
-        <form action={updateWorkPreviewSection} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateWorkPreviewSection} className="flex flex-col gap-4" successMessage="Preview section saved">
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="overline" type="text" required defaultValue={preview.overline} className="form-input" />
@@ -56,12 +57,12 @@ export default async function AdminWorkContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save preview section
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Case study template labels</h2>
-        <form action={updateCaseStudyUiLabels} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateCaseStudyUiLabels} className="flex flex-col gap-4" successMessage="Labels saved">
           {(
             [
               ["backToWorkLabel", "Back to work link"],
@@ -89,7 +90,7 @@ export default async function AdminWorkContentPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save labels
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
     </div>
   );

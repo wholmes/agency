@@ -551,7 +551,7 @@ export async function createIndustryPage(
   revalidatePath("/industries");
   revalidatePath(`/industries/${slug}`);
   revalidatePath("/admin/industries");
-  redirect(`/admin/industries/${slug}`);
+  redirect(`/admin/industries/${slug}?toast=industry-created`);
 }
 
 // --- Projects ---
@@ -650,7 +650,7 @@ export async function createProject(
 
   revalidatePath("/work");
   revalidatePath("/admin/projects");
-  redirect(`/admin/projects/${id}`);
+  redirect(`/admin/projects/${id}?toast=project-created`);
 }
 
 // --- SEO settings ---

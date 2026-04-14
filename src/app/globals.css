@@ -74,6 +74,21 @@
   to   { transform: translateX(-33.333%); }
 }
 
+@keyframes scrollLine {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100%); }
+}
+
+@keyframes industryOrb1 {
+  from { transform: translate(0%,   0%)  scale(1);    opacity: 1; }
+  to   { transform: translate(-12%, 14%) scale(1.18); opacity: 0.75; }
+}
+
+@keyframes industryOrb2 {
+  from { transform: translate(0%,   0%)  scale(1);    opacity: 0.8; }
+  to   { transform: translate(10%, -12%) scale(1.12); opacity: 1;   }
+}
+
 @layer base {
   *,
   *::before,

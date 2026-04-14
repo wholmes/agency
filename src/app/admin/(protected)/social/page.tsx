@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import {
   updateFeaturedTestimonial,
@@ -19,7 +20,7 @@ export default async function AdminSocialPage() {
       <div>
         <h1 className="font-display mb-8 text-2xl font-light tracking-tight">Social proof</h1>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Featured testimonial</h2>
-        <form action={updateFeaturedTestimonial} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateFeaturedTestimonial} className="flex flex-col gap-4" successMessage="Testimonial saved">
           <div className="form-field">
             <label className="form-label" htmlFor="quote">
               Quote
@@ -64,14 +65,14 @@ export default async function AdminSocialPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save testimonial
           </button>
-        </form>
+        </AdminSaveForm>
       </div>
 
       <div>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Stats bar</h2>
         <div className="space-y-8">
           {stats.map((s) => (
-            <form key={s.id} action={updateSocialStat} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={s.id} action={updateSocialStat} className="rounded-lg border border-border bg-surface p-5" successMessage="Stat saved">
               <input type="hidden" name="id" value={s.id} />
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="form-field">
@@ -90,7 +91,7 @@ export default async function AdminSocialPage() {
               <button type="submit" className="btn btn-secondary mt-3 text-xs">
                 Save stat
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </div>
@@ -99,7 +100,7 @@ export default async function AdminSocialPage() {
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">Client logos / names</h2>
         <div className="space-y-8">
           {clients.map((c) => (
-            <form key={c.id} action={updateSocialClient} className="rounded-lg border border-border bg-surface p-5">
+            <AdminSaveForm key={c.id} action={updateSocialClient} className="rounded-lg border border-border bg-surface p-5" successMessage="Client saved">
               <input type="hidden" name="id" value={c.id} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="form-field">
@@ -118,7 +119,7 @@ export default async function AdminSocialPage() {
               <button type="submit" className="btn btn-secondary mt-3 text-xs">
                 Save client
               </button>
-            </form>
+            </AdminSaveForm>
           ))}
         </div>
       </div>

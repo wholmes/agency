@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateHomeHero } from "../mutations";
 
@@ -9,7 +10,7 @@ export default async function AdminHomeHeroPage() {
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="font-display mb-8 text-2xl font-light tracking-tight">Home hero</h1>
-      <form action={updateHomeHero} className="flex flex-col gap-5">
+      <AdminSaveForm action={updateHomeHero} className="flex flex-col gap-5">
         <div className="form-field">
           <label className="form-label" htmlFor="overline">
             Overline
@@ -118,7 +119,7 @@ export default async function AdminHomeHeroPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

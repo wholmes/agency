@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateIndustriesHub } from "@/lib/admin/mutations-data";
 
@@ -17,7 +18,7 @@ export default async function AdminIndustriesListPage() {
         <p className="mb-6 text-sm text-text-secondary">
           Public listing at <code className="font-mono text-xs">/industries</code> — overline, headline, intro, SEO, and the link label on each industry card.
         </p>
-        <form action={updateIndustriesHub} className="flex flex-col gap-4">
+        <AdminSaveForm action={updateIndustriesHub} className="flex flex-col gap-4" successMessage="Hub saved">
           <div className="form-field">
             <label className="form-label">Meta title</label>
             <input name="metaTitle" required defaultValue={hub.metaTitle} className="form-input" />
@@ -45,7 +46,7 @@ export default async function AdminIndustriesListPage() {
           <button type="submit" className="btn btn-primary w-fit">
             Save hub
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
 
       <div>

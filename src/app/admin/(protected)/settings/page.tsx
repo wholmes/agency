@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateSiteSettings } from "../mutations";
 
@@ -9,7 +10,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="font-display mb-8 text-2xl font-light tracking-tight">Site &amp; availability</h1>
-      <form action={updateSiteSettings} className="flex flex-col gap-5">
+      <AdminSaveForm action={updateSiteSettings} className="flex flex-col gap-5">
         <div className="form-field">
           <label className="form-label" htmlFor="contactEmail">
             Contact email
@@ -64,7 +65,7 @@ export default async function AdminSettingsPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

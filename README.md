@@ -54,24 +54,26 @@ npx prisma generate   # also runs via postinstall / build
 | `DATABASE_URL` | Yes | Prisma connection string. |
 | `ADMIN_PASSWORD` | Yes for admin | Password for `/admin` (minimum 8 characters). |
 | `ADMIN_SESSION_SECRET` | No | Secret used to sign the admin session cookie. If omitted, `ADMIN_PASSWORD` is used (fine for local dev; use a separate long secret in production). |
+| `RESEND_API_KEY` | For contact email | Send contact form notifications via Resend; see `/admin/email` for “from” and notify addresses stored in the DB. |
+| `CONTACT_TO_EMAIL`, `CONTACT_FROM_DOMAIN` | Optional | Overrides for delivery / sender domain if not using DB-only email settings. |
 
 ### Database URL
 
-**Local (SQLite — default in this repo):**
+The schema uses **PostgreSQL** (`provider = "postgresql"` in `prisma/schema.prisma`).
+
+**Local example:**
 
 ```env
-DATABASE_URL="file:./prisma/data.db"
+DATABASE_URL="postgresql://USER@localhost:5432/agency_local"
 ```
 
-The path is relative to the **project root**. The database file lives under `prisma/data.db` and is gitignored once created.
-
-**Production (PostgreSQL example):**
+**Production (Neon, Supabase, Railway, Vercel Postgres, etc.):**
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
 ```
 
-Use the connection string from your provider (Neon, Supabase, Railway, etc.). Update `datasource db { provider = "postgresql" }` in `prisma/schema.prisma`, then run `npx prisma migrate deploy` against production. Array-like fields are stored as JSON strings in SQLite; the same pattern works on Postgres.
+Use the connection string from your provider. For production deploys, run `npx prisma migrate deploy` (not `migrate dev`). JSON-heavy fields are stored as strings in Postgres the same way as in development.
 
 In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`ADMIN_SESSION_SECRET`**.
 
@@ -84,20 +86,54 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | `/admin/login` | Sign in with `ADMIN_PASSWORD`. |
 | `/admin` | Overview and links to editors. |
 | `/admin/settings` | Contact email, availability strip (nav). |
+| `/admin/seo` | Default metadata, indexing, GA4 / GTM / Measurement Protocol (server-side GA). |
+| `/admin/email` | Resend delivery + auto-reply copy (API key stays in env). |
 | `/admin/footer` | Footer tagline and remote blurb. |
 | `/admin/chrome` | **SiteChrome** JSON (nav links, primary CTA, footer columns, utility links, copyright). |
 | `/admin/home-hero` | Homepage hero copy and CTAs. |
 | `/admin/cta` | Global “Ready to start?” CTA block. |
-| `/admin/projects` | List case studies. |
+| `/admin/social` | Social proof (testimonial, stats, clients). |
+| `/admin/home-teaser` | Homepage “Difference” / about teaser column. |
+| `/admin/work` | `/work` listing hero, home preview strip, case study template labels. |
+| `/admin/projects` | Case studies: list, reorder, publish/draft, link to edit. |
+| `/admin/projects/new` | Create case study (redirects to editor with a success toast). |
 | `/admin/projects/[id]` | Edit one case study (including `services` as a JSON string array). |
+| `/admin/services` | Services hub copy, home strip, continuity, Lighthouse, estimator JSON. |
+| `/admin/offerings` | Service offerings list; `/admin/offerings/[id]` edits one card. |
+| `/admin/service-pages` | Service detail pages list; `/admin/service-pages/[slug]` edits `/services/[slug]`. |
+| `/admin/industries` | Industries hub + list; `/admin/industries/new` creates a page; `/admin/industries/[slug]` edits `/industries/[slug]`. |
+| `/admin/about` | About page hero, story, values. |
+| `/admin/contact` | Contact page copy + contact form JSON config. |
 
 **Behavior:**
 
 - **Session:** HTTP-only cookie, HMAC-signed, 7-day lifetime (`src/lib/admin/session.ts`).
-- **Authorization:** Server Actions in `src/app/admin/(protected)/mutations.ts` call `isAdminSession()` and redirect to `/admin/login` if missing.
+- **Authorization:** Protected routes use `requireAdminSession()`; server actions live in `src/app/admin/(protected)/mutations.ts` and `src/lib/admin/mutations-data.ts`.
 - **SEO:** `robots.txt` disallows `/admin`; admin routes use `noindex` metadata.
+- **Weak password:** If `ADMIN_PASSWORD` is still the default placeholder, a warning banner appears in the admin shell.
 
-**Adding more editors:** Follow existing pages under `src/app/admin/(protected)/` and add actions in `mutations.ts`.
+**Adding more editors:** Follow existing pages under `src/app/admin/(protected)/`, add server actions in `mutations.ts` or `mutations-data.ts`, and wire `revalidatePath` for affected public routes.
+
+### Admin toasts (save feedback)
+
+Success and error feedback for CMS saves is implemented in **`src/components/admin/`**:
+
+| Piece | Role |
+| ----- | ---- |
+| `AdminToast.tsx` | `AdminToastProvider` wraps the protected admin layout; `useAdminToast()` exposes `success`, `error`, `info`, and `dismiss`. Toasts stack bottom-right, auto-dismiss after a few seconds, and respect the existing dark surface styling. |
+| `AdminSaveForm.tsx` | Client wrapper around `<form action={serverAction}>`. After a successful save it shows **“Saved”** (or a custom `successMessage`). Server Actions that call **`redirect()`** are detected (Next.js redirect digest) so they do **not** trigger an error toast. |
+| `AdminUrlToast.tsx` | Mounted inside `<Suspense>` in the protected admin layout. Reads **`?toast=...`** once, shows a mapped message, then **`router.replace`** strips the query. Used when a server action **redirects** after create (e.g. new case study or industry page). |
+
+**Redirect query params (see `AdminUrlToast.tsx` and `MESSAGES`):**
+
+| `?toast=` value | Typical use |
+| ----------------- | ----------- |
+| `project-created` | After creating a case study; redirect URL includes this param. |
+| `industry-created` | After creating an industry page. |
+
+**Client-only forms** (`useActionState`, JSON editors) call `useAdminToast()` in a `useEffect` when a save completes without validation errors (e.g. **Chrome** and **Contact form JSON** editors).
+
+**Not covered:** Login and sign-out forms intentionally do not use this toast stack.
 
 ---
 
@@ -126,6 +162,9 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | Contact | `ContactPageCopy`, `ContactFormConfig` |
 | Case study template | `CaseStudyUiLabels` |
 | Nav / footer chrome | `SiteChrome` |
+| Industries | `IndustriesHub`, `IndustryPage` |
+| SEO / analytics defaults | `SeoSettings` |
+| Email (CMS copy, not API key) | `EmailSettings` |
 
 Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strategy`, `analytics-integration`), backed by `ServiceDetailPage.slug`.
 
@@ -183,11 +222,12 @@ prisma/                 Schema, migrations, seed
 src/app/admin/          Admin UI (login + CMS pages)
 src/app/                App Router routes, layouts, sitemap, robots
 src/components/         UI (sections, ScopeEstimator, ContactForm, …)
-src/lib/admin/          Session helpers (signed cookie)
+src/components/admin/   Admin toast provider, AdminSaveForm, URL toast helper
+src/lib/admin/          Session helpers, mutations-data, require-admin
 src/lib/cms/            Queries and shared CMS types
 ```
 
-Global SEO metadata and JSON-LD in `src/app/layout.tsx` are defined in code, not in the database.
+Default site metadata and analytics IDs can be edited in **`SeoSettings`** via `/admin/seo`; **`src/app/layout.tsx`** uses `generateMetadata` and injects JSON-LD and analytics scripts from that data where applicable.
 
 ---
 

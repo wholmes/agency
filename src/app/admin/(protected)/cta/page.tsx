@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateCtaSection } from "../mutations";
 
@@ -12,7 +13,7 @@ export default async function AdminCtaPage() {
       <p className="mb-8 text-sm text-text-secondary">
         Appears at the bottom of most pages (shared “Ready to start?” block).
       </p>
-      <form action={updateCtaSection} className="flex flex-col gap-5">
+      <AdminSaveForm action={updateCtaSection} className="flex flex-col gap-5">
         <div className="form-field">
           <label className="form-label" htmlFor="overline">
             Overline
@@ -114,7 +115,7 @@ export default async function AdminCtaPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

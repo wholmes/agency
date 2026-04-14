@@ -1,3 +1,4 @@
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateSeoSettings } from "@/lib/admin/mutations-data";
 
@@ -18,7 +19,7 @@ export default async function AdminSeoPage() {
         Changes take effect on the next page load. Analytics scripts are injected sitewide once a valid ID is saved.
       </p>
 
-      <form action={updateSeoSettings} className="flex flex-col gap-6">
+      <AdminSaveForm action={updateSeoSettings} className="flex flex-col gap-6">
 
         {/* Metadata */}
         <fieldset className="rounded-lg border border-border p-5">
@@ -219,7 +220,7 @@ export default async function AdminSeoPage() {
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>
-      </form>
+      </AdminSaveForm>
     </div>
   );
 }

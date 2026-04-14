@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { prisma } from "@/lib/prisma";
 import { updateServiceDetailPage } from "@/lib/admin/mutations-data";
 
@@ -42,7 +43,7 @@ export default async function AdminServiceDetailEditPage({ params }: Props) {
 
       <section>
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">SEO</h2>
-        <form action={save} className="flex flex-col gap-4">
+        <AdminSaveForm action={save} className="flex flex-col gap-4">
           <div className="form-field">
             <label className="form-label">Meta title</label>
             <input name="metaTitle" required defaultValue={p.metaTitle} className="form-input" />
@@ -184,7 +185,7 @@ export default async function AdminServiceDetailEditPage({ params }: Props) {
           <button type="submit" className="btn btn-primary mt-4 w-fit">
             Save
           </button>
-        </form>
+        </AdminSaveForm>
       </section>
     </div>
   );

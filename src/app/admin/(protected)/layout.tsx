@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { AdminToastProvider } from "@/components/admin/AdminToast";
+import AdminUrlToast from "@/components/admin/AdminUrlToast";
 import { isAdminSession, isDefaultAdminPassword } from "@/lib/admin/session";
 import { logoutAction } from "./actions";
 
@@ -86,7 +89,11 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   const weakPassword = isDefaultAdminPassword();
 
   return (
+    <AdminToastProvider>
     <div className="flex min-h-[calc(100dvh-var(--nav-height))] flex-col">
+      <Suspense fallback={null}>
+        <AdminUrlToast />
+      </Suspense>
       {weakPassword && (
         <div role="alert" className="border-b border-yellow-600/40 bg-yellow-950/60 px-4 py-2.5 text-xs text-yellow-300">
           <strong>Security warning:</strong> You're using a weak or default{" "}
@@ -137,5 +144,6 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
       </div>
       </div>
     </div>
+    </AdminToastProvider>
   );
 }
