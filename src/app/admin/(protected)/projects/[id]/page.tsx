@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updateProject } from "../../mutations";
@@ -28,8 +29,26 @@ export default async function AdminProjectEditPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="font-display mb-2 text-2xl font-light tracking-tight">{p.title}</h1>
-      <p className="mb-8 font-mono text-xs text-text-tertiary">id: {p.id}</p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display mb-1 text-2xl font-light tracking-tight">{p.title}</h1>
+          <p className="font-mono text-xs text-text-tertiary">id: {p.id}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {!p.published && (
+            <span className="rounded-full border border-yellow-700/50 bg-yellow-950/40 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-yellow-400">
+              Draft
+            </span>
+          )}
+          <Link
+            href="/admin/projects"
+            className="text-sm text-text-tertiary no-underline hover:text-text-secondary"
+          >
+            ← All projects
+          </Link>
+        </div>
+      </div>
+
       <form action={updateWithId} className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="form-field sm:col-span-2">
@@ -133,6 +152,19 @@ export default async function AdminProjectEditPage({ params }: Props) {
             spellCheck={false}
           />
         </div>
+        <div className="form-field flex items-center gap-3">
+          <input
+            id="published"
+            name="published"
+            type="checkbox"
+            defaultChecked={p.published}
+            className="size-4 rounded border-border accent-accent"
+          />
+          <label htmlFor="published" className="text-sm text-text-primary">
+            Published — visible on the public work page
+          </label>
+        </div>
+
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>

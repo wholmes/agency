@@ -211,8 +211,16 @@ function projectRowToProject(row: {
 }
 
 export const getProjects = cache(async (): Promise<Project[]> => {
-  const rows = await prisma.project.findMany({ orderBy: { sortOrder: "asc" } });
+  const rows = await prisma.project.findMany({
+    where: { published: true },
+    orderBy: { sortOrder: "asc" },
+  });
   return rows.map(projectRowToProject);
+});
+
+/** Admin-only: returns all projects regardless of published state */
+export const getAllProjectsForAdmin = cache(async () => {
+  return prisma.project.findMany({ orderBy: { sortOrder: "asc" } });
 });
 
 export const getProject = cache(async (id: string): Promise<Project | undefined> => {

@@ -556,6 +556,53 @@ export async function createIndustryPage(
 
 // --- Projects ---
 
+export async function toggleProjectPublished(id: string) {
+  await requireAdminSession();
+  const project = await prisma.project.findUniqueOrThrow({ where: { id } });
+  await prisma.project.update({
+    where: { id },
+    data: { published: !project.published },
+  });
+  revalidatePath("/work");
+  revalidatePath(`/work/${id}`);
+  revalidatePath("/admin/projects");
+  revalidatePath("/");
+}
+
+export async function moveProjectUp(id: string) {
+  await requireAdminSession();
+  const current = await prisma.project.findUniqueOrThrow({ where: { id } });
+  const above = await prisma.project.findFirst({
+    where: { sortOrder: { lt: current.sortOrder } },
+    orderBy: { sortOrder: "desc" },
+  });
+  if (!above) return;
+  await prisma.$transaction([
+    prisma.project.update({ where: { id: current.id }, data: { sortOrder: above.sortOrder } }),
+    prisma.project.update({ where: { id: above.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/work");
+  revalidatePath("/admin/projects");
+  revalidatePath("/");
+}
+
+export async function moveProjectDown(id: string) {
+  await requireAdminSession();
+  const current = await prisma.project.findUniqueOrThrow({ where: { id } });
+  const below = await prisma.project.findFirst({
+    where: { sortOrder: { gt: current.sortOrder } },
+    orderBy: { sortOrder: "asc" },
+  });
+  if (!below) return;
+  await prisma.$transaction([
+    prisma.project.update({ where: { id: current.id }, data: { sortOrder: below.sortOrder } }),
+    prisma.project.update({ where: { id: below.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/work");
+  revalidatePath("/admin/projects");
+  revalidatePath("/");
+}
+
 export type CreateProjectState = { error?: string } | null;
 
 export async function createProject(

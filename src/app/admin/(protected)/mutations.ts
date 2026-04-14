@@ -128,9 +128,11 @@ export async function updateProject(id: string, formData: FormData) {
       accent: String(formData.get("accent") ?? ""),
       services: servicesJson,
       sortOrder: Number(formData.get("sortOrder") ?? 0),
+      published: formData.get("published") === "on",
     },
   });
   revalidatePath("/work");
   revalidatePath(`/work/${id}`);
+  revalidatePath("/admin/projects");
   revalidatePath("/");
 }
