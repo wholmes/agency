@@ -554,6 +554,58 @@ export async function createIndustryPage(
   redirect(`/admin/industries/${slug}`);
 }
 
+// --- Projects ---
+
+export type CreateProjectState = { error?: string } | null;
+
+export async function createProject(
+  _prev: CreateProjectState,
+  formData: FormData,
+): Promise<CreateProjectState> {
+  await requireAdminSession();
+
+  const id = String(formData.get("id") ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
+  if (!id) return { error: "ID is required." };
+  if (!/^[a-z0-9-]+$/.test(id)) return { error: "ID may only contain lowercase letters, numbers, and hyphens." };
+
+  const existing = await prisma.project.findUnique({ where: { id } });
+  if (existing) return { error: `A case study with ID "${id}" already exists.` };
+
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return { error: "Title is required." };
+
+  const maxOrder = await prisma.project.aggregate({ _max: { sortOrder: true } });
+  const sortOrder = (maxOrder._max.sortOrder ?? 0) + 1;
+
+  await prisma.project.create({
+    data: {
+      id,
+      title,
+      category: String(formData.get("category") ?? ""),
+      proofFit: String(formData.get("proofFit") ?? ""),
+      year: String(formData.get("year") ?? new Date().getFullYear().toString()),
+      result: String(formData.get("result") ?? ""),
+      resultDetail: String(formData.get("resultDetail") ?? ""),
+      problem: String(formData.get("problem") ?? ""),
+      approach: String(formData.get("approach") ?? ""),
+      outcome: String(formData.get("outcome") ?? ""),
+      color: String(formData.get("color") ?? "#1a1a18"),
+      accent: String(formData.get("accent") ?? "#c9a55a"),
+      services: "[]",
+      sortOrder,
+    },
+  });
+
+  revalidatePath("/work");
+  revalidatePath("/admin/projects");
+  redirect(`/admin/projects/${id}`);
+}
+
 // --- Email settings ---
 
 export async function updateEmailSettings(formData: FormData) {
