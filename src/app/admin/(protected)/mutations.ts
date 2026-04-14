@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin/require-admin";
+import { optionalFormString } from "@/lib/admin/optional-form-string";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
 async function guard() {
@@ -78,6 +79,16 @@ export async function updateHomeHero(formData: FormData) {
       primaryCtaHref: String(formData.get("primaryCtaHref") ?? ""),
       secondaryCtaLabel: String(formData.get("secondaryCtaLabel") ?? ""),
       secondaryCtaHref: String(formData.get("secondaryCtaHref") ?? ""),
+      primaryUtmSource: optionalFormString(formData, "primaryUtmSource"),
+      primaryUtmMedium: optionalFormString(formData, "primaryUtmMedium"),
+      primaryUtmCampaign: optionalFormString(formData, "primaryUtmCampaign"),
+      primaryUtmContent: optionalFormString(formData, "primaryUtmContent"),
+      primaryUtmTerm: optionalFormString(formData, "primaryUtmTerm"),
+      secondaryUtmSource: optionalFormString(formData, "secondaryUtmSource"),
+      secondaryUtmMedium: optionalFormString(formData, "secondaryUtmMedium"),
+      secondaryUtmCampaign: optionalFormString(formData, "secondaryUtmCampaign"),
+      secondaryUtmContent: optionalFormString(formData, "secondaryUtmContent"),
+      secondaryUtmTerm: optionalFormString(formData, "secondaryUtmTerm"),
     },
   });
   revalidatePath("/");
@@ -97,6 +108,16 @@ export async function updateCtaSection(formData: FormData) {
       secondaryCtaLabel: String(formData.get("secondaryCtaLabel") ?? ""),
       secondaryCtaHref: String(formData.get("secondaryCtaHref") ?? ""),
       footnote: String(formData.get("footnote") ?? ""),
+      primaryUtmSource: optionalFormString(formData, "primaryUtmSource"),
+      primaryUtmMedium: optionalFormString(formData, "primaryUtmMedium"),
+      primaryUtmCampaign: optionalFormString(formData, "primaryUtmCampaign"),
+      primaryUtmContent: optionalFormString(formData, "primaryUtmContent"),
+      primaryUtmTerm: optionalFormString(formData, "primaryUtmTerm"),
+      secondaryUtmSource: optionalFormString(formData, "secondaryUtmSource"),
+      secondaryUtmMedium: optionalFormString(formData, "secondaryUtmMedium"),
+      secondaryUtmCampaign: optionalFormString(formData, "secondaryUtmCampaign"),
+      secondaryUtmContent: optionalFormString(formData, "secondaryUtmContent"),
+      secondaryUtmTerm: optionalFormString(formData, "secondaryUtmTerm"),
     },
   });
   revalidatePath("/", "layout");

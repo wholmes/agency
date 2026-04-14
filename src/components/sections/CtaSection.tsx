@@ -5,9 +5,12 @@ import ScrollReveal from "../ScrollReveal";
 import { IconArrowUpRight, IconEmail } from "../icons";
 import MagneticButton from "../MagneticButton";
 import type { CtaSectionCopy } from "@prisma/client";
+import { appendUtmToUrl, utmFromPrimaryDb, utmFromSecondaryDb } from "@/lib/utm";
 
 export default function CtaSection({ copy }: { copy: CtaSectionCopy }) {
   const secondaryIsMailto = copy.secondaryCtaHref.startsWith("mailto:");
+  const primaryHref = appendUtmToUrl(copy.primaryCtaHref, utmFromPrimaryDb(copy));
+  const secondaryHref = appendUtmToUrl(copy.secondaryCtaHref, utmFromSecondaryDb(copy));
 
   return (
     <section
@@ -48,7 +51,7 @@ export default function CtaSection({ copy }: { copy: CtaSectionCopy }) {
           <div className="flex flex-wrap justify-center gap-4">
             <MagneticButton>
               <Link
-                href={copy.primaryCtaHref}
+                href={primaryHref}
                 className="btn btn-primary px-8 py-5 text-sm"
                 data-cursor-label="Let's Build"
               >
@@ -59,7 +62,7 @@ export default function CtaSection({ copy }: { copy: CtaSectionCopy }) {
             <MagneticButton>
               {secondaryIsMailto ? (
                 <a
-                  href={copy.secondaryCtaHref}
+                  href={secondaryHref}
                   className="btn btn-secondary px-8 py-5 text-sm"
                   data-cursor-label="Say Hello"
                 >
@@ -68,7 +71,7 @@ export default function CtaSection({ copy }: { copy: CtaSectionCopy }) {
                 </a>
               ) : (
                 <Link
-                  href={copy.secondaryCtaHref}
+                  href={secondaryHref}
                   className="btn btn-secondary px-8 py-5 text-sm"
                   data-cursor-label="Say Hello"
                 >

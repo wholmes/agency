@@ -3,6 +3,7 @@ import ContactForm from "@/components/ContactForm";
 import ScrollReveal from "@/components/ScrollReveal";
 import { IconEmail, IconCalendar } from "@/components/icons";
 import { getContactFormConfig, getContactPageCopy, getSiteSettings } from "@/lib/cms/queries";
+import { appendUtmToUrl, utmFromCalendlyDb } from "@/lib/utm";
 
 export async function generateMetadata(): Promise<Metadata> {
   const copy = await getContactPageCopy();
@@ -22,6 +23,7 @@ export default async function ContactPage() {
     getContactFormConfig(),
   ]);
   const email = settings.contactEmail;
+  const calendlyHref = appendUtmToUrl(copy.calendlyUrl, utmFromCalendlyDb(copy));
 
   return (
     <section className="min-h-dvh pt-[calc(var(--nav-height)+6rem)] pb-40">
@@ -72,7 +74,7 @@ export default async function ContactPage() {
                   </div>
                 </a>
                 <a
-                  href={copy.calendlyUrl}
+                  href={calendlyHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="contact-alt flex items-center gap-3 rounded-md border border-border bg-surface p-4 no-underline transition-colors [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] hover:border-accent-muted"

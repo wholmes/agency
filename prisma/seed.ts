@@ -859,7 +859,12 @@ async function main() {
           { href: "/industries", label: "Industries" },
           { href: "/about", label: "About" },
         ],
-        primaryCta: { label: "Start a Project", href: "/contact" },
+        primaryCta: {
+          label: "Start a Project",
+          href: "/contact",
+          utmMedium: "nav",
+          utmCampaign: "header_cta",
+        },
         footerColumns: [
           {
             title: "Services",

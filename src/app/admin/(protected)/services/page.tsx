@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import {
   updateContinuityBlock,
@@ -89,6 +90,24 @@ export default async function AdminServicesContentPage() {
             <label className="form-label">Footer link href</label>
             <input name="footerLinkHref" required defaultValue={homeSection.footerLinkHref} className="form-input" />
           </div>
+          <UtmOptionalBlock
+            title="GA4 — Footer inline link UTM (optional)"
+            description="Appended to the footer link in the homepage services strip."
+            fieldNames={{
+              source: "footerLinkUtmSource",
+              medium: "footerLinkUtmMedium",
+              campaign: "footerLinkUtmCampaign",
+              content: "footerLinkUtmContent",
+              term: "footerLinkUtmTerm",
+            }}
+            values={{
+              source: homeSection.footerLinkUtmSource,
+              medium: homeSection.footerLinkUtmMedium,
+              campaign: homeSection.footerLinkUtmCampaign,
+              content: homeSection.footerLinkUtmContent,
+              term: homeSection.footerLinkUtmTerm,
+            }}
+          />
           <div className="form-field">
             <label className="form-label">After link</label>
             <input name="footerAfterLink" required defaultValue={homeSection.footerAfterLink} className="form-input" />

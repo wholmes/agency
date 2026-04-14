@@ -9,6 +9,7 @@ import {
   getServiceDetailPage,
   getServiceDetailSlugs,
 } from "@/lib/cms/queries";
+import { appendUtmToUrl, utmFromPrimaryDb } from "@/lib/utm";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -46,6 +47,7 @@ export default async function ServiceDetailRoute({ params }: Props) {
   const showWho = detail.whoForBullets.length > 0;
   const showIncludedOverline = detail.includedOverline.trim().length > 0;
   const showFaqOverline = detail.faqOverline.trim().length > 0;
+  const heroPrimaryHref = appendUtmToUrl(detail.primaryCtaHref, utmFromPrimaryDb(detail));
 
   return (
     <>
@@ -80,7 +82,7 @@ export default async function ServiceDetailRoute({ params }: Props) {
             <p className="text-body-lg mb-10 max-w-[520px]">{detail.heroBody}</p>
           </ScrollReveal>
           <ScrollReveal delay={280}>
-            <Link href={detail.primaryCtaHref} className="btn btn-primary">
+            <Link href={heroPrimaryHref} className="btn btn-primary">
               {detail.primaryCtaLabel}
               <IconArrowUpRight size={16} />
             </Link>

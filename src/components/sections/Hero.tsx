@@ -7,6 +7,7 @@ import { motion, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
 import MagneticButton from "../MagneticButton";
 import type { HomeHero } from "@prisma/client";
+import { appendUtmToUrl, utmFromPrimaryDb, utmFromSecondaryDb } from "@/lib/utm";
 
 const IsometricFieldCanvas = dynamic(() => import("../IsometricFieldCanvas"), {
   ssr: false,
@@ -121,7 +122,7 @@ export default function Hero({ content }: { content: HomeHero }) {
               {content.headlineLine1}
             </motion.span>
             <motion.span
-              className="text-display block overflow-hidden pb-[0.06em] max-md:mt-0 max-md:pl-4 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
+              className="text-display block overflow-hidden pb-[0.06em] max-md:mt-0 max-md:pl-8 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
               animate="visible"
               custom={0.12}
@@ -158,13 +159,17 @@ export default function Hero({ content }: { content: HomeHero }) {
             variants={enterVariant}
           >
             <MagneticButton>
-              <Link href={content.primaryCtaHref} className="btn btn-primary" data-cursor-label="Let's Build">
+              <Link
+                href={appendUtmToUrl(content.primaryCtaHref, utmFromPrimaryDb(content))}
+                className="btn btn-primary"
+                data-cursor-label="Let's Build"
+              >
                 {content.primaryCtaLabel}
                 <IconArrowUpRight size={16} />
               </Link>
             </MagneticButton>
             <MagneticButton>
-              <Link href={content.secondaryCtaHref} className="btn btn-secondary">
+              <Link href={appendUtmToUrl(content.secondaryCtaHref, utmFromSecondaryDb(content))} className="btn btn-secondary">
                 {content.secondaryCtaLabel}
                 <IconArrowRight size={16} />
               </Link>

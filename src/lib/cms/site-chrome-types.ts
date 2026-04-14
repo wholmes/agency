@@ -5,9 +5,20 @@ export type FooterColumn = {
   links: NavLink[];
 };
 
+/** Optional GA4 params for the header primary CTA (stored in SiteChrome JSON). */
+export type PrimaryCtaConfig = {
+  label: string;
+  href: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  utmTerm?: string;
+};
+
 export type SiteChromeConfigParsed = {
   navLinks: NavLink[];
-  primaryCta: { label: string; href: string };
+  primaryCta: PrimaryCtaConfig;
   footerColumns: FooterColumn[];
   footerUtilityLinks: NavLink[];
   copyrightBrandName: string;

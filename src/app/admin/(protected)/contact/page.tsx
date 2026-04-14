@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import { updateContactPageCopy } from "@/lib/admin/mutations-data";
 import ContactFormEditor from "./ContactFormEditor";
@@ -89,6 +90,24 @@ export default async function AdminContactPage() {
             <label className="form-label">Calendly URL</label>
             <input name="calendlyUrl" required defaultValue={copy.calendlyUrl} className="form-input" />
           </div>
+          <UtmOptionalBlock
+            title="GA4 — Calendly link UTM (optional)"
+            description="Appended to the Calendly URL when users open scheduling from this page."
+            fieldNames={{
+              source: "calendlyUtmSource",
+              medium: "calendlyUtmMedium",
+              campaign: "calendlyUtmCampaign",
+              content: "calendlyUtmContent",
+              term: "calendlyUtmTerm",
+            }}
+            values={{
+              source: copy.calendlyUtmSource,
+              medium: copy.calendlyUtmMedium,
+              campaign: copy.calendlyUtmCampaign,
+              content: copy.calendlyUtmContent,
+              term: copy.calendlyUtmTerm,
+            }}
+          />
           <button type="submit" className="btn btn-primary w-fit">
             Save copy
           </button>

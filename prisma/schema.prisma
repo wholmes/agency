@@ -111,6 +111,18 @@ model HomeHero {
   primaryCtaHref      String
   secondaryCtaLabel   String
   secondaryCtaHref    String
+  /// Optional GA4 UTM params appended to primary CTA href at render time (do not put utm_* in href).
+  primaryUtmSource    String?
+  primaryUtmMedium    String?
+  primaryUtmCampaign  String?
+  primaryUtmContent   String?
+  primaryUtmTerm      String?
+  /// Optional GA4 UTM params appended to secondary CTA href at render time.
+  secondaryUtmSource   String?
+  secondaryUtmMedium   String?
+  secondaryUtmCampaign String?
+  secondaryUtmContent  String?
+  secondaryUtmTerm     String?
 }
 
 model WorkPageHero {
@@ -139,6 +151,11 @@ model ServicesHomeSection {
   footerLinkLabel           String
   footerLinkHref            String
   footerAfterLink           String
+  footerLinkUtmSource    String?
+  footerLinkUtmMedium    String?
+  footerLinkUtmCampaign  String?
+  footerLinkUtmContent   String?
+  footerLinkUtmTerm      String?
 }
 
 model FooterCopy {
@@ -201,6 +218,16 @@ model CtaSectionCopy {
   secondaryCtaLabel String
   secondaryCtaHref  String
   footnote          String
+  primaryUtmSource    String?
+  primaryUtmMedium    String?
+  primaryUtmCampaign  String?
+  primaryUtmContent   String?
+  primaryUtmTerm      String?
+  secondaryUtmSource   String?
+  secondaryUtmMedium   String?
+  secondaryUtmCampaign String?
+  secondaryUtmContent  String?
+  secondaryUtmTerm     String?
 }
 
 /// Homepage “About teaser” column (not the full /about page)
@@ -226,6 +253,11 @@ model ServiceDetailPage {
   heroBody          String
   primaryCtaLabel   String
   primaryCtaHref    String
+  primaryUtmSource    String?
+  primaryUtmMedium    String?
+  primaryUtmCampaign  String?
+  primaryUtmContent   String?
+  primaryUtmTerm      String?
   backLinkLabel     String
   backLinkHref      String  @default("/services")
   whoForOverline    String
@@ -302,6 +334,11 @@ model ContactPageCopy {
   calendarCardTitle    String
   calendarCardSubtitle String
   calendlyUrl          String
+  calendlyUtmSource    String?
+  calendlyUtmMedium    String?
+  calendlyUtmCampaign  String?
+  calendlyUtmContent   String?
+  calendlyUtmTerm      String?
 }
 
 /// Labels for case study template (problem / approach / result / nav)

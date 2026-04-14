@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import { updateHomeHero } from "../mutations";
 
@@ -116,6 +117,52 @@ export default async function AdminHomeHeroPage() {
             />
           </div>
         </div>
+
+        <UtmOptionalBlock
+          title="GA4 — UTM parameters (optional)"
+          description={
+            <>
+              Leave <strong className="text-text-primary">CTA href</strong> as a clean path (e.g.{" "}
+              <code className="text-text-primary/90">/contact</code>). Put <code className="text-text-primary/90">utm_*</code>{" "}
+              values here — they are appended when the homepage renders. Empty fields are omitted.
+            </>
+          }
+          fieldNames={{
+            source: "primaryUtmSource",
+            medium: "primaryUtmMedium",
+            campaign: "primaryUtmCampaign",
+            content: "primaryUtmContent",
+            term: "primaryUtmTerm",
+          }}
+          values={{
+            source: h.primaryUtmSource,
+            medium: h.primaryUtmMedium,
+            campaign: h.primaryUtmCampaign,
+            content: h.primaryUtmContent,
+            term: h.primaryUtmTerm,
+          }}
+        >
+          <p className="text-text-secondary mb-3 text-xs font-medium uppercase tracking-wide">Primary CTA</p>
+        </UtmOptionalBlock>
+
+        <UtmOptionalBlock
+          title="Secondary CTA — UTM (optional)"
+          fieldNames={{
+            source: "secondaryUtmSource",
+            medium: "secondaryUtmMedium",
+            campaign: "secondaryUtmCampaign",
+            content: "secondaryUtmContent",
+            term: "secondaryUtmTerm",
+          }}
+          values={{
+            source: h.secondaryUtmSource,
+            medium: h.secondaryUtmMedium,
+            campaign: h.secondaryUtmCampaign,
+            content: h.secondaryUtmContent,
+            term: h.secondaryUtmTerm,
+          }}
+        />
+
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>

@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import { updateCtaSection } from "../mutations";
 
@@ -106,6 +107,44 @@ export default async function AdminCtaPage() {
             />
           </div>
         </div>
+
+        <UtmOptionalBlock
+          title="GA4 — Primary CTA UTM (optional)"
+          description="Appended to the primary href on every page that uses this section."
+          fieldNames={{
+            source: "primaryUtmSource",
+            medium: "primaryUtmMedium",
+            campaign: "primaryUtmCampaign",
+            content: "primaryUtmContent",
+            term: "primaryUtmTerm",
+          }}
+          values={{
+            source: c.primaryUtmSource,
+            medium: c.primaryUtmMedium,
+            campaign: c.primaryUtmCampaign,
+            content: c.primaryUtmContent,
+            term: c.primaryUtmTerm,
+          }}
+        />
+        <UtmOptionalBlock
+          title="GA4 — Secondary CTA UTM (optional)"
+          description="Appended when the secondary link is an https/http path (not mailto:)."
+          fieldNames={{
+            source: "secondaryUtmSource",
+            medium: "secondaryUtmMedium",
+            campaign: "secondaryUtmCampaign",
+            content: "secondaryUtmContent",
+            term: "secondaryUtmTerm",
+          }}
+          values={{
+            source: c.secondaryUtmSource,
+            medium: c.secondaryUtmMedium,
+            campaign: c.secondaryUtmCampaign,
+            content: c.secondaryUtmContent,
+            term: c.secondaryUtmTerm,
+          }}
+        />
+
         <div className="form-field">
           <label className="form-label" htmlFor="footnote">
             Footnote

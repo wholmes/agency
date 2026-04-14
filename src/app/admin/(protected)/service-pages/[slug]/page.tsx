@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import { updateServiceDetailPage } from "@/lib/admin/mutations-data";
 
@@ -86,6 +87,24 @@ export default async function AdminServiceDetailEditPage({ params }: Props) {
             <label className="form-label">Primary CTA href</label>
             <input name="primaryCtaHref" required defaultValue={p.primaryCtaHref} className="form-input" />
           </div>
+          <UtmOptionalBlock
+            title="GA4 — Primary CTA UTM (optional)"
+            description="Appended to the hero primary button on this service page."
+            fieldNames={{
+              source: "primaryUtmSource",
+              medium: "primaryUtmMedium",
+              campaign: "primaryUtmCampaign",
+              content: "primaryUtmContent",
+              term: "primaryUtmTerm",
+            }}
+            values={{
+              source: p.primaryUtmSource,
+              medium: p.primaryUtmMedium,
+              campaign: p.primaryUtmCampaign,
+              content: p.primaryUtmContent,
+              term: p.primaryUtmTerm,
+            }}
+          />
           <div className="form-field">
             <label className="form-label">Back link label</label>
             <input name="backLinkLabel" required defaultValue={p.backLinkLabel} className="form-input" />

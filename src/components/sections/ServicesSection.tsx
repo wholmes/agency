@@ -6,6 +6,7 @@ import { IconArrowUpRight } from "../icons";
 import { ServiceIconGlyph, parseOutcomeList } from "@/lib/service-icons";
 import type { ServiceOffering as ServiceOfferingModel } from "@prisma/client";
 import type { ServicesHomeSection } from "@prisma/client";
+import { appendUtmToUrl, utmFromFooterLinkDb } from "@/lib/utm";
 
 export default function ServicesSection({
   offerings,
@@ -14,6 +15,8 @@ export default function ServicesSection({
   offerings: ServiceOfferingModel[];
   homeSection: ServicesHomeSection;
 }) {
+  const footerLinkHref = appendUtmToUrl(homeSection.footerLinkHref, utmFromFooterLinkDb(homeSection));
+
   return (
     <section aria-labelledby="services-heading" className="section">
       <div className="container">
@@ -50,7 +53,7 @@ export default function ServicesSection({
             <span className="text-text-primary">{homeSection.footerHighlight}</span>
             {homeSection.footerAfterHighlightBeforeLink}
             <Link
-              href={homeSection.footerLinkHref}
+              href={footerLinkHref}
               className="text-accent no-underline transition-opacity hover:opacity-80"
             >
               {homeSection.footerLinkLabel}

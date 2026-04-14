@@ -8,6 +8,7 @@ import { LogoMark, IconArrowUpRight } from "./icons";
 import { ServiceIconGlyph } from "@/lib/service-icons";
 import type { AvailabilityStatus } from "@/lib/availability";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
+import { siteChromePrimaryCtaHref } from "@/lib/utm";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -387,6 +388,7 @@ export default function Navigation({
 }) {
   const navLinks = chrome.navLinks;
   const primaryCta = chrome.primaryCta;
+  const primaryCtaHref = siteChromePrimaryCtaHref(chrome);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -528,7 +530,7 @@ export default function Navigation({
             onMouseEnter={scheduleClose}
           >
             <Link
-              href={primaryCta.href}
+              href={primaryCtaHref}
               className="btn btn-primary text-xs"
               data-cursor-label="Let's Build"
             >
@@ -634,7 +636,7 @@ export default function Navigation({
               className="pt-8"
             >
               <Link
-                href={primaryCta.href}
+                href={primaryCtaHref}
                 className="btn btn-primary flex w-full justify-center"
               >
                 {primaryCta.label}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin/require-admin";
+import { optionalFormString } from "@/lib/admin/optional-form-string";
 import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
 
 function parseJsonField(raw: string, fallback: unknown): string {
@@ -154,6 +155,11 @@ export async function updateServicesHomeSection(formData: FormData) {
       footerLinkLabel: String(formData.get("footerLinkLabel") ?? ""),
       footerLinkHref: String(formData.get("footerLinkHref") ?? ""),
       footerAfterLink: String(formData.get("footerAfterLink") ?? ""),
+      footerLinkUtmSource: optionalFormString(formData, "footerLinkUtmSource"),
+      footerLinkUtmMedium: optionalFormString(formData, "footerLinkUtmMedium"),
+      footerLinkUtmCampaign: optionalFormString(formData, "footerLinkUtmCampaign"),
+      footerLinkUtmContent: optionalFormString(formData, "footerLinkUtmContent"),
+      footerLinkUtmTerm: optionalFormString(formData, "footerLinkUtmTerm"),
     },
   });
   revalidatePath("/");
@@ -268,6 +274,11 @@ export async function updateServiceDetailPage(slug: string, formData: FormData) 
       heroBody: String(formData.get("heroBody") ?? ""),
       primaryCtaLabel: String(formData.get("primaryCtaLabel") ?? ""),
       primaryCtaHref: String(formData.get("primaryCtaHref") ?? ""),
+      primaryUtmSource: optionalFormString(formData, "primaryUtmSource"),
+      primaryUtmMedium: optionalFormString(formData, "primaryUtmMedium"),
+      primaryUtmCampaign: optionalFormString(formData, "primaryUtmCampaign"),
+      primaryUtmContent: optionalFormString(formData, "primaryUtmContent"),
+      primaryUtmTerm: optionalFormString(formData, "primaryUtmTerm"),
       backLinkLabel: String(formData.get("backLinkLabel") ?? ""),
       backLinkHref: String(formData.get("backLinkHref") ?? "/services"),
       whoForOverline: String(formData.get("whoForOverline") ?? ""),
@@ -410,6 +421,11 @@ export async function updateContactPageCopy(formData: FormData) {
       calendarCardTitle: String(formData.get("calendarCardTitle") ?? ""),
       calendarCardSubtitle: String(formData.get("calendarCardSubtitle") ?? ""),
       calendlyUrl: String(formData.get("calendlyUrl") ?? ""),
+      calendlyUtmSource: optionalFormString(formData, "calendlyUtmSource"),
+      calendlyUtmMedium: optionalFormString(formData, "calendlyUtmMedium"),
+      calendlyUtmCampaign: optionalFormString(formData, "calendlyUtmCampaign"),
+      calendlyUtmContent: optionalFormString(formData, "calendlyUtmContent"),
+      calendlyUtmTerm: optionalFormString(formData, "calendlyUtmTerm"),
     },
   });
   revalidatePath("/contact");
