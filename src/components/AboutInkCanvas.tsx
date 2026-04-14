@@ -140,81 +140,20 @@ export default function AboutInkCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+    let disposed = false;
+    let rafId = 0;
     let gl: WebGLRenderingContext | null = null;
-    try {
-      gl = canvas.getContext("webgl", {
-        alpha: false,
-        antialias: false,
-        powerPreference: "high-performance",
-      });
-    } catch { /* ignore */ }
-    if (!gl) return;
+    let prog: WebGLProgram | null = null;
+    let vs: WebGLShader | null = null;
+    let fs: WebGLShader | null = null;
+    let buf: WebGLBuffer | null = null;
 
-    // ── Compile shaders ─────────────────────────────────────────────────
-    function compile(type: number, src: string): WebGLShader | null {
-      const s = gl!.createShader(type)!;
-      gl!.shaderSource(s, src);
-      gl!.compileShader(s);
-      if (!gl!.getShaderParameter(s, gl!.COMPILE_STATUS)) {
-        console.warn(gl!.getShaderInfoLog(s));
-        return null;
-      }
-      return s;
-    }
-
-    const vs = compile(gl.VERTEX_SHADER, VERT);
-    const fs = compile(gl.FRAGMENT_SHADER, FRAG);
-    if (!vs || !fs) return;
-
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-      console.warn(gl.getProgramInfoLog(prog));
-      return;
-    }
-    gl.useProgram(prog);
-
-    // ── Full-screen quad ────────────────────────────────────────────────
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW,
-    );
-    const aPos = gl.getAttribLocation(prog, "a_pos");
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-    // ── Uniforms ────────────────────────────────────────────────────────
-    const uRes    = gl.getUniformLocation(prog, "u_res");
-    const uT      = gl.getUniformLocation(prog, "u_t");
-    const uScroll = gl.getUniformLocation(prog, "u_scroll");
-
-    let W = 0, H = 0;
-    function resize() {
-      W = canvas!.clientWidth  || window.innerWidth;
-      H = canvas!.clientHeight || window.innerHeight;
-      canvas!.width  = Math.round(W * Math.min(window.devicePixelRatio, 1.5));
-      canvas!.height = Math.round(H * Math.min(window.devicePixelRatio, 1.5));
-      gl!.viewport(0, 0, canvas!.width, canvas!.height);
-      gl!.uniform2f(uRes, canvas!.width, canvas!.height);
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
+    // Event handlers declared early so cleanup can always remove them.
     const scroll = { pct: 0 };
     const onScroll = () => {
-      const heroH = canvas!.parentElement?.offsetHeight ?? window.innerHeight;
+      const heroH = canvas.parentElement?.offsetHeight ?? window.innerHeight;
       scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-
     let tabVisible = !document.hidden;
     let accumulatedHiddenMs = 0;
     let hiddenAtMs = 0;
@@ -229,34 +168,123 @@ export default function AboutInkCanvas() {
       }
       tabVisible = !document.hidden;
     };
+    let resize: () => void = () => {};
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
+    onScroll();
 
-    const t0 = performance.now();
-    let rafId = 0;
-    let disposed = false;
-
-    const loop = (now: number) => {
-      if (disposed) return;
-      rafId = requestAnimationFrame(loop);
-      if (!tabVisible) return;
-
-      const t = reduced ? 1.0 : (now - t0 - accumulatedHiddenMs) * 0.001;
-      gl!.uniform1f(uT, t);
-      gl!.uniform1f(uScroll, scroll.pct);
-      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
-    };
-    rafId = requestAnimationFrame(loop);
-
-    return () => {
+    const cleanup = () => {
       disposed = true;
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
-      gl!.deleteProgram(prog);
-      gl!.deleteShader(vs);
-      gl!.deleteShader(fs);
-      gl!.deleteBuffer(buf);
+      if (gl) {
+        if (prog) gl.deleteProgram(prog);
+        if (vs) gl.deleteShader(vs);
+        if (fs) gl.deleteShader(fs);
+        if (buf) gl.deleteBuffer(buf);
+      }
+    };
+
+    /**
+     * Full WebGL init + loop, deferred until browser idle.
+     * Keeps GLSL shader compilation off the critical path for Lighthouse TBT.
+     */
+    const init = () => {
+      if (disposed) return;
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      try {
+        gl = canvas.getContext("webgl", {
+          alpha: false,
+          antialias: false,
+          powerPreference: "high-performance",
+        });
+      } catch { /* ignore */ }
+      if (!gl) return;
+
+      function compile(type: number, src: string): WebGLShader | null {
+        const s = gl!.createShader(type)!;
+        gl!.shaderSource(s, src);
+        gl!.compileShader(s);
+        if (!gl!.getShaderParameter(s, gl!.COMPILE_STATUS)) {
+          console.warn(gl!.getShaderInfoLog(s));
+          return null;
+        }
+        return s;
+      }
+
+      vs = compile(gl.VERTEX_SHADER, VERT);
+      fs = compile(gl.FRAGMENT_SHADER, FRAG);
+      if (!vs || !fs) return;
+
+      prog = gl.createProgram()!;
+      gl.attachShader(prog, vs);
+      gl.attachShader(prog, fs);
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+        console.warn(gl.getProgramInfoLog(prog));
+        return;
+      }
+      gl.useProgram(prog);
+
+      buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+        gl.STATIC_DRAW,
+      );
+      const aPos = gl.getAttribLocation(prog, "a_pos");
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      const uRes    = gl.getUniformLocation(prog, "u_res");
+      const uT      = gl.getUniformLocation(prog, "u_t");
+      const uScroll = gl.getUniformLocation(prog, "u_scroll");
+
+      let W = 0, H = 0;
+      resize = () => {
+        W = canvas.clientWidth  || window.innerWidth;
+        H = canvas.clientHeight || window.innerHeight;
+        canvas.width  = Math.round(W * Math.min(window.devicePixelRatio, 1.5));
+        canvas.height = Math.round(H * Math.min(window.devicePixelRatio, 1.5));
+        gl!.viewport(0, 0, canvas.width, canvas.height);
+        gl!.uniform2f(uRes, canvas.width, canvas.height);
+      };
+      resize();
+      window.addEventListener("resize", resize);
+
+      const t0 = performance.now();
+
+      const loop = (now: number) => {
+        if (disposed) return;
+        rafId = requestAnimationFrame(loop);
+        if (!tabVisible) return;
+
+        const t = reduced ? 1.0 : (now - t0 - accumulatedHiddenMs) * 0.001;
+        gl!.uniform1f(uT, t);
+        gl!.uniform1f(uScroll, scroll.pct);
+        gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      };
+      rafId = requestAnimationFrame(loop);
+    };
+
+    let cancelIdle: (() => void) | undefined;
+    if (typeof window.requestIdleCallback !== "undefined") {
+      const id = window.requestIdleCallback(init, { timeout: 2000 });
+      cancelIdle = () => window.cancelIdleCallback(id);
+    } else {
+      const id = setTimeout(init, 200);
+      cancelIdle = () => clearTimeout(id);
+    }
+
+    return () => {
+      cancelIdle?.();
+      cleanup();
     };
   }, []);
 
