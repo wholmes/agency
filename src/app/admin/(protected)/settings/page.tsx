@@ -62,6 +62,21 @@ export default async function AdminSettingsPage() {
             className="form-input"
           />
         </div>
+        <div className="border-t border-border pt-5">
+          <p className="form-label mb-3 text-text-tertiary">Navigation</p>
+          <div className="form-field flex items-center gap-3">
+            <input
+              id="navHideOnScroll"
+              name="navHideOnScroll"
+              type="checkbox"
+              defaultChecked={s.navHideOnScroll}
+              className="size-4 rounded border-border accent-accent"
+            />
+            <label htmlFor="navHideOnScroll" className="text-sm text-text-primary">
+              Hide nav on scroll down, reveal on scroll up
+            </label>
+          </div>
+        </div>
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>

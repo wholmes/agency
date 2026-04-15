@@ -41,12 +41,6 @@ export default function AboutHero({ content }: { content: AboutPageHero }) {
   return (
     <section className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]">
       <AboutInkCanvas />
-      {/* Editorial hairline */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.22)_20%,rgba(201,165,90,0.12)_50%,transparent)] md:left-10 lg:left-16"
-      />
-
       <div className="container relative z-[1]">
         <motion.p
           className="text-overline mb-5"

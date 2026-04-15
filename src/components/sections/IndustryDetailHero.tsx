@@ -40,12 +40,6 @@ export default function IndustryDetailHero({
     >
       <RunwayCanvas />
 
-      {/* Editorial hairline */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.3)_20%,rgba(201,165,90,0.15)_60%,transparent)] md:left-10 lg:left-16"
-      />
-
       {/* ── Content ───────────────────────────────────────────────────── */}
       <div className="container relative z-[1]">
         <Link

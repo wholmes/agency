@@ -40,12 +40,25 @@ model Project {
   published    Boolean @default(true)
 }
 
+model Capability {
+  id         Int     @id @default(autoincrement())
+  sortOrder  Int     @default(0)
+  title      String
+  descriptor String
+  detail     String
+  tags       String  @default("")
+  showTags   Boolean @default(true)
+  iconSvg    String  @default("")
+  published  Boolean @default(true)
+}
+
 model SiteSettings {
   id                    Int     @id @default(1)
   contactEmail          String
   availabilityAvailable Boolean @default(true)
   availabilityLabel     String
   availabilityNextOpen  String?
+  navHideOnScroll       Boolean @default(false)
 }
 
 model SocialStat {

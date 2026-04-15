@@ -40,6 +40,7 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
       { href: "/admin/services", label: "Services hub" },
       { href: "/admin/offerings", label: "Offerings" },
       { href: "/admin/service-pages", label: "Service detail pages" },
+      { href: "/admin/capabilities", label: "Capabilities" },
     ],
   },
   {

@@ -54,7 +54,7 @@ npx prisma generate   # also runs via postinstall / build
 | `DATABASE_URL` | Yes | Prisma connection string. |
 | `ADMIN_PASSWORD` | Yes for admin | Password for `/admin` (minimum 8 characters). |
 | `ADMIN_SESSION_SECRET` | No | Secret used to sign the admin session cookie. If omitted, `ADMIN_PASSWORD` is used (fine for local dev; use a separate long secret in production). |
-| `RESEND_API_KEY` | For contact email | Send contact form notifications via Resend; see `/admin/email` for “from” and notify addresses stored in the DB. |
+| `RESEND_API_KEY` | For contact email | Send contact form notifications via Resend; see `/admin/email` for "from" and notify addresses stored in the DB. |
 | `CONTACT_TO_EMAIL`, `CONTACT_FROM_DOMAIN` | Optional | Overrides for delivery / sender domain if not using DB-only email settings. |
 
 ### Database URL
@@ -85,22 +85,25 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | --- | ------------- |
 | `/admin/login` | Sign in with `ADMIN_PASSWORD`. |
 | `/admin` | Overview and links to editors. |
-| `/admin/settings` | Contact email, availability strip (nav). |
+| `/admin/settings` | Contact email, availability strip, **nav hide-on-scroll toggle**. |
 | `/admin/seo` | Default metadata, indexing, GA4 / GTM / Measurement Protocol (server-side GA). |
 | `/admin/email` | Resend delivery + auto-reply copy (API key stays in env). |
 | `/admin/footer` | Footer tagline and remote blurb. |
 | `/admin/chrome` | **SiteChrome** JSON (nav links, primary CTA, footer columns, utility links, copyright). |
 | `/admin/home-hero` | Homepage hero copy and CTAs. |
-| `/admin/cta` | Global “Ready to start?” CTA block. |
+| `/admin/cta` | Global "Ready to start?" CTA block. |
 | `/admin/social` | Social proof (testimonial, stats, clients). |
-| `/admin/home-teaser` | Homepage “Difference” / about teaser column. |
+| `/admin/home-teaser` | Homepage "Difference" / about teaser column. |
 | `/admin/work` | `/work` listing hero, home preview strip, case study template labels. |
-| `/admin/projects` | Case studies: list, reorder, publish/draft, link to edit. |
+| `/admin/projects` | Case studies: list, reorder ↑↓, publish/draft, link to edit. |
 | `/admin/projects/new` | Create case study (redirects to editor with a success toast). |
 | `/admin/projects/[id]` | Edit one case study (including `services` as a JSON string array). |
 | `/admin/services` | Services hub copy, home strip, continuity, Lighthouse, estimator JSON. |
 | `/admin/offerings` | Service offerings list; `/admin/offerings/[id]` edits one card. |
 | `/admin/service-pages` | Service detail pages list; `/admin/service-pages/[slug]` edits `/services/[slug]`. |
+| `/admin/capabilities` | **Capabilities cards**: list, reorder ↑↓, publish/draft, link to edit. |
+| `/admin/capabilities/new` | Create a capability card (title, copy, tags, raw SVG icon). |
+| `/admin/capabilities/[id]` | Edit one capability card. SVG preview rendered inline above the textarea. |
 | `/admin/industries` | Industries hub + list; `/admin/industries/new` creates a page; `/admin/industries/[slug]` edits `/industries/[slug]`. |
 | `/admin/about` | About page hero, story, values. |
 | `/admin/contact` | Contact page copy + contact form JSON config. |
@@ -121,15 +124,17 @@ Success and error feedback for CMS saves is implemented in **`src/components/adm
 | Piece | Role |
 | ----- | ---- |
 | `AdminToast.tsx` | `AdminToastProvider` wraps the protected admin layout; `useAdminToast()` exposes `success`, `error`, `info`, and `dismiss`. Toasts stack bottom-right, auto-dismiss after a few seconds, and respect the existing dark surface styling. |
-| `AdminSaveForm.tsx` | Client wrapper around `<form action={serverAction}>`. After a successful save it shows **“Saved”** (or a custom `successMessage`). Server Actions that call **`redirect()`** are detected (Next.js redirect digest) so they do **not** trigger an error toast. |
+| `AdminSaveForm.tsx` | Client wrapper around `<form action={serverAction}>`. After a successful save it shows **"Saved"** (or a custom `successMessage`). Server Actions that call **`redirect()`** are detected (Next.js redirect digest) so they do **not** trigger an error toast. |
 | `AdminUrlToast.tsx` | Mounted inside `<Suspense>` in the protected admin layout. Reads **`?toast=...`** once, shows a mapped message, then **`router.replace`** strips the query. Used when a server action **redirects** after create (e.g. new case study or industry page). |
 
 **Redirect query params (see `AdminUrlToast.tsx` and `MESSAGES`):**
 
 | `?toast=` value | Typical use |
 | ----------------- | ----------- |
-| `project-created` | After creating a case study; redirect URL includes this param. |
+| `project-created` | After creating a case study. |
 | `industry-created` | After creating an industry page. |
+| `capability-created` | After creating a capability card. |
+| `capability-deleted` | After deleting a capability card (redirects back to the list). |
 
 **Client-only forms** (`useActionState`, JSON editors) call `useAdminToast()` in a `useEffect` when a save completes without validation errors (e.g. **Chrome** and **Contact form JSON** editors).
 
@@ -152,10 +157,11 @@ Success and error feedback for CMS saves is implemented in **`src/components/adm
 | Area | Models |
 | ---- | ------ |
 | Case studies | `Project` |
-| Global settings | `SiteSettings` |
+| Global settings | `SiteSettings` (`navHideOnScroll` controls header behaviour) |
 | Home | `HomeHero`, `ServicesHomeSection`, `WorkPreviewSection`, `AboutHomeTeaser`, `SocialStat`, `SocialClient`, `FeaturedTestimonial` |
 | Work listing | `WorkPageHero` |
 | Services | `ServiceOffering`, `ServicesPageHero`, `ContinuityBlock`, `LighthouseGuarantee`, `ServicesContinuityIntro`, `ServiceDetailPage`, `ScopeEstimatorConfig` |
+| **Capabilities** | **`Capability`** — `title`, `descriptor`, `detail`, `tags` (comma-separated), `iconSvg` (raw SVG string), `sortOrder`, `published` |
 | About | `AboutPageHero`, `AboutStoryParagraph`, `AboutStorySection`, `AboutTeaserBelief`, `AboutTeaserCard`, `AboutValue`, `AboutValuesSectionHeader` |
 | Shared CTAs | `CtaSectionCopy` |
 | Footer | `FooterCopy` |
@@ -189,11 +195,45 @@ Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strate
 
 ---
 
+## Key components
+
+### `CapabilitiesScroll` (`src/components/sections/CapabilitiesScroll.tsx`)
+
+Horizontally scrolling capabilities section on the Services page. Cards are fetched from the `Capability` DB model and passed as a prop from the server page (`src/app/services/page.tsx`).
+
+**Scroll-jacking:** The outer `<section>` has a calculated `height` (`100vh + scrollDist`) that pins the inner sticky container while Framer Motion maps vertical scroll progress to a `translateX` on the card track.
+
+**Visual effects (all driven by Framer Motion):**
+
+| Effect | How |
+| ------ | --- |
+| Velocity skew | `useVelocity(x)` → `skewX` on the track — cards lean in the direction of travel. |
+| Active spotlight | Nearest card to centre gets full opacity, accent border, and a radial glow; neighbours dim. `activeIndex` is tracked via `useMotionValueEvent` on `springProgress`. |
+| Glint | Diagonal specular sweep plays once on card activation — key-based remount, no JS state. |
+| Parallax depth | Icon / title / tags translate at different rates as the card crosses the viewport. |
+| Odometer flip | `01 / 07` counter flips with `rotateX` when a card becomes active — key-based remount. |
+| Monocle | Hovering the fine-print text hides the cursor and renders a circular magnifying lens via `createPortal` to `document.body`. True optical positioning: the word under the cursor stays centred in the lens. |
+
+**Icon format:** Raw SVG stored in `Capability.iconSvg`. Use `currentColor` for stroke/fill so the icon inherits the card's accent colour. Recommended: 24×24 viewBox, 1.5px stroke, rounded caps/joins.
+
+**Reduced motion:** Falls back to a static CSS grid — no sticky tricks, no JS effects.
+
+### Navigation hide-on-scroll (`src/components/Navigation.tsx`)
+
+Controlled by `SiteSettings.navHideOnScroll` (toggle at `/admin/settings`). When enabled:
+
+- Nav stays visible until scroll position exceeds **80 px**.
+- Hides (`translateY(-100%)`) when scrolling **down ≥ 8 px**.
+- Reveals when scrolling **up ≥ 8 px** or when the mobile menu is open.
+- Transform transitions at **340 ms** with `cubic-bezier(0.16, 1, 0.3, 1)` (spring curve) — set via inline `style` to avoid Tailwind CSS-variable conflicts.
+
+---
+
 ## Troubleshooting
 
-### Prisma client errors (e.g. `prisma.siteChrome` is undefined)
+### Prisma client errors after schema changes (e.g. `prisma.capability` is undefined)
 
-Next.js **Turbopack** must **not** bundle Prisma. This repo sets `serverExternalPackages: ["@prisma/client", "prisma"]` in `next.config.ts`. If you see missing model delegates after an upgrade:
+This is the most common dev-time issue. Turbopack caches the compiled Prisma client and **does not pick up a newly generated client without clearing `.next`**.
 
 ```bash
 npx prisma generate
@@ -201,7 +241,9 @@ rm -rf .next
 npm run dev
 ```
 
-### Admin login does nothing / “not configured”
+The `prisma migrate dev` command runs `prisma generate` automatically, but Turbopack still needs a clean build cache. **Always clear `.next` after adding a new model or field.**
+
+### Admin login does nothing / "not configured"
 
 - Ensure `ADMIN_PASSWORD` is at least **8 characters** in `.env`.
 - Restart the dev server after changing `.env`.
@@ -209,8 +251,9 @@ npm run dev
 ### Schema changes
 
 ```bash
-npm run db:migrate
-npm run db:seed   # only if you want to refresh seed data (destructive)
+npm run db:migrate        # applies migration + regenerates client
+rm -rf .next              # clear Turbopack cache
+npm run db:seed           # only if you want to refresh seed data (destructive)
 ```
 
 ---
@@ -223,6 +266,7 @@ src/app/admin/          Admin UI (login + CMS pages)
 src/app/                App Router routes, layouts, sitemap, robots
 src/components/         UI (sections, ScopeEstimator, ContactForm, …)
 src/components/admin/   Admin toast provider, AdminSaveForm, URL toast helper
+src/components/icons/   Centralised SVG icon library (currentColor, 24×24 viewBox)
 src/lib/admin/          Session helpers, mutations-data, require-admin
 src/lib/cms/            Queries and shared CMS types
 ```
@@ -260,7 +304,7 @@ If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after t
 
 1. Set **`DATABASE_URL`** (and **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI).
 2. Run **`npx prisma migrate deploy`** in CI or your release step (not `migrate dev`).
-3. Run **`npm run build`** then **`npm run start`**, or use your host’s Next.js preset.
+3. Run **`npm run build`** then **`npm run start`**, or use your host's Next.js preset.
 
 Prisma `generate` is part of `npm run build`. Use HTTPS in production so admin cookies stay secure (`secure` flag is enabled when `NODE_ENV === "production"`).
 
@@ -272,4 +316,4 @@ Prisma `generate` is part of `npm run build`. Use HTTPS in production so admin c
 - [Prisma documentation](https://www.prisma.io/docs)
 - [Prisma + Next.js bundling](https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-webpack-prisma)
 
-Workspace notes for this repo’s Next.js version: `AGENTS.md` / `CLAUDE.md`.
+Workspace notes for this repo's Next.js version: `AGENTS.md` / `CLAUDE.md`.

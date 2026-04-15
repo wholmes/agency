@@ -23,6 +23,7 @@ export async function updateSiteSettings(formData: FormData) {
         typeof availabilityNextOpenRaw === "string" && availabilityNextOpenRaw.trim() !== ""
           ? availabilityNextOpenRaw.trim()
           : null,
+      navHideOnScroll: formData.get("navHideOnScroll") === "on",
     },
   });
   revalidatePath("/", "layout");

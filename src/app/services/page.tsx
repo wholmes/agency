@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { IconArrowUpRight, IconPerformance } from "@/components/icons";
 import ScrollReveal from "@/components/ScrollReveal";
+import CapabilitiesScroll from "@/components/sections/CapabilitiesScroll";
 import CtaSection from "@/components/sections/CtaSection";
+import FireworksCanvas from "@/components/FireworksCanvas";
 import ServicesPageHero from "@/components/sections/ServicesPageHero";
 import ScopeEstimator from "@/components/ScopeEstimator";
 import { ServiceIconGlyph, parseOutcomeList } from "@/lib/service-icons";
 import {
+  getCapabilities,
   getContinuityBlocks,
   getCtaSectionCopy,
   getLighthouseGuarantee,
@@ -26,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
-  const [offerings, servicesHero, continuityIntro, continuityBlocks, guarantee, estimatorData, ctaCopy] =
+  const [offerings, servicesHero, continuityIntro, continuityBlocks, guarantee, estimatorData, ctaCopy, capabilities] =
     await Promise.all([
       getServiceOfferings(),
       getServicesPageHero(),
@@ -35,6 +38,7 @@ export default async function ServicesPage() {
       getLighthouseGuarantee(),
       getScopeEstimatorConfig(),
       getCtaSectionCopy(),
+      getCapabilities(),
     ]);
 
   return (
@@ -93,8 +97,11 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      <section aria-labelledby="continuity-heading" className="section border-t border-border">
-        <div className="container">
+      <CapabilitiesScroll capabilities={capabilities} />
+
+      <section aria-labelledby="continuity-heading" className="relative overflow-hidden section border-t border-border">
+        <FireworksCanvas className="pointer-events-none absolute inset-y-0 right-0 h-full w-[55%]" />
+        <div className="container relative z-10">
           <ScrollReveal>
             <p className="text-overline mb-4">{continuityIntro.overline}</p>
             <h2 id="continuity-heading" className="text-h3 mb-4 max-w-[680px]">

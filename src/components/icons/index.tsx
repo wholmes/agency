@@ -329,6 +329,117 @@ export function IconQuote({ size = 32, className = "", style }: IconProps) {
   );
 }
 
+/** WordPress: circle ring + W letterform inside */
+export function IconWordPress({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M6.5 12l2 5 3.5-8 3.5 8 2-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Drupal: teardrop pointing up with inner highlight circle */
+export function IconDrupal({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M12 2C9.5 4.5 7 7 7 11a5 5 0 0010 0c0-4-2.5-6.5-5-9z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="13" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+/** CMS: layered content blocks — page layout metaphor */
+export function IconCMS({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <rect x="3" y="3" width="18" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="3" y="10" width="11" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="16" y="10" width="5" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="3" y="17" width="7" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="12" y="17" width="9" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+/** Chrome Extension: puzzle piece */
+export function IconExtension({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path
+        d="M4 4h7v2a1 1 0 002 0V4h7v7h-2a1 1 0 000 2h2v7H4v-7h2a1 1 0 000-2H4V4z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** SaaS / cloud application: layered stack with upward arrow */
+export function IconSaaS({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M4 17c0 1.1.9 2 2 2h12a2 2 0 002-2v-1H4v1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M4 12c0 1.1.9 2 2 2h12a2 2 0 002-2v-1H4v1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M6 7h12a2 2 0 012 2v1H4V9a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M12 3v3M10 4l2-2 2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Data & Analytics: rising bars with a trend line */
+export function IconData({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M3 20h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 14v6M10 9v11M14 12v8M18 5v15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6 14l4-5 4 3 4-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1.5 2" />
+    </svg>
+  );
+}
+
+/** Ecommerce: shopping bag with a subtle trend tick */
+export function IconEcommerce({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M6 2l-2 4h16l-2-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 6v13a2 2 0 002 2h12a2 2 0 002-2V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M9 11a3 3 0 006 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** GMP: monitor with trend line — Google Marketing Platform consulting */
+export function IconGMP({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <rect x="3" y="3.5" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M9 20.5h6M12 16.5v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M6.5 12.5l3-4 3 2.5 3.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="16.5" cy="6.5" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Gamepad: controller silhouette with d-pad and buttons */
+export function IconGamepad({ size = 24, className = "", style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path
+        d="M6 9c-2.2 0-4 1.6-4 3.8 0 2 1.5 3.6 3.5 3.6L7 15h10l1.5 1.4C20.5 16.4 22 14.8 22 12.8 22 10.6 20.2 9 18 9l-1.5 1.5H7.5L6 9z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M8.5 12.5h2M9.5 11.5v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="14.5" cy="11.5" r="0.75" fill="currentColor" />
+      <circle cx="16.5" cy="13" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function IconExternalLink({ size = 16, className = "", style }: IconProps) {
   return (
     <svg

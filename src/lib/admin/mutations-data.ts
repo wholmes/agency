@@ -757,3 +757,91 @@ export async function updateIndustryPage(slug: string, formData: FormData) {
   revalidatePath("/industries");
   revalidatePath(`/industries/${slug}`);
 }
+
+// ─── Capabilities ────────────────────────────────────────────────────────────
+
+type CreateCapabilityState = { error?: string } | null;
+
+export async function createCapability(
+  _prev: CreateCapabilityState,
+  formData: FormData,
+): Promise<CreateCapabilityState> {
+  await requireAdminSession();
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return { error: "Title is required." };
+  const last = await prisma.capability.findFirst({ orderBy: { sortOrder: "desc" } });
+  const cap = await prisma.capability.create({
+    data: {
+      title,
+      descriptor: String(formData.get("descriptor") ?? ""),
+      detail: String(formData.get("detail") ?? ""),
+      tags: String(formData.get("tags") ?? ""),
+      showTags: formData.get("showTags") === "on",
+      iconSvg: String(formData.get("iconSvg") ?? ""),
+      published: formData.get("published") === "on",
+      sortOrder: (last?.sortOrder ?? 0) + 1,
+    },
+  });
+  revalidatePath("/services");
+  revalidatePath("/admin/capabilities");
+  redirect(`/admin/capabilities/${cap.id}?toast=capability-created`);
+}
+
+export async function updateCapability(id: number, formData: FormData) {
+  await requireAdminSession();
+  await prisma.capability.update({
+    where: { id },
+    data: {
+      title: String(formData.get("title") ?? ""),
+      descriptor: String(formData.get("descriptor") ?? ""),
+      detail: String(formData.get("detail") ?? ""),
+      tags: String(formData.get("tags") ?? ""),
+      showTags: formData.get("showTags") === "on",
+      iconSvg: String(formData.get("iconSvg") ?? ""),
+      published: formData.get("published") === "on",
+      sortOrder: Number(formData.get("sortOrder") ?? 0),
+    },
+  });
+  revalidatePath("/services");
+  revalidatePath("/admin/capabilities");
+}
+
+export async function deleteCapability(id: number) {
+  await requireAdminSession();
+  await prisma.capability.delete({ where: { id } });
+  revalidatePath("/services");
+  revalidatePath("/admin/capabilities");
+  redirect("/admin/capabilities?toast=capability-deleted");
+}
+
+export async function moveCapabilityUp(id: number) {
+  await requireAdminSession();
+  const current = await prisma.capability.findUniqueOrThrow({ where: { id } });
+  const above = await prisma.capability.findFirst({
+    where: { sortOrder: { lt: current.sortOrder } },
+    orderBy: { sortOrder: "desc" },
+  });
+  if (!above) return;
+  await prisma.$transaction([
+    prisma.capability.update({ where: { id: current.id }, data: { sortOrder: above.sortOrder } }),
+    prisma.capability.update({ where: { id: above.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/services");
+  revalidatePath("/admin/capabilities");
+}
+
+export async function moveCapabilityDown(id: number) {
+  await requireAdminSession();
+  const current = await prisma.capability.findUniqueOrThrow({ where: { id } });
+  const below = await prisma.capability.findFirst({
+    where: { sortOrder: { gt: current.sortOrder } },
+    orderBy: { sortOrder: "asc" },
+  });
+  if (!below) return;
+  await prisma.$transaction([
+    prisma.capability.update({ where: { id: current.id }, data: { sortOrder: below.sortOrder } }),
+    prisma.capability.update({ where: { id: below.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/services");
+  revalidatePath("/admin/capabilities");
+}

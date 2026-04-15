@@ -60,12 +60,6 @@ export default function IndustriesHero({ hub }: { hub: IndustriesHub }) {
         className="pointer-events-none absolute top-[30%] left-1/2 -translate-x-1/2 size-[700px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.05)_0%,transparent_65%)]"
       />
 
-      {/* Editorial hairline */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.22)_20%,rgba(201,165,90,0.12)_50%,transparent)] md:left-10 lg:left-16"
-      />
-
       <div className="container relative z-[1]">
         <motion.p
           className="text-overline mb-6"

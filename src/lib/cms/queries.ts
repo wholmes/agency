@@ -326,3 +326,14 @@ export const getCtaSectionCopy = cache(async () => {
 export const getAboutHomeTeaser = cache(async () => {
   return prisma.aboutHomeTeaser.findUniqueOrThrow({ where: { id: 1 } });
 });
+
+export const getCapabilities = cache(async () => {
+  return prisma.capability.findMany({
+    where: { published: true },
+    orderBy: { sortOrder: "asc" },
+  });
+});
+
+export const getAllCapabilitiesForAdmin = cache(async () => {
+  return prisma.capability.findMany({ orderBy: { sortOrder: "asc" } });
+});

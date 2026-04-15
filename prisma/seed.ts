@@ -960,6 +960,76 @@ async function main() {
     },
   });
 
+  // ── Capabilities ─────────────────────────────────────────────────────────
+  await prisma.capability.deleteMany();
+  await prisma.capability.createMany({
+    data: [
+      {
+        sortOrder: 1,
+        title: "Data & Analytics",
+        descriptor: "Pipelines, dashboards, and reporting infrastructure that turn raw events into decisions — not just charts nobody opens.",
+        detail: "We instrument product analytics, build ETL pipelines, and design dashboards executives will actually pull up in meetings — every time.",
+        tags: "BigQuery, dbt, Looker, PostHog, Segment, Fivetran",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 20h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 14v6M10 9v11M14 12v8M18 5v15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 14l4-5 4 3 4-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1.5 2"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 2,
+        title: "SaaS Applications",
+        descriptor: "Full-product SaaS builds — from auth and billing to multi-tenant architecture — designed to scale from launch to Series A and beyond.",
+        detail: "We've shipped SaaS products with complex permission models, usage-based billing, real-time features, and white-label delivery.",
+        tags: "Next.js, React, Stripe, PostgreSQL, WebSockets, Redis",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17c0 1.1.9 2 2 2h12a2 2 0 002-2v-1H4v1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 12c0 1.1.9 2 2 2h12a2 2 0 002-2v-1H4v1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6 7h12a2 2 0 012 2v1H4V9a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 3v3M10 4l2-2 2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 3,
+        title: "GMP Consulting",
+        descriptor: "Strategy, implementation, and governance across the Google Marketing Platform — from tagging architecture to full-funnel attribution.",
+        detail: "We configure, audit, and migrate GA4, GTM, DV360, CM360, and SA360 for brands that need measurement they can actually trust.",
+        tags: "GA4, GTM, DV360, CM360, SA360, Looker Studio",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3.5" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M9 20.5h6M12 16.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.5 12.5l3-4 3 2.5 3.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16.5" cy="6.5" r="1" fill="currentColor"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 4,
+        title: "Custom Content Management",
+        descriptor: "When off-the-shelf content platforms don't fit the workflow, we design and build tailored editorial systems from scratch.",
+        detail: "Admin interfaces your editors will actually enjoy using — clean data models, role-based access, rich text, and media pipelines.",
+        tags: "Next.js, Sanity, Strapi, Prisma, PostgreSQL, S3",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="10" width="11" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="16" y="10" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="17" width="7" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="17" width="9" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 5,
+        title: "WordPress & Drupal",
+        descriptor: "Custom themes, bespoke plugins, complex content architectures, and enterprise migrations — on whichever platform your project demands.",
+        detail: "Whether that's headless WordPress, WooCommerce, Drupal 10, or a cross-platform migration, plugin and module development is first-class.",
+        tags: "PHP, Gutenberg, WooCommerce, Twig, Drush, REST API",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="8" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 12l1.5 3.5 2.5-6 2.5 6L12.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 4c-1.8 1.8-3 4-3 7a5 5 0 0010 0c0-3-1.2-5.2-3-7 0 0-.5 1-.5 2.5 0 0-1-1.5-1-2.5s-.5 1.5-1 2.5c0 0-1-1.5-1.5-2.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="13" r="1" stroke="currentColor" stroke-width="1.5"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 6,
+        title: "Ecommerce",
+        descriptor: "Custom storefronts, headless commerce builds, and platform migrations that convert — engineered for speed, scale, and checkout.",
+        detail: "From Shopify Plus customisation to fully bespoke headless storefronts, we handle the full stack: catalogue, cart, payments, and post-purchase flows.",
+        tags: "Shopify, WooCommerce, Next.js, Stripe, Algolia, Headless",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 2l-2 4h16l-2-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 6v13a2 2 0 002 2h12a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 11a3 3 0 006 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        published: true,
+      },
+      {
+        sortOrder: 7,
+        title: "Gaming & Interactive",
+        descriptor: "Web-based games, interactive experiences, and game-adjacent applications where performance is the product — built for real players, not demos.",
+        detail: "From WebGL particle systems to physics-driven UI, we bring the same craftsmanship to interactive entertainment as to enterprise software.",
+        tags: "WebGL, Three.js, Canvas API, Matter.js, Phaser, GSAP",
+        iconSvg: `<svg width="38" height="38" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9c-2.2 0-4 1.6-4 3.8 0 2 1.5 3.6 3.5 3.6L7 15h10l1.5 1.4C20.5 16.4 22 14.8 22 12.8 22 10.6 20.2 9 18 9l-1.5 1.5H7.5L6 9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 12.5h2M9.5 11.5v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="14.5" cy="11.5" r="0.75" fill="currentColor"/><circle cx="16.5" cy="13" r="0.75" fill="currentColor"/></svg>`,
+        published: true,
+      },
+    ],
+  });
+
   console.log("Seed complete.");
 }
 

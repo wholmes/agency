@@ -172,7 +172,7 @@ export default async function RootLayout({
       </head>
       <body className="font-body">
         <CustomCursor />
-        <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} />
+        <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
         <main id="main-content">{children}</main>
         <Footer
           tagline={footer.tagline}

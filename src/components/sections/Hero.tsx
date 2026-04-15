@@ -91,12 +91,6 @@ export default function Hero({ content }: { content: HomeHero }) {
         className="pointer-events-none absolute top-[20%] -right-[10%] size-[600px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.06)_0%,transparent_70%)]"
       />
 
-      {/* Editorial hairline — aligns with container padding */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.22)_20%,rgba(201,165,90,0.12)_50%,transparent)] md:left-10 lg:left-16"
-      />
-
       <div className="container relative z-[1] max-md:-translate-y-12">
         {/* max-md:bg-bg/58 max-md:shadow-[0_8px_40px_rgb(0_0_0_/_0.35)] */}
         <div className="max-md:rounded-md max-md:border max-md:border-border/25 max-md:px-5 max-md:py-8 md:border-transparent md:bg-transparent md:p-0 md:shadow-none">

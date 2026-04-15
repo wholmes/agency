@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
 import { IconArrowUpRight } from "@/components/icons";
+import WorkSunburst from "@/components/WorkSunburst";
 import CtaSection from "@/components/sections/CtaSection";
 import type { Project } from "@/lib/projects";
 import type { CtaSectionCopy, WorkPageHero } from "@prisma/client";
@@ -51,31 +52,16 @@ export default function WorkPageClient({
         aria-label="Work hero"
         className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]"
       >
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+          <WorkSunburst />
+        </div>
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.055)_1px,transparent_1px)] bg-size-[80px_80px]"
+          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(201,165,90,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.055)_1px,transparent_1px)] bg-size-[80px_80px]"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-[18%] -right-[8%] size-[min(560px,70vw)] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.11)_0%,transparent_68%)]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[45%] -left-[12%] size-[min(420px,55vw)] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.065)_0%,transparent_65%)]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(0,0,0,0.35)_100%)]"
-        />
-
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[22%] bottom-[18%] left-6 w-px bg-[linear-gradient(to_bottom,transparent,rgba(201,165,90,0.32)_20%,rgba(201,165,90,0.18)_50%,transparent)] md:left-10 lg:left-16"
-        />
-
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 bottom-16 h-px w-[min(42vw,520px)] bg-[linear-gradient(to_right,transparent,rgba(201,165,90,0.35),transparent)]"
+          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(0,0,0,0.35)_100%)]"
         />
 
         <div className="container relative z-[1] pb-16 md:pb-20">

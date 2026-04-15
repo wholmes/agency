@@ -314,7 +314,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`nav-link relative inline-flex items-center gap-1 py-2 font-body text-sm font-normal tracking-[0.01em] transition-colors [transition-duration:var(--duration-base)] ease-out ${
+      className={`nav-link relative inline-flex items-center gap-1 py-2 font-body text-sm font-normal tracking-[0.01em] transition-colors duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
         isHighlighted ? "text-accent" : "text-text-secondary hover:text-text-primary"
       }`}
     >
@@ -322,18 +322,11 @@ function NavLink({
       {hasDrop && (
         <motion.span
           animate={{ rotate: dropdownOpen ? 180 : 0 }}
-          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex"
+          transition={{ duration: 0.22, ease: STAGGER_EASE }}
+          className="inline-flex text-inherit transition-colors duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
         >
           <ChevronDown />
         </motion.span>
-      )}
-      {active && !dropdownOpen && (
-        <motion.span
-          layoutId="nav-indicator"
-          className="absolute right-0 bottom-0 left-0 h-px bg-accent"
-          transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-        />
       )}
     </Link>
   );
@@ -383,15 +376,18 @@ export default function Navigation({
   availability,
   chrome,
   dropdownData = {},
+  hideOnScroll = false,
 }: {
   availability: AvailabilityStatus;
   chrome: SiteChromeConfigParsed;
   dropdownData?: NavDropdownData;
+  hideOnScroll?: boolean;
 }) {
   const navLinks = chrome.navLinks;
   const primaryCta = chrome.primaryCta;
   const primaryCtaHref = siteChromePrimaryCtaHref(chrome);
   const [scrolled, setScrolled] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const pathname = usePathname();
@@ -404,11 +400,20 @@ export default function Navigation({
       const y = window.scrollY;
       setScrolled(y > 40);
       if (y > lastY.current + 30) setActiveDropdown(null);
+      if (hideOnScroll) {
+        if (y < 80) {
+          setNavHidden(false);
+        } else if (y > lastY.current + 8) {
+          setNavHidden(true);
+        } else if (y < lastY.current - 8) {
+          setNavHidden(false);
+        }
+      }
       lastY.current = y;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [hideOnScroll]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -453,7 +458,12 @@ export default function Navigation({
     <>
       <header
         role="banner"
-        className={`fixed top-0 right-0 left-0 z-[100] transition-[background-color,backdrop-filter,border-color] [transition-duration:var(--duration-slow)] ease-out ${
+        style={{
+          transform: navHidden && !mobileOpen ? "translateY(-100%)" : "translateY(0)",
+          transition:
+            "transform 380ms cubic-bezier(0.16, 1, 0.3, 1), background-color var(--duration-slow) ease-out, backdrop-filter var(--duration-slow) ease-out, border-color var(--duration-slow) ease-out",
+        }}
+        className={`fixed top-0 right-0 left-0 z-[100] ${
           isGlassy
             ? "border-b border-border bg-[rgba(12,12,11,0.92)] backdrop-blur-xl backdrop-saturate-[180%]"
             : "border-b border-transparent bg-transparent"
@@ -648,7 +658,7 @@ export default function Navigation({
                 >
                   <Link
                     href={link.href}
-                    className={`block border-b border-border py-3 font-display text-4xl leading-tight font-light tracking-tight transition-colors [transition-duration:var(--duration-base)] ease-out ${
+                    className={`block border-b border-border py-3 font-display text-4xl leading-tight font-light tracking-tight transition-colors duration-[480ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                       pathname === link.href ? "text-accent" : "text-text-primary"
                     }`}
                   >
