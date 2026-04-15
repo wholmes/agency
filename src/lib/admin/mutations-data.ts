@@ -845,3 +845,101 @@ export async function moveCapabilityDown(id: number) {
   revalidatePath("/services");
   revalidatePath("/admin/capabilities");
 }
+
+// ─── Team Members ────────────────────────────────────────────────────────────
+
+type CreateTeamMemberState = { error?: string } | null;
+
+export async function createTeamMember(
+  _prev: CreateTeamMemberState,
+  formData: FormData,
+): Promise<CreateTeamMemberState> {
+  await requireAdminSession();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Name is required." };
+  const last = await prisma.teamMember.findFirst({ orderBy: { sortOrder: "desc" } });
+  await prisma.teamMember.create({
+    data: {
+      name,
+      role: String(formData.get("role") ?? ""),
+      philosophy: String(formData.get("philosophy") ?? ""),
+      bio: String(formData.get("bio") ?? ""),
+      skills: String(formData.get("skills") ?? ""),
+      brandCodeBalance: Math.max(0, Math.min(100, Number(formData.get("brandCodeBalance") ?? 50))),
+      featured: formData.get("featured") === "on",
+      published: formData.get("published") === "on",
+      showTags: formData.get("showTags") === "on",
+      showBalance: formData.get("showBalance") === "on",
+      photoUrl: String(formData.get("photoUrl") ?? ""),
+      capabilities: String(formData.get("capabilities") ?? ""),
+      sortOrder: (last?.sortOrder ?? 0) + 1,
+    },
+  });
+  revalidatePath("/about");
+  revalidatePath("/admin/team");
+  redirect("/admin/team?toast=team-member-created");
+}
+
+export async function updateTeamMember(id: number, formData: FormData) {
+  await requireAdminSession();
+  await prisma.teamMember.update({
+    where: { id },
+    data: {
+      name: String(formData.get("name") ?? ""),
+      role: String(formData.get("role") ?? ""),
+      philosophy: String(formData.get("philosophy") ?? ""),
+      bio: String(formData.get("bio") ?? ""),
+      skills: String(formData.get("skills") ?? ""),
+      brandCodeBalance: Math.max(0, Math.min(100, Number(formData.get("brandCodeBalance") ?? 50))),
+      featured: formData.get("featured") === "on",
+      published: formData.get("published") === "on",
+      showTags: formData.get("showTags") === "on",
+      showBalance: formData.get("showBalance") === "on",
+      photoUrl: String(formData.get("photoUrl") ?? ""),
+      capabilities: String(formData.get("capabilities") ?? ""),
+      sortOrder: Number(formData.get("sortOrder") ?? 0),
+    },
+  });
+  revalidatePath("/about");
+  revalidatePath("/admin/team");
+}
+
+export async function deleteTeamMember(id: number) {
+  await requireAdminSession();
+  await prisma.teamMember.delete({ where: { id } });
+  revalidatePath("/about");
+  revalidatePath("/admin/team");
+  redirect("/admin/team?toast=team-member-deleted");
+}
+
+export async function moveTeamMemberUp(id: number) {
+  await requireAdminSession();
+  const current = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
+  const above = await prisma.teamMember.findFirst({
+    where: { sortOrder: { lt: current.sortOrder } },
+    orderBy: { sortOrder: "desc" },
+  });
+  if (!above) return;
+  await prisma.$transaction([
+    prisma.teamMember.update({ where: { id: current.id }, data: { sortOrder: above.sortOrder } }),
+    prisma.teamMember.update({ where: { id: above.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/about");
+  revalidatePath("/admin/team");
+}
+
+export async function moveTeamMemberDown(id: number) {
+  await requireAdminSession();
+  const current = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
+  const below = await prisma.teamMember.findFirst({
+    where: { sortOrder: { gt: current.sortOrder } },
+    orderBy: { sortOrder: "asc" },
+  });
+  if (!below) return;
+  await prisma.$transaction([
+    prisma.teamMember.update({ where: { id: current.id }, data: { sortOrder: below.sortOrder } }),
+    prisma.teamMember.update({ where: { id: below.id }, data: { sortOrder: current.sortOrder } }),
+  ]);
+  revalidatePath("/about");
+  revalidatePath("/admin/team");
+}

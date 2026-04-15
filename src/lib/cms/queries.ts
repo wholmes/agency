@@ -327,6 +327,17 @@ export const getAboutHomeTeaser = cache(async () => {
   return prisma.aboutHomeTeaser.findUniqueOrThrow({ where: { id: 1 } });
 });
 
+export const getTeamMembers = cache(async () => {
+  return prisma.teamMember.findMany({
+    where: { published: true },
+    orderBy: { sortOrder: "asc" },
+  });
+});
+
+export const getAllTeamMembersForAdmin = cache(async () => {
+  return prisma.teamMember.findMany({ orderBy: { sortOrder: "asc" } });
+});
+
 export const getCapabilities = cache(async () => {
   return prisma.capability.findMany({
     where: { published: true },

@@ -3,6 +3,7 @@ import Link from "next/link";
 import ScrollReveal from "@/components/ScrollReveal";
 import { IconArrowUpRight, IconCheck } from "@/components/icons";
 import CtaSection from "@/components/sections/CtaSection";
+import TeamSection from "@/components/sections/TeamSection";
 import AboutHero from "./AboutHero";
 import {
   getAboutPageHero,
@@ -12,6 +13,7 @@ import {
   getAboutValues,
   getAboutValuesSectionHeader,
   getCtaSectionCopy,
+  getTeamMembers,
 } from "@/lib/cms/queries";
 
 export const metadata: Metadata = {
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const [aboutHero, storySection, storyParagraphs, teaserCard, valuesHeader, values, ctaCopy] = await Promise.all([
+  const [aboutHero, storySection, storyParagraphs, teaserCard, valuesHeader, values, ctaCopy, teamMembers] = await Promise.all([
     getAboutPageHero(),
     getAboutStorySection(),
     getAboutStoryParagraphs(),
@@ -32,6 +34,7 @@ export default async function AboutPage() {
     getAboutValuesSectionHeader(),
     getAboutValues(),
     getCtaSectionCopy(),
+    getTeamMembers(),
   ]);
 
   return (
@@ -81,6 +84,13 @@ export default async function AboutPage() {
           </div>
         </div>
       </section>
+
+      <TeamSection
+        members={teamMembers.map((m) => ({
+          ...m,
+          skills: m.skills.split(",").map((s) => s.trim()).filter(Boolean),
+        }))}
+      />
 
       <section aria-labelledby="values-heading" className="section border-b border-border bg-surface">
         <div className="container">

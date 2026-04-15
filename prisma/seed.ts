@@ -1030,6 +1030,37 @@ async function main() {
     ],
   });
 
+  // Team Members
+  await prisma.teamMember.deleteMany();
+  await prisma.teamMember.createMany({
+    data: [
+      {
+        sortOrder: 1,
+        name: "Whittfield Holmes",
+        role: "Founder & Creative Director",
+        philosophy: "The best digital products don't choose between beautiful and functional — they insist on both.",
+        bio: "Whittfield founded BrandMeetsCode at the intersection of brand strategy and technical execution. With a background spanning agency creative direction and full-stack engineering, he leads every engagement from concept through deployment.",
+        skills: "Brand Strategy, Next.js, Motion Design, Product Architecture, TypeScript",
+        brandCodeBalance: 62,
+        featured: true,
+        published: true,
+        photoUrl: "",
+      },
+      {
+        sortOrder: 2,
+        name: "Creative Collaborator",
+        role: "Senior Developer",
+        philosophy: "Code is a craft. Performance and elegance are not in conflict — they reinforce each other.",
+        bio: "Focused on the technical layer: component architecture, animation systems, and the infrastructure that makes premium experiences possible at scale.",
+        skills: "React, Three.js, WebGL, PostgreSQL, Framer Motion, CI/CD",
+        brandCodeBalance: 28,
+        featured: false,
+        published: false,
+        photoUrl: "",
+      },
+    ],
+  });
+
   console.log("Seed complete.");
 }
 

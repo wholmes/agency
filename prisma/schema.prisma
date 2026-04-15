@@ -40,6 +40,23 @@ model Project {
   published    Boolean @default(true)
 }
 
+model TeamMember {
+  id                Int     @id @default(autoincrement())
+  sortOrder         Int     @default(0)
+  name              String
+  role              String
+  philosophy        String  @default("")
+  bio               String  @default("")
+  skills            String  @default("")
+  brandCodeBalance  Int     @default(50)
+  featured          Boolean @default(false)
+  published         Boolean @default(true)
+  showTags          Boolean @default(true)
+  showBalance       Boolean @default(true)
+  photoUrl          String  @default("")
+  capabilities      String  @default("")
+}
+
 model Capability {
   id         Int     @id @default(autoincrement())
   sortOrder  Int     @default(0)

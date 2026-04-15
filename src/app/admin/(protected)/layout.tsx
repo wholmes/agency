@@ -48,6 +48,7 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
     items: [
       { href: "/admin/industries", label: "Industries" },
       { href: "/admin/about", label: "About page" },
+      { href: "/admin/team", label: "Team" },
       { href: "/admin/contact", label: "Contact" },
     ],
   },
