@@ -36,7 +36,7 @@ export default function Footer({
                 <span className="font-mono text-[0.8125rem] font-semibold leading-none">B</span>
               </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
-                Brand<span className="text-accent">Meets</span>Code
+                Brand<em className="italic text-accent">Meets</em>Code
               </span>
             </Link>
             <p className="mb-6 max-w-[300px] text-sm leading-relaxed text-text-secondary">{tagline}</p>
