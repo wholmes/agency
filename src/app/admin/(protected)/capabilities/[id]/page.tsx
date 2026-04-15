@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
-import AdminUrlToast from "@/components/admin/AdminUrlToast";
 import { prisma } from "@/lib/prisma";
 import { updateCapability, deleteCapability } from "@/lib/admin/mutations-data";
 import DeleteCapabilityButton from "./DeleteCapabilityButton";
@@ -22,8 +21,6 @@ export default async function EditCapabilityPage({
 
   return (
     <div className="mx-auto max-w-xl">
-      <AdminUrlToast successSlug="capability-created" message="Card created" />
-
       <div className="mb-8 flex items-center gap-4">
         <Link href="/admin/capabilities" className="text-sm text-text-tertiary hover:text-text-primary">
           ← Capabilities
