@@ -1,8 +1,23 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { motion, type Variants } from "framer-motion";
 import type { ServicesPageHero as ServicesPageHeroModel } from "@prisma/client";
+
+const HeroFieldCanvas = dynamic(() => import("../HeroFieldCanvas"), {
+  ssr: false,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0"
+      style={{
+        backgroundImage:
+          "radial-gradient(ellipse 80% 60% at 60% 35%, #191614 0%, #0c0c0b 65%)",
+      }}
+    />
+  ),
+});
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -33,6 +48,8 @@ export default function ServicesPageHero({ content }: { content: ServicesPageHer
       aria-labelledby="services-page-heading"
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
+      <HeroFieldCanvas variant="services" />
+
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.03)_1px,transparent_1px)] bg-size-[80px_80px]"
