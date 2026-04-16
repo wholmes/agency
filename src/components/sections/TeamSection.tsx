@@ -1,9 +1,6 @@
 "use client";
 
-import { useRef, useMemo, useState, useEffect, Suspense } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Html } from "@react-three/drei";
-import * as THREE from "three";
+import { useRef, useState, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,643 +20,461 @@ type TeamMember = {
   capabilities: string;
 };
 
-// ─── Arc-text helper ──────────────────────────────────────────────────────────
+// ─── Capability helpers ───────────────────────────────────────────────────────
 
-/**
- * Draws text along a circular arc on a 2D canvas.
- *
- * centerDeg: angle of the text midpoint, SVG convention (y-down):
- *   90  = bottom of circle
- *   270 = top of circle
- *
- * inward = true  → letters face center (inscribed, used for bottom name)
- * inward = false → letters face outward (used for top role label)
- *
- * Math is verified: at 90° inward, each char rotates by (angle - π/2),
- * which equals 0 at the exact bottom → upright, pointing up toward center.
- * At 270° outward, each char rotates by (angle + π/2), also 0 at exact top.
- */
-function drawArcText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  cx: number,
-  cy: number,
-  r: number,
-  centerDeg: number,
-  inward: boolean,
-  fontSize: number,
-  color: string,
-) {
-  ctx.save();
-  ctx.font = `500 ${fontSize}px "DM Mono", monospace`;
-  ctx.fillStyle = color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const chars = text.split("");
-  const widths = chars.map((c) => ctx.measureText(c).width);
-  const totalAngle = widths.reduce((s, w) => s + w / r, 0); // total radians
-
-  const centerRad = centerDeg * (Math.PI / 180);
-  // dir: -1 → angle decreases (rightward at bottom), +1 → angle increases (rightward at top)
-  const dir = inward ? -1 : 1;
-  let angle = centerRad - dir * totalAngle / 2; // start at left edge
-
-  for (let i = 0; i < chars.length; i++) {
-    const da = widths[i] / r;
-    const ca = angle + dir * da / 2; // center angle for this char
-    ctx.save();
-    ctx.translate(cx + r * Math.cos(ca), cy + r * Math.sin(ca));
-    ctx.rotate(inward ? ca - Math.PI / 2 : ca + Math.PI / 2);
-    ctx.fillText(chars[i], 0, 0);
-    ctx.restore();
-    angle += dir * da;
-  }
-
-  ctx.restore();
-}
-
-// ─── Medal face canvas texture ────────────────────────────────────────────────
-
-function createMedalTexture(member: TeamMember): THREE.CanvasTexture {
-  const S = 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = S;
-  canvas.height = S;
-  const ctx = canvas.getContext("2d")!;
-  const cx = S / 2, cy = S / 2;
-
-  // Clip to circle
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, S / 2 - 2, 0, Math.PI * 2);
-  ctx.clip();
-
-  // Brushed gold gradient (angled light source top-left)
-  const faceGrad = ctx.createLinearGradient(0, 0, S, S);
-  faceGrad.addColorStop(0.00, "#1e1408");
-  faceGrad.addColorStop(0.08, "#5a4018");
-  faceGrad.addColorStop(0.20, "#a87838");
-  faceGrad.addColorStop(0.34, "#d4a848");
-  faceGrad.addColorStop(0.44, "#e8c860");
-  faceGrad.addColorStop(0.50, "#f2da72");
-  faceGrad.addColorStop(0.58, "#d0a848");
-  faceGrad.addColorStop(0.72, "#8a6028");
-  faceGrad.addColorStop(0.86, "#4a3018");
-  faceGrad.addColorStop(1.00, "#180e04");
-  ctx.fillStyle = faceGrad;
-  ctx.fillRect(0, 0, S, S);
-
-  // Specular bloom (top-left)
-  const spec = ctx.createRadialGradient(cx - 145, cy - 200, 0, cx, cy, S * 0.52);
-  spec.addColorStop(0, "rgba(255,252,210,0.22)");
-  spec.addColorStop(0.5, "rgba(255,252,210,0.05)");
-  spec.addColorStop(1, "rgba(255,252,210,0)");
-  ctx.fillStyle = spec;
-  ctx.fillRect(0, 0, S, S);
-
-  // Engraved concentric rings — each is a shadow line + highlight line
-  const rings: [number, string, number][] = [
-    [455, "rgba(0,0,0,0.60)", 3.5],
-    [452, "rgba(255,220,120,0.22)", 1.5],
-    [382, "rgba(0,0,0,0.48)", 3],
-    [379, "rgba(255,220,120,0.17)", 1.2],
-    [306, "rgba(0,0,0,0.40)", 2],
-    [304, "rgba(255,220,120,0.13)", 0.8],
-  ];
-  for (const [r, color, w] of rings) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = w;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  // Six dot details between the middle and inner rings
-  const dotR = (382 + 225) / 2;
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2 + Math.PI / 12;
-    ctx.fillStyle = "rgba(201,165,90,0.48)";
-    ctx.beginPath();
-    ctx.arc(cx + dotR * Math.cos(a), cy + dotR * Math.sin(a), 9.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Boss (raised disc) — radial gradient, highlight at top-left
-  const bossGrad = ctx.createRadialGradient(cx - 60, cy - 80, 0, cx, cy, 232);
-  bossGrad.addColorStop(0, "#f2e0a8");
-  bossGrad.addColorStop(0.18, "#c9a550");
-  bossGrad.addColorStop(0.50, "#7a5820");
-  bossGrad.addColorStop(0.80, "#3a2410");
-  bossGrad.addColorStop(1, "#180e08");
-  ctx.fillStyle = bossGrad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 225, 0, Math.PI * 2);
-  ctx.fill();
-  // Boss rim
-  ctx.strokeStyle = "rgba(255,240,170,0.30)";
-  ctx.lineWidth = 3.5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 225, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Well groove
-  ctx.strokeStyle = "rgba(0,0,0,0.65)";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 180, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.strokeStyle = "rgba(255,220,120,0.25)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 177, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Recessed well (deep dark field)
-  const wellGrad = ctx.createRadialGradient(cx - 30, cy - 42, 0, cx, cy, 174);
-  wellGrad.addColorStop(0, "#1c1408");
-  wellGrad.addColorStop(0.5, "#0e0a04");
-  wellGrad.addColorStop(1, "#070504");
-  ctx.fillStyle = wellGrad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 170, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Gilded initials in the well
-  const initials = member.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-  ctx.fillStyle = "rgba(201,165,90,0.88)";
-  ctx.font = `300 115px Georgia, "Times New Roman", serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(initials, cx, cy + 5);
-
-  // Name arc — bottom of face, letters face toward center
-  drawArcText(ctx, member.name.toUpperCase(), cx, cy, 332, 90, true, 25, "rgba(201,165,90,0.72)");
-
-  // Role arc — top of face, letters face outward toward rim
-  drawArcText(
-    ctx,
-    member.role.toUpperCase().slice(0, 22),
-    cx, cy, 415, 270, false, 22, "rgba(201,165,90,0.44)",
+function parseCaps(raw: string): Record<string, number> {
+  return Object.fromEntries(
+    raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => {
+        const [name, val] = s.split(":");
+        return [name?.trim() ?? "", Number(val?.trim() ?? 0)] as [string, number];
+      })
+      .filter(([n]) => n),
   );
-
-  ctx.restore();
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
 }
 
-// ─── Ribbon stripe texture ─────────────────────────────────────────────────────
-
-function createRibbonTexture(balance: number): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 512;
-  const ctx = canvas.getContext("2d")!;
-  const stripe = balance >= 60 ? "#c9a55a" : balance <= 40 ? "#7888a0" : "#c9a55a";
-  const dark = "#0d0c08";
-
-  // Fill background
-  ctx.fillStyle = dark;
-  ctx.fillRect(0, 0, 128, 512);
-
-  // Diagonal stripes
-  ctx.strokeStyle = stripe;
-  ctx.lineWidth = 5;
-  for (let x = -512; x < 640; x += 14) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x + 512, 512);
-    ctx.stroke();
-  }
-
-  // Side shadows for fabric depth
-  const leftShadow = ctx.createLinearGradient(0, 0, 20, 0);
-  leftShadow.addColorStop(0, "rgba(0,0,0,0.35)");
-  leftShadow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = leftShadow;
-  ctx.fillRect(0, 0, 20, 512);
-
-  const rightShadow = ctx.createLinearGradient(108, 0, 128, 0);
-  rightShadow.addColorStop(0, "rgba(0,0,0,0)");
-  rightShadow.addColorStop(1, "rgba(0,0,0,0.35)");
-  ctx.fillStyle = rightShadow;
-  ctx.fillRect(108, 0, 20, 512);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.RepeatWrapping;
-  return tex;
-}
-
-// ─── Bar material (brass) ─────────────────────────────────────────────────────
-
-const BAR_MATERIAL = new THREE.MeshStandardMaterial({
-  color: new THREE.Color("#c0a050"),
-  metalness: 0.92,
-  roughness: 0.22,
-});
-
-// ─── Camera — looks at origin, z scales to fit n medals ──────────────────────
-
-function CameraSetup({ n, spacing }: { n: number; spacing: number }) {
-  const { camera, size } = useThree();
-
-  useEffect(() => {
-    const fovRad = (44 * Math.PI) / 180;
-    const aspect = size.width / size.height;
-    // Half the total horizontal span of all medals + a margin
-    const totalXHalf = ((n - 1) * spacing) / 2 + 1.22 + 0.5; // 1.22 = max medal radius (featured)
-    const z = Math.max(7, totalXHalf / (Math.tan(fovRad / 2) * Math.max(aspect, 0.5)));
-    camera.position.set(0, 0, z);
-    camera.lookAt(0, 0, 0); // assembly is centered at world origin
-    camera.updateProjectionMatrix();
-  }, [camera, size.width, size.height, n, spacing]);
-
-  return null;
-}
-
-// ─── 3D Medal group ───────────────────────────────────────────────────────────
-
-// Total assembly height from hook (y=0) down to medal bottom
-const ASSEMBLY_HEIGHT = 3.55;
-
-interface MedalGroupProps {
-  member: TeamMember;
-  posX: number;
-  /** Lift so the assembly is vertically centered at world y=0 */
-  posY: number;
-  scale: number;
-  index: number;
-}
-
-function MedalGroup({ member, posX, posY, scale, index }: MedalGroupProps) {
-  const pivotRef = useRef<THREE.Group>(null);
-  const [hovered, setHovered] = useState(false);
-
-  const target = useRef(0);
-  const settled = useRef(false);
-  const settleStart = useRef<number | null>(null);
-
-  // Medal face texture (canvas)
-  const faceTexture = useMemo(() => createMedalTexture(member), [member.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Ribbon stripe texture
-  const ribbonTexture = useMemo(() => createRibbonTexture(member.brandCodeBalance), [member.brandCodeBalance]);
-
-  // Gold side material
-  const goldMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#c9a55a"),
-        metalness: 0.95,
-        roughness: 0.16,
-        envMapIntensity: 1.6,
-      }),
-    [],
-  );
-
-  // Medal disc geometry — cylinder rotated so cap faces +Z toward camera
-  const discGeo = useMemo(() => {
-    const g = new THREE.CylinderGeometry(1, 1.045, 0.14, 128, 1, false);
-    g.rotateX(Math.PI / 2); // top cap (+Y → +Z) faces the camera
-    return g;
-  }, []);
-
-  // Boss geometry
-  const bossGeo = useMemo(() => {
-    const g = new THREE.CylinderGeometry(0.43, 0.46, 0.07, 64, 1, false);
-    g.rotateX(Math.PI / 2);
-    return g;
-  }, []);
-
-  // Medal face material array [side, front-cap, back-cap]
-  const discMaterials = useMemo(
-    () => [
-      goldMaterial,
-      new THREE.MeshStandardMaterial({
-        map: faceTexture,
-        metalness: 0.72,
-        roughness: 0.28,
-        envMapIntensity: 1.0,
-      }),
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#1a1208"),
-        metalness: 0.6,
-        roughness: 0.5,
-      }),
-    ],
-    [goldMaterial, faceTexture],
-  );
-
-  const bossMaterials = useMemo(
-    () => [
-      goldMaterial,
-      new THREE.MeshStandardMaterial({ color: new THREE.Color("#1a1208") }),
-      new THREE.MeshStandardMaterial({ color: new THREE.Color("#1a1208") }),
-    ],
-    [goldMaterial],
-  );
-
-  const { pointer } = useThree();
-
-  // Pendulum animation
-  useFrame((state, delta) => {
-    if (!pivotRef.current) return;
-
-    // Entry settle: damped oscillation when first becoming visible
-    if (!settled.current) {
-      if (settleStart.current === null) {
-        settleStart.current = state.clock.elapsedTime + index * 0.14;
-      }
-      const elapsed = state.clock.elapsedTime - settleStart.current;
-      if (elapsed < 0) return;
-      if (elapsed < 3.0) {
-        const envelope = Math.exp(-elapsed * 2.2);
-        pivotRef.current.rotation.z = Math.sin(elapsed * 3.2) * envelope * 0.18;
-        return;
-      }
-      settled.current = true;
+function collectAxes(members: TeamMember[]): string[] {
+  const seen = new Set<string>();
+  const order: string[] = [];
+  for (const m of members) {
+    for (const k of Object.keys(parseCaps(m.capabilities))) {
+      if (!seen.has(k)) { seen.add(k); order.push(k); }
     }
+  }
+  return order;
+}
 
-    // Mouse-driven sway: the medal nearest the cursor sways more
-    const normalizedX = pointer.x;
-    // Weight sway by proximity: medals near the cursor sway more
-    const medalNDC = posX / 8;
-    const proximity = 1 - Math.min(Math.abs(normalizedX - medalNDC), 1);
-    const swayAmount = hovered ? normalizedX * 0.18 : normalizedX * 0.06 * proximity;
+// ─── Radar geometry ───────────────────────────────────────────────────────────
 
-    target.current = swayAmount;
-    pivotRef.current.rotation.z = THREE.MathUtils.lerp(
-      pivotRef.current.rotation.z,
-      target.current,
-      Math.min(delta * 5, 1),
-    );
+const CX = 180, CY = 180, MAX_R = 130, LABEL_R = 158;
 
-    // Hover: tilt medal slightly toward viewer
-    pivotRef.current.rotation.x = THREE.MathUtils.lerp(
-      pivotRef.current.rotation.x,
-      hovered ? -0.12 : 0,
-      Math.min(delta * 6, 1),
-    );
+function point(i: number, n: number, r: number) {
+  const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+  return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a), a };
+}
+
+function radarD(axes: string[], caps: Record<string, number>): string {
+  if (!axes.length) return "";
+  const n = axes.length;
+  const pts = axes.map((ax, i) => {
+    const v = Math.max(0, Math.min(100, caps[ax] ?? 0)) / 100;
+    return point(i, n, v * MAX_R);
   });
+  return `M ${pts[0].x} ${pts[0].y} ` + pts.slice(1).map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z";
+}
 
-  // Assembly dimensions
-  const hookH = 0.2;
-  const barW = 0.72, barH = 0.09, barD = 0.16;
-  const ribbonW = 0.44, ribbonH = 1.1;
-  const medalY = -2.55; // medal center below pivot
+function ringD(axes: string[], pct: number): string {
+  if (!axes.length) return "";
+  const n = axes.length;
+  const pts = axes.map((_, i) => point(i, n, pct * MAX_R));
+  return `M ${pts[0].x} ${pts[0].y} ` + pts.slice(1).map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z";
+}
 
-  // Positioning (all relative to pivot at y=0)
-  const hookY = -hookH / 2;
-  const topBarY = -hookH - barH / 2;
-  const ribbonY = topBarY - barH / 2 - ribbonH / 2;
-  const botBarY = ribbonY - ribbonH / 2 - barH / 2;
+// ─── Radar chart ──────────────────────────────────────────────────────────────
+
+const SPRING = { type: "spring" as const, stiffness: 180, damping: 26 };
+const EASE   = [0.16, 1, 0.3, 1] as const;
+
+// ─── Dust motes (drift through the sun ray) ───────────────────────────────────
+
+const DUST_MOTES = [
+  { left: "14%", top: "44%", size: 2,   drift: 38, bob: -6, duration: 5.8, delay: 0.0 },
+  { left: "26%", top: "55%", size: 1.5, drift: 30, bob:  5, duration: 4.6, delay: 1.2 },
+  { left: "40%", top: "47%", size: 2.5, drift: 44, bob: -4, duration: 6.4, delay: 0.6 },
+  { left: "54%", top: "52%", size: 1.5, drift: 28, bob:  6, duration: 5.2, delay: 2.0 },
+  { left: "68%", top: "46%", size: 2,   drift: 36, bob: -5, duration: 5.6, delay: 1.6 },
+  { left: "80%", top: "53%", size: 1.5, drift: 24, bob:  4, duration: 4.8, delay: 0.4 },
+  { left: "90%", top: "49%", size: 2,   drift: 20, bob: -3, duration: 5.0, delay: 2.4 },
+] as const;
+
+function RadarChart({
+  members,
+  allAxes,
+  parsedCaps,
+  hoveredId,
+}: {
+  members: TeamMember[];
+  allAxes: string[];
+  parsedCaps: Map<number, Record<string, number>>;
+  hoveredId: number | null;
+}) {
+  const n = allAxes.length;
+  if (!n) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-text-tertiary">
+          No capabilities data yet
+        </p>
+      </div>
+    );
+  }
+
+  const hovered = hoveredId !== null ? members.find((m) => m.id === hoveredId) : null;
+  const activeCaps = hovered ? (parsedCaps.get(hovered.id) ?? {}) : {};
+  const activeD    = radarD(allAxes, activeCaps);
 
   return (
-    <group position={[posX, posY, 0]} scale={scale}>
-      <group
-        ref={pivotRef}
-        onPointerEnter={() => setHovered(true)}
-        onPointerLeave={() => setHovered(false)}
+    <div className="flex flex-col items-center">
+      <svg
+        viewBox="0 0 360 360"
+        width="100%"
+        style={{ maxWidth: 360, overflow: "visible" }}
+        aria-hidden
       >
-        {/* Hook pin */}
-        <mesh position={[0, hookY, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, hookH, 16]} />
-          <meshStandardMaterial color="#b09050" metalness={0.95} roughness={0.15} />
-        </mesh>
-
-        {/* Top ribbon bar */}
-        <mesh position={[0, topBarY, 0]} material={BAR_MATERIAL}>
-          <boxGeometry args={[barW, barH, barD]} />
-        </mesh>
-
-        {/* Ribbon fabric */}
-        <mesh position={[0, ribbonY, -0.01]}>
-          <planeGeometry args={[ribbonW, ribbonH]} />
-          <meshStandardMaterial
-            map={ribbonTexture}
-            side={THREE.FrontSide}
-            roughness={0.85}
-            metalness={0.0}
+        {/* Background rings */}
+        {[0.25, 0.5, 0.75, 1].map((pct) => (
+          <path
+            key={pct}
+            d={ringD(allAxes, pct)}
+            fill="none"
+            stroke="rgba(255,255,255,0.05)"
+            strokeWidth={pct === 1 ? 1 : 0.75}
           />
-        </mesh>
+        ))}
 
-        {/* Bottom ribbon bar */}
-        <mesh position={[0, botBarY, 0]} material={BAR_MATERIAL}>
-          <boxGeometry args={[barW, barH, barD]} />
-        </mesh>
+        {/* Axis spokes */}
+        {allAxes.map((_, i) => {
+          const outer = point(i, n, MAX_R);
+          return (
+            <line
+              key={i}
+              x1={CX} y1={CY}
+              x2={outer.x} y2={outer.y}
+              stroke="rgba(255,255,255,0.07)"
+              strokeWidth={0.75}
+            />
+          );
+        })}
 
-        {/* Medal disc */}
-        <mesh
-          position={[0, medalY, 0]}
-          geometry={discGeo}
-          material={discMaterials}
+        {/* Ghost shapes — all members at low opacity */}
+        {members.map((m) => (
+          <motion.path
+            key={m.id}
+            d={radarD(allAxes, parsedCaps.get(m.id) ?? {})}
+            animate={{
+              opacity: hoveredId === null ? 0.30 : (hoveredId === m.id ? 0 : 0.06),
+            }}
+            transition={{ duration: 0.3 }}
+            fill="rgba(201,165,90,0.08)"
+            stroke="rgba(201,165,90,0.35)"
+            strokeWidth={1}
+          />
+        ))}
+
+        {/* Active / hovered shape */}
+        <AnimatePresence>
+          {hovered && (
+            <motion.path
+              key={hovered.id}
+              d={activeD}
+              animate={{ d: activeD, opacity: 1 }}
+              initial={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={SPRING}
+              fill="rgba(201,165,90,0.14)"
+              stroke="rgba(201,165,90,0.80)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Vertex dots for hovered shape */}
+        {hovered &&
+          allAxes.map((ax, i) => {
+            const v = Math.max(0, Math.min(100, (parsedCaps.get(hovered.id) ?? {})[ax] ?? 0)) / 100;
+            const p = point(i, n, v * MAX_R);
+            return (
+              <motion.circle
+                key={ax}
+                cx={p.x} cy={p.y} r={3}
+                animate={{ cx: p.x, cy: p.y, opacity: 1 }}
+                initial={{ opacity: 0 }}
+                transition={SPRING}
+                fill="#c9a55a"
+                stroke="rgba(201,165,90,0.3)"
+                strokeWidth={4}
+              />
+            );
+          })}
+
+        {/* Axis labels */}
+        {allAxes.map((ax, i) => {
+          const { x, y, a } = point(i, n, LABEL_R);
+          const anchor =
+            Math.abs(Math.cos(a)) < 0.2 ? "middle" : Math.cos(a) > 0 ? "start" : "end";
+          const isActive = hovered
+            ? (parsedCaps.get(hovered.id) ?? {})[ax] > 0
+            : false;
+          return (
+            <text
+              key={ax}
+              x={x} y={y}
+              textAnchor={anchor}
+              dominantBaseline="middle"
+              fontSize={9}
+              fontFamily='"DM Mono", monospace'
+              letterSpacing="0.06em"
+              fill={isActive ? "rgba(201,165,90,0.85)" : "rgba(255,255,255,0.30)"}
+              style={{ transition: "fill 0.3s" }}
+            >
+              {ax.toUpperCase()}
+            </text>
+          );
+        })}
+      </svg>
+
+      {/* Member name / role label below chart */}
+      <div className="mt-2 h-9 text-center">
+        <AnimatePresence mode="wait">
+          {hovered ? (
+            <motion.div
+              key={hovered.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.25, ease: EASE }}
+            >
+              <p className="text-sm font-medium text-text-primary">{hovered.name}</p>
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-accent">
+                {hovered.role}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.p
+              key="idle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-tertiary"
+            >
+              Hover a role to explore
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+
+function Avatar({ member, isHovered }: { member: TeamMember; isHovered: boolean }) {
+  const initials = member.name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const ring = isHovered
+    ? "0 0 0 1px rgba(242,218,114,0.45), 0 0 18px rgba(242,218,114,0.22), 0 2px 8px rgba(0,0,0,0.4)"
+    : "0 0 0 1px rgba(201,165,90,0.18), 0 2px 8px rgba(0,0,0,0.4)";
+
+  if (member.photoUrl) {
+    return (
+      <div
+        className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full transition-[box-shadow] duration-500"
+        style={{ boxShadow: ring }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={member.photoUrl} alt={member.name} className="h-full w-full object-cover" />
+        {/* Warm sunlight wash — angled to feel like the ray actually lands here */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(255,228,150,0.55) 0%, rgba(242,218,114,0.18) 45%, transparent 75%)",
+            mixBlendMode: "overlay",
+            opacity: isHovered ? 1 : 0,
+          }}
         />
+      </div>
+    );
+  }
 
-        {/* Boss (raised centre disc) */}
-        <mesh
-          position={[0, medalY, 0.075]}
-          geometry={bossGeo}
-          material={bossMaterials}
-        />
+  return (
+    <div
+      className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-medium transition-[box-shadow,color] duration-500"
+      style={{
+        background: "linear-gradient(135deg, #2a2010, #1a1208)",
+        color: isHovered ? "#f2da72" : "#c9a55a",
+        boxShadow: ring,
+      }}
+    >
+      <span className="relative z-10">{initials}</span>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(255,228,150,0.35) 0%, rgba(242,218,114,0.10) 50%, transparent 80%)",
+          mixBlendMode: "screen",
+          opacity: isHovered ? 1 : 0,
+        }}
+      />
+    </div>
+  );
+}
 
-        {/* Name plate and philosophy — rendered as HTML overlay */}
-        <Html
-          position={[0, medalY - 1.35, 0]}
-          center
-          style={{ pointerEvents: "none", userSelect: "none" }}
+// ─── Member card ──────────────────────────────────────────────────────────────
+
+function MemberCard({
+  member,
+  isHovered,
+  anyHovered,
+  cardRef,
+  onEnter,
+  onLeave,
+}: {
+  member: TeamMember;
+  isHovered: boolean;
+  anyHovered: boolean;
+  cardRef: (el: HTMLDivElement | null) => void;
+  onEnter: () => void;
+  onLeave: () => void;
+}) {
+  return (
+    <div
+      ref={cardRef}
+      className="relative z-10 flex cursor-default items-start gap-4 border-t py-6 transition-opacity duration-300"
+      style={{
+        borderColor: "rgba(201,165,90,0.12)",
+        opacity: !anyHovered || isHovered ? 1 : 0.32,
+      }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <Avatar member={member} isHovered={isHovered} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <p
+            className="text-base font-medium leading-tight transition-colors duration-200"
+            style={{ color: isHovered ? "#f5f1e8" : "rgba(245,241,232,0.80)" }}
+          >
+            {member.name}
+          </p>
+          {member.featured && (
+            <span
+              className="shrink-0 rounded-sm px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest"
+              style={{
+                background: "rgba(201,165,90,0.10)",
+                color: "rgba(201,165,90,0.70)",
+                border: "1px solid rgba(201,165,90,0.18)",
+              }}
+            >
+              Lead
+            </span>
+          )}
+        </div>
+        <p
+          className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors duration-200"
+          style={{ color: isHovered ? "#c9a55a" : "rgba(201,165,90,0.60)" }}
         >
-          <div style={{ textAlign: "center", width: 220 }}>
-            <p
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontWeight: 300,
-                fontSize: member.featured ? 18 : 15,
-                letterSpacing: "-0.02em",
-                color: hovered ? "var(--color-accent, #c9a55a)" : "var(--color-text-primary, #e8e4dc)",
-                transition: "color 0.3s ease",
-                margin: 0,
-                lineHeight: 1.2,
-              }}
-            >
-              {member.name}
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-mono, monospace)",
-                fontSize: 10,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "var(--color-text-tertiary, #6b6762)",
-                marginTop: 5,
-                margin: "5px 0 0",
-              }}
-            >
-              {member.role}
-            </p>
-
-            {hovered && member.philosophy && (
-              <p
+          {member.role}
+        </p>
+        {member.philosophy && (
+          <p className="mt-2 line-clamp-2 text-xs italic leading-relaxed text-text-secondary">
+            &ldquo;{member.philosophy}&rdquo;
+          </p>
+        )}
+        {member.showTags && member.skills.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {member.skills.slice(0, 3).map((s) => (
+              <span
+                key={s}
+                className="rounded px-1.5 py-0.5 font-mono text-[9px] tracking-wide text-text-tertiary"
                 style={{
-                  fontFamily: "Georgia, serif",
-                  fontStyle: "italic",
-                  fontSize: 11,
-                  lineHeight: 1.55,
-                  color: "var(--color-text-tertiary, #6b6762)",
-                  marginTop: 8,
-                  maxWidth: 200,
-                  opacity: 0.85,
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.07)",
                 }}
               >
-                &ldquo;{member.philosophy}&rdquo;
-              </p>
-            )}
+                {s}
+              </span>
+            ))}
           </div>
-        </Html>
-      </group>
-    </group>
-  );
-}
+        )}
 
-// ─── Wall screw detail ─────────────────────────────────────────────────────────
-
-function WallScrews({ count, spread }: { count: number; spread: number }) {
-  const screwGeo = useMemo(() => new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16), []);
-  const screwMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#8a7040"),
-        metalness: 0.9,
-        roughness: 0.3,
-      }),
-    [],
-  );
-
-  const positions = Array.from({ length: count }, (_, i) => {
-    const t = count === 1 ? 0 : (i / (count - 1) - 0.5) * 2;
-    return t * spread;
-  });
-
-  return (
-    <>
-      {positions.map((x, i) => (
-        <mesh key={i} position={[x, STRIP_Y, 0.06]} geometry={screwGeo} material={screwMat}>
-          {/* Slot groove on screw face */}
-        </mesh>
-      ))}
-    </>
-  );
-}
-
-// ─── Mounting strip (top of display case) ────────────────────────────────────
-
-// The strip sits just above the tallest assembly top.
-// Featured assembly top = posY_featured = ASSEMBLY_HEIGHT * 1.22 / 2 ≈ 2.17
-const STRIP_Y = (ASSEMBLY_HEIGHT * 1.22) / 2 + 0.14;
-
-function MountingStrip({ width }: { width: number }) {
-  return (
-    <mesh position={[0, STRIP_Y, -0.05]}>
-      <boxGeometry args={[width, 0.14, 0.18]} />
-      <meshStandardMaterial
-        color={new THREE.Color("#2e2210")}
-        metalness={0.1}
-        roughness={0.85}
-      />
-    </mesh>
-  );
-}
-
-// ─── Full scene ────────────────────────────────────────────────────────────────
-
-function MedalScene({ members }: { members: TeamMember[] }) {
-  const n = members.length;
-  // Prefer wider spacing for few medals, tighter for many — never overlap (min 2.5)
-  const spacing = Math.min(3.6, Math.max(2.5, 10 / Math.max(n, 1)));
-  const stripW = Math.max((n - 1) * spacing + 4, 6);
-
-  return (
-    <>
-      {/* Dynamically position camera so all medals fit + look at world origin */}
-      <CameraSetup n={n} spacing={spacing} />
-
-      {/* Lighting */}
-      <ambientLight intensity={0.55} />
-      <directionalLight
-        position={[4, 7, 7]}
-        intensity={1.8}
-        color={new THREE.Color("#fff6e0")}
-        castShadow={false}
-      />
-      <pointLight position={[-4, 2, 5]} intensity={1.1} color={new THREE.Color("#c9a55a")} />
-      <pointLight position={[4, -2, 4]} intensity={0.5} color={new THREE.Color("#8090c0")} />
-
-      {/* HDRI environment for real reflections on the gold */}
-      <Environment preset="studio" />
-
-      {/* Mounting strip — lifted to sit above the centered assemblies */}
-      <MountingStrip width={stripW} />
-      <WallScrews count={Math.max(3, n + 1)} spread={stripW * 0.42} />
-
-      {/* Medals — each assembly is lifted so hook-to-bottom spans [-half, +half] at world y=0 */}
-      {members.map((m, i) => {
-        const scale = m.featured ? 1.22 : 1.0;
-        // Centre the assembly at world y=0:  posY = assemblyHeight * scale / 2
-        const posY = (ASSEMBLY_HEIGHT * scale) / 2;
-        return (
-          <MedalGroup
-            key={m.id}
-            member={m}
-            posX={(i - (n - 1) / 2) * spacing}
-            posY={posY}
-            scale={scale}
-            index={i}
-          />
-        );
-      })}
-    </>
-  );
-}
-
-// ─── Fallback (while WebGL initialises) ──────────────────────────────────────
-
-function CanvasFallback({ members }: { members: TeamMember[] }) {
-  return (
-    <div className="flex items-center justify-center gap-12 py-16">
-      {members.map((m) => (
-        <div key={m.id} className="flex flex-col items-center gap-3 opacity-40">
-          <div
-            className="flex items-center justify-center rounded-full border border-accent-muted"
-            style={{
-              width: m.featured ? 120 : 96,
-              height: m.featured ? 120 : 96,
-              background: "radial-gradient(circle at 35% 30%, #c9a55a, #3a2410)",
-            }}
-          >
-            <span className="font-display text-2xl font-light text-accent">
-              {m.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-            </span>
+        {member.showBalance && (
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-[0.16em]">
+              <span style={{ color: "rgba(201,165,90,0.75)" }}>
+                Brand {member.brandCodeBalance}
+              </span>
+              <span className="text-text-tertiary">
+                Code {100 - member.brandCodeBalance}
+              </span>
+            </div>
+            <div
+              className="mt-1 h-[2px] w-full overflow-hidden rounded-full"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <div
+                className="h-full rounded-full transition-[width] duration-500"
+                style={{
+                  width: `${member.brandCodeBalance}%`,
+                  background:
+                    "linear-gradient(to right, rgba(201,165,90,0.95), rgba(201,165,90,0.4))",
+                }}
+              />
+            </div>
           </div>
-          <p className="font-display text-sm font-light text-text-primary">{m.name}</p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-text-tertiary">{m.role}</p>
-        </div>
-      ))}
+        )}
+      </div>
     </div>
   );
 }
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
-const EASE = [0.16, 1, 0.3, 1] as const;
-
 export default function TeamSection({ members: raw }: { members: TeamMember[] }) {
   if (!raw.length) return null;
 
-  const featured = raw.filter((m) => m.featured);
-  const others   = raw.filter((m) => !m.featured);
-  const all      = [...featured, ...others];
+  const all      = [...raw.filter((m) => m.featured), ...raw.filter((m) => !m.featured)];
+  const allAxes  = collectAxes(all);
+  const capsMap  = new Map(all.map((m) => [m.id, parseCaps(m.capabilities)]));
+
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [beam, setBeam] = useState<{
+    sourceX: number; sourceY: number;
+    targetX: number; targetY: number;
+    angle: number; distance: number;
+  } | null>(null);
+
+  const gridRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  useLayoutEffect(() => {
+    if (hoveredId === null || !gridRef.current) {
+      setBeam(null);
+      return;
+    }
+    const card = cardRefs.current.get(hoveredId);
+    if (!card) return;
+    const grid = gridRef.current.getBoundingClientRect();
+    const r    = card.getBoundingClientRect();
+
+    const targetX = r.left - grid.left + r.width / 2;
+    const targetY = r.top  - grid.top  + r.height / 2;
+
+    // Sun lives off the upper-right corner
+    const sourceX = grid.width + 30;
+    const sourceY = -90;
+
+    const dx = targetX - sourceX;
+    const dy = targetY - sourceY;
+    setBeam({
+      sourceX, sourceY,
+      targetX, targetY,
+      angle:    Math.atan2(dy, dx) * (180 / Math.PI),
+      distance: Math.hypot(dx, dy),
+    });
+  }, [hoveredId]);
 
   return (
     <section
@@ -670,8 +485,8 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
       }}
     >
       <div className="container">
-        {/* Section heading */}
-        <div className="mb-16">
+        {/* Heading */}
+        <div className="mb-14">
           <motion.p
             className="text-overline mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -692,34 +507,189 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
             People built at the intersection of{" "}
             <em className="italic-display text-accent">brand and code</em>
           </motion.h2>
+          <motion.p
+            className="mt-5 max-w-md text-sm leading-relaxed text-text-secondary"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.18 }}
+          >
+            The best products sit at the edge of disciplines. So do the people who build them.
+          </motion.p>
         </div>
 
         {/* Display case */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.0 }}
-          className="relative overflow-hidden rounded-lg"
-          style={{
-            height: 600,
-            background:
-              "radial-gradient(ellipse at 55% 30%, rgba(201,165,90,0.05) 0%, transparent 60%), linear-gradient(to bottom, #111009 0%, #0c0b08 100%)",
-            border: "1px solid rgba(201,165,90,0.08)",
-            boxShadow:
-              "inset 0 2px 28px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.6)",
-          }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="overflow-hidden rounded-lg"
         >
-          <Canvas
-            dpr={[1, 2]}
-            gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
-            camera={{ fov: 44 }}
-            style={{ width: "100%", height: "100%" }}
-          >
-            <Suspense fallback={null}>
-              <MedalScene members={all} />
-            </Suspense>
-          </Canvas>
+          <div className="flex flex-col lg:flex-row">
+            {/* ── Left: radar chart ─────────────────────────────────────── */}
+            <div
+              className="flex shrink-0 flex-col items-center justify-center lg:border-r"
+              style={{
+                borderColor: "rgba(201,165,90,0.08)",
+                padding: "clamp(2rem, 4vw, 3rem)",
+                minWidth: 300,
+              }}
+            >
+              <p
+                className="mb-5 self-start font-mono text-[10px] uppercase tracking-[0.22em]"
+                style={{ color: "rgba(201,165,90,0.45)" }}
+              >
+                Capabilities
+              </p>
+              <RadarChart
+                members={all}
+                allAxes={allAxes}
+                parsedCaps={capsMap}
+                hoveredId={hoveredId}
+              />
+            </div>
+
+            {/* ── Right: team grid ───────────────────────────────────────── */}
+            <div
+              className="flex flex-1 flex-col justify-center"
+              style={{ padding: "clamp(1.75rem, 3.5vw, 3rem)" }}
+            >
+              <p
+                className="mb-2 font-mono text-[10px] uppercase tracking-[0.22em]"
+                style={{ color: "rgba(201,165,90,0.5)" }}
+              >
+                Who we are
+              </p>
+              <div
+                ref={gridRef}
+                className="relative grid"
+                style={{
+                  gridTemplateColumns: "repeat(auto-fill, minmax(min(240px, 100%), 1fr))",
+                  columnGap: "2.5rem",
+                }}
+              >
+                {/* Sun ray — angled beam from upper-right toward the hovered card */}
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute"
+                  initial={false}
+                  animate={{
+                    width:   beam ? beam.distance : 0,
+                    rotate:  beam ? beam.angle    : 0,
+                    opacity: beam ? 1 : 0,
+                  }}
+                  transition={{
+                    width:   { type: "spring", stiffness: 240, damping: 32 },
+                    rotate:  { type: "spring", stiffness: 240, damping: 32 },
+                    opacity: { duration: 0.7, ease: [0.22, 0.61, 0.36, 1] },
+                  }}
+                  style={{
+                    top:  beam ? beam.sourceY : 0,
+                    left: beam ? beam.sourceX : 0,
+                    height: 260,
+                    marginTop: -130,
+                    transformOrigin: "0% 50%",
+                    background:
+                      "radial-gradient(ellipse 70% 35% at 70% 50%, rgba(242,218,114,0.22) 0%, rgba(242,218,114,0.08) 35%, rgba(242,218,114,0.02) 60%, transparent 78%)",
+                    filter: "blur(10px)",
+                    zIndex: 0,
+                  }}
+                />
+
+                {/* Dust motes — drift through the beam */}
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute"
+                  initial={false}
+                  animate={{
+                    width:   beam ? beam.distance : 0,
+                    rotate:  beam ? beam.angle    : 0,
+                    opacity: beam ? 1 : 0,
+                  }}
+                  transition={{
+                    width:   { type: "spring", stiffness: 240, damping: 32 },
+                    rotate:  { type: "spring", stiffness: 240, damping: 32 },
+                    opacity: { duration: 0.9, ease: [0.22, 0.61, 0.36, 1] },
+                  }}
+                  style={{
+                    top:  beam ? beam.sourceY : 0,
+                    left: beam ? beam.sourceX : 0,
+                    height: 120,
+                    marginTop: -60,
+                    transformOrigin: "0% 50%",
+                    zIndex: 0,
+                  }}
+                >
+                  {beam && DUST_MOTES.map((m, i) => (
+                    <motion.span
+                      key={i}
+                      className="absolute rounded-full"
+                      style={{
+                        left: m.left,
+                        top:  m.top,
+                        width:  m.size,
+                        height: m.size,
+                        background: "rgba(255,240,180,0.9)",
+                        boxShadow: "0 0 6px rgba(255,228,150,0.7)",
+                      }}
+                      animate={{
+                        x: [0, m.drift, m.drift * 1.4],
+                        y: [0, m.bob, 0],
+                        opacity: [0, 0.9, 0],
+                      }}
+                      transition={{
+                        duration: m.duration,
+                        delay:    m.delay,
+                        repeat:   Infinity,
+                        ease:     "easeInOut",
+                      }}
+                    />
+                  ))}
+                </motion.div>
+
+                {/* Landing pool — soft warm halo where the ray meets the card */}
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute"
+                  initial={false}
+                  animate={{
+                    x: beam ? beam.targetX - 180 : 0,
+                    y: beam ? beam.targetY - 110 : 0,
+                    opacity: beam ? 1 : 0,
+                  }}
+                  transition={{
+                    x: { type: "spring", stiffness: 280, damping: 32 },
+                    y: { type: "spring", stiffness: 280, damping: 32 },
+                    opacity: { duration: 0.35 },
+                  }}
+                  style={{
+                    top: 0, left: 0,
+                    width: 360, height: 220,
+                    background:
+                      "radial-gradient(ellipse 50% 60% at 50% 50%, rgba(242,218,114,0.18) 0%, rgba(201,165,90,0.06) 40%, transparent 75%)",
+                    filter: "blur(4px)",
+                    zIndex: 0,
+                  }}
+                />
+
+                {all.map((m) => (
+                  <MemberCard
+                    key={m.id}
+                    member={m}
+                    isHovered={hoveredId === m.id}
+                    anyHovered={hoveredId !== null}
+                    cardRef={(el) => {
+                      if (el) cardRefs.current.set(m.id, el);
+                      else    cardRefs.current.delete(m.id);
+                    }}
+                    onEnter={() => setHoveredId(m.id)}
+                    onLeave={() => setHoveredId(null)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import PhotoUpload from "@/components/admin/PhotoUpload";
 import { prisma } from "@/lib/prisma";
 import { updateTeamMember, deleteTeamMember } from "@/lib/admin/mutations-data";
 import DeleteTeamMemberButton from "./DeleteTeamMemberButton";
@@ -69,9 +70,8 @@ export default async function EditTeamMemberPage({
         </div>
 
         <div className="form-field">
-          <label className="form-label" htmlFor="photoUrl">Photo URL</label>
-          <input id="photoUrl" name="photoUrl" type="url" defaultValue={member.photoUrl} className="form-input" />
-          <p className="mt-1 text-xs text-text-tertiary">Leave blank to show a styled monogram.</p>
+          <label className="form-label">Headshot</label>
+          <PhotoUpload currentUrl={member.photoUrl} />
         </div>
 
         <div className="form-field">

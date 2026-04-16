@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createTeamMember } from "@/lib/admin/mutations-data";
+import PhotoUpload from "@/components/admin/PhotoUpload";
 
 export default function CreateTeamMemberForm() {
   const [state, action, pending] = useActionState(createTeamMember, null);
@@ -48,9 +49,8 @@ export default function CreateTeamMemberForm() {
       </div>
 
       <div className="form-field">
-        <label className="form-label" htmlFor="photoUrl">Photo URL</label>
-        <input id="photoUrl" name="photoUrl" type="url" className="form-input" placeholder="https://..." />
-        <p className="mt-1 text-xs text-text-tertiary">Optional. Leave blank to show a styled monogram.</p>
+        <label className="form-label">Headshot</label>
+        <PhotoUpload />
       </div>
 
       <div className="form-field">
