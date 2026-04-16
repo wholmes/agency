@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -252,7 +252,7 @@ function RadarChart({
               transition={{ duration: 0.25 }}
               className="font-mono text-[9px] uppercase tracking-[0.2em] text-text-tertiary"
             >
-              Hover a role to explore
+              Explore the team
             </motion.p>
           )}
         </AnimatePresence>
@@ -440,14 +440,73 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
   const capsMap  = new Map(all.map((m) => [m.id, parseCaps(m.capabilities)]));
 
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [scrollFocusId, setScrollFocusId] = useState<number | null>(null);
   const [beam, setBeam] = useState<{
     sourceX: number; sourceY: number;
     targetX: number; targetY: number;
     angle: number; distance: number;
   } | null>(null);
 
+  const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  // What the radar actually shows: hover wins on desktop; scroll drives on touch.
+  const radarActiveId = hoveredId ?? scrollFocusId;
+
+  // Touch/no-hover devices: track the card closest to viewport center while the
+  // section is visible, and drive the radar with it. Spotlight stays hover-only.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(hover: none)");
+    if (!mql.matches) return;
+
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let sectionVisible = false;
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      if (!sectionVisible) return;
+      const vhCenter = window.innerHeight / 2;
+      let bestId: number | null = null;
+      let bestDist = Infinity;
+      cardRefs.current.forEach((el, id) => {
+        const r = el.getBoundingClientRect();
+        const cy = r.top + r.height / 2;
+        const d = Math.abs(cy - vhCenter);
+        if (d < bestDist) { bestDist = d; bestId = id; }
+      });
+      setScrollFocusId((prev) => (prev === bestId ? prev : bestId));
+    };
+
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(update);
+    };
+
+    const sectionObs = new IntersectionObserver(
+      ([entry]) => {
+        sectionVisible = entry.isIntersecting;
+        if (sectionVisible) schedule();
+        else setScrollFocusId(null);
+      },
+      { threshold: 0 },
+    );
+    sectionObs.observe(section);
+
+    window.addEventListener("scroll",  schedule, { passive: true });
+    window.addEventListener("resize",  schedule);
+
+    return () => {
+      sectionObs.disconnect();
+      window.removeEventListener("scroll",  schedule);
+      window.removeEventListener("resize",  schedule);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   useLayoutEffect(() => {
     if (hoveredId === null || !gridRef.current) {
@@ -478,6 +537,7 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="team-heading"
       className="section border-b border-border"
       style={{
@@ -546,7 +606,7 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
                 members={all}
                 allAxes={allAxes}
                 parsedCaps={capsMap}
-                hoveredId={hoveredId}
+                hoveredId={radarActiveId}
               />
             </div>
 
