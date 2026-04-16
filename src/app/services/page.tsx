@@ -45,7 +45,7 @@ export default async function ServicesPage() {
     <>
       <ServicesPageHero content={servicesHero} />
 
-      <section aria-label="Service details" className="border-t border-border pb-24 lg:pb-40">
+      <section aria-label="Service details" className="border-t border-border pt-16 pb-24 lg:pb-40">
         <div className="container">
           <div className="flex flex-col gap-4">
             {offerings.map((service, i) => {
