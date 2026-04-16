@@ -261,16 +261,40 @@ const BAR_MATERIAL = new THREE.MeshStandardMaterial({
   roughness: 0.22,
 });
 
+// ─── Camera — looks at origin, z scales to fit n medals ──────────────────────
+
+function CameraSetup({ n, spacing }: { n: number; spacing: number }) {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    const fovRad = (44 * Math.PI) / 180;
+    const aspect = size.width / size.height;
+    // Half the total horizontal span of all medals + a margin
+    const totalXHalf = ((n - 1) * spacing) / 2 + 1.22 + 0.5; // 1.22 = max medal radius (featured)
+    const z = Math.max(7, totalXHalf / (Math.tan(fovRad / 2) * Math.max(aspect, 0.5)));
+    camera.position.set(0, 0, z);
+    camera.lookAt(0, 0, 0); // assembly is centered at world origin
+    camera.updateProjectionMatrix();
+  }, [camera, size.width, size.height, n, spacing]);
+
+  return null;
+}
+
 // ─── 3D Medal group ───────────────────────────────────────────────────────────
+
+// Total assembly height from hook (y=0) down to medal bottom
+const ASSEMBLY_HEIGHT = 3.55;
 
 interface MedalGroupProps {
   member: TeamMember;
   posX: number;
+  /** Lift so the assembly is vertically centered at world y=0 */
+  posY: number;
   scale: number;
   index: number;
 }
 
-function MedalGroup({ member, posX, scale, index }: MedalGroupProps) {
+function MedalGroup({ member, posX, posY, scale, index }: MedalGroupProps) {
   const pivotRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
@@ -338,15 +362,7 @@ function MedalGroup({ member, posX, scale, index }: MedalGroupProps) {
     [goldMaterial],
   );
 
-  // Track pointer for sway target
-  const { pointer, size } = useThree();
-
-  useEffect(() => {
-    if (hovered) return;
-    // Each medal is influenced by a region of the x-axis
-    const unsubscribe = () => {};
-    return unsubscribe;
-  }, [hovered]);
+  const { pointer } = useThree();
 
   // Pendulum animation
   useFrame((state, delta) => {
@@ -368,8 +384,9 @@ function MedalGroup({ member, posX, scale, index }: MedalGroupProps) {
     }
 
     // Mouse-driven sway: the medal nearest the cursor sways more
-    const normalizedX = pointer.x; // -1 to +1 across the canvas
-    const medalNDC = posX / 6; // approximate NDC position of this medal
+    const normalizedX = pointer.x;
+    // Weight sway by proximity: medals near the cursor sway more
+    const medalNDC = posX / 8;
     const proximity = 1 - Math.min(Math.abs(normalizedX - medalNDC), 1);
     const swayAmount = hovered ? normalizedX * 0.18 : normalizedX * 0.06 * proximity;
 
@@ -401,7 +418,7 @@ function MedalGroup({ member, posX, scale, index }: MedalGroupProps) {
   const botBarY = ribbonY - ribbonH / 2 - barH / 2;
 
   return (
-    <group position={[posX, 0, 0]} scale={scale}>
+    <group position={[posX, posY, 0]} scale={scale}>
       <group
         ref={pivotRef}
         onPointerEnter={() => setHovered(true)}
@@ -528,7 +545,7 @@ function WallScrews({ count, spread }: { count: number; spread: number }) {
   return (
     <>
       {positions.map((x, i) => (
-        <mesh key={i} position={[x, 0.42, 0.06]} geometry={screwGeo} material={screwMat}>
+        <mesh key={i} position={[x, STRIP_Y, 0.06]} geometry={screwGeo} material={screwMat}>
           {/* Slot groove on screw face */}
         </mesh>
       ))}
@@ -538,10 +555,14 @@ function WallScrews({ count, spread }: { count: number; spread: number }) {
 
 // ─── Mounting strip (top of display case) ────────────────────────────────────
 
+// The strip sits just above the tallest assembly top.
+// Featured assembly top = posY_featured = ASSEMBLY_HEIGHT * 1.22 / 2 ≈ 2.17
+const STRIP_Y = (ASSEMBLY_HEIGHT * 1.22) / 2 + 0.14;
+
 function MountingStrip({ width }: { width: number }) {
   return (
-    <mesh position={[0, 0.46, -0.05]}>
-      <boxGeometry args={[width, 0.12, 0.15]} />
+    <mesh position={[0, STRIP_Y, -0.05]}>
+      <boxGeometry args={[width, 0.14, 0.18]} />
       <meshStandardMaterial
         color={new THREE.Color("#2e2210")}
         metalness={0.1}
@@ -555,11 +576,15 @@ function MountingStrip({ width }: { width: number }) {
 
 function MedalScene({ members }: { members: TeamMember[] }) {
   const n = members.length;
-  const spacing = n <= 2 ? 3.4 : 2.8;
-  const stripW = Math.max(n * spacing, 6);
+  // Prefer wider spacing for few medals, tighter for many — never overlap (min 2.5)
+  const spacing = Math.min(3.6, Math.max(2.5, 10 / Math.max(n, 1)));
+  const stripW = Math.max((n - 1) * spacing + 4, 6);
 
   return (
     <>
+      {/* Dynamically position camera so all medals fit + look at world origin */}
+      <CameraSetup n={n} spacing={spacing} />
+
       {/* Lighting */}
       <ambientLight intensity={0.55} />
       <directionalLight
@@ -574,20 +599,26 @@ function MedalScene({ members }: { members: TeamMember[] }) {
       {/* HDRI environment for real reflections on the gold */}
       <Environment preset="studio" />
 
-      {/* Mounting strip */}
+      {/* Mounting strip — lifted to sit above the centered assemblies */}
       <MountingStrip width={stripW} />
       <WallScrews count={Math.max(3, n + 1)} spread={stripW * 0.42} />
 
-      {/* Medals */}
-      {members.map((m, i) => (
-        <MedalGroup
-          key={m.id}
-          member={m}
-          posX={(i - (n - 1) / 2) * spacing}
-          scale={m.featured ? 1.22 : 1.0}
-          index={i}
-        />
-      ))}
+      {/* Medals — each assembly is lifted so hook-to-bottom spans [-half, +half] at world y=0 */}
+      {members.map((m, i) => {
+        const scale = m.featured ? 1.22 : 1.0;
+        // Centre the assembly at world y=0:  posY = assemblyHeight * scale / 2
+        const posY = (ASSEMBLY_HEIGHT * scale) / 2;
+        return (
+          <MedalGroup
+            key={m.id}
+            member={m}
+            posX={(i - (n - 1) / 2) * spacing}
+            posY={posY}
+            scale={scale}
+            index={i}
+          />
+        );
+      })}
     </>
   );
 }
@@ -671,7 +702,7 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
           transition={{ duration: 1.0 }}
           className="relative overflow-hidden rounded-lg"
           style={{
-            height: 540,
+            height: 600,
             background:
               "radial-gradient(ellipse at 55% 30%, rgba(201,165,90,0.05) 0%, transparent 60%), linear-gradient(to bottom, #111009 0%, #0c0b08 100%)",
             border: "1px solid rgba(201,165,90,0.08)",
@@ -682,7 +713,7 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
           <Canvas
             dpr={[1, 2]}
             gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
-            camera={{ position: [0, -1.8, 7.5], fov: 44 }}
+            camera={{ fov: 44 }}
             style={{ width: "100%", height: "100%" }}
           >
             <Suspense fallback={null}>
