@@ -174,6 +174,27 @@ function applyTopGold(
 /** 30 fps cap — reduces per-frame main-thread blocking in software rendering (e.g. Lighthouse). */
 const FRAME_MS = 1000 / 30;
 
+/** Services field uses scrollAmp up to ~1.58× bar height; the ortho frustum must stay ahead of that or peaks clip at the bottom edge. */
+const SERVICES_FRUSTUM_H_SCALE = 1.38;
+/** Home 18×18 field, taller maxH, scrollAmp up to ~1.65× — extra ortho slack vs base; too high zooms the field out (looks “too small”). */
+const HOME_FRUSTUM_H_SCALE = 1.28;
+
+function computeFrustum(
+  variant: HeroFieldVariant,
+  cfg: FieldConfig,
+  renderW: number,
+  H: number,
+): { frustumH: number; frustumW: number } {
+  let frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
+  if (variant === "services") {
+    frustumH *= SERVICES_FRUSTUM_H_SCALE;
+  } else if (variant === "home") {
+    frustumH *= HOME_FRUSTUM_H_SCALE;
+  }
+  const frustumW = frustumH * (renderW / Math.max(H, 1));
+  return { frustumH, frustumW };
+}
+
 export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -188,10 +209,12 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     let bodyMat: THREE.MeshLambertMaterial | undefined;
     let topGeo: THREE.BoxGeometry | undefined;
     let topMat: THREE.MeshLambertMaterial | undefined;
+    let resizeObserver: ResizeObserver | undefined;
 
     const dispose = () => {
       disposed = true;
       cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
@@ -210,7 +233,11 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     };
 
     let W = window.innerWidth;
-    let H = window.innerHeight;
+    /** Match the hero’s painted size — if the section is taller than the viewport (e.g. min-h-[110dvh]), the buffer must follow or the scene looks cropped / upscaled. */
+    let H = Math.max(
+      window.innerHeight,
+      canvas.parentElement?.clientHeight ?? 0,
+    );
     let camera: THREE.OrthographicCamera;
 
     /**
@@ -231,7 +258,8 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
 
     const onResize = () => {
       W = window.innerWidth;
-      H = window.innerHeight;
+      const ph = canvas.parentElement?.clientHeight ?? 0;
+      H = Math.max(window.innerHeight, ph);
       const portrait = W < H;
       // On portrait mobile, render at H×1.5 (landscape buffer) anchored right:0
       // so the grid enters as a corner accent without distortion.
@@ -255,8 +283,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         const cfg = CONFIG[variant];
         const GX = ((cfg.cols - 1) * cfg.gap) / 2;
         const GZ = ((cfg.rows - 1) * cfg.gap) / 2;
-        const frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
-        const frustumW = frustumH * (renderW / Math.max(H, 1));
+        const { frustumH, frustumW } = computeFrustum(variant, cfg, renderW, H);
         camera.left = -frustumW * 0.76;
         camera.right = frustumW * 0.24;
         camera.top = frustumH / 2;
@@ -290,6 +317,14 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
     onScroll();
+
+    const parentEl = canvas.parentElement;
+    if (parentEl && typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        onResize();
+      });
+      resizeObserver.observe(parentEl);
+    }
 
     /**
      * Full Three.js init + loop.
@@ -362,8 +397,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       const mx = new THREE.Matrix4();
       const topCol = new THREE.Color();
 
-      const frustumH = cfg.rows * cfg.gap * 0.6 + cfg.maxH * 0.45;
-      const frustumW = frustumH * (initRenderW / Math.max(H, 1));
+      const { frustumH, frustumW } = computeFrustum(variant, cfg, initRenderW, H);
       camera = new THREE.OrthographicCamera(
         -frustumW * 0.76,
         frustumW * 0.24,

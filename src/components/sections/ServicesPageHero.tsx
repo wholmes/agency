@@ -46,7 +46,7 @@ export default function ServicesPageHero({ content }: { content: ServicesPageHer
   return (
     <section
       aria-labelledby="services-page-heading"
-      className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
+      className="relative flex min-h-[110dvh] flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
       <HeroFieldCanvas variant="services" />
 

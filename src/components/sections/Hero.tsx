@@ -106,7 +106,7 @@ export default function Hero({ content }: { content: HomeHero }) {
 
           <h1 className="mb-6 flex flex-col max-md:gap-0 max-md:[&_.text-display]:text-[5rem] md:block md:gap-0">
             <motion.span
-              className="text-display block overflow-hidden pb-[0.06em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
+              className="text-display block overflow-hidden pb-[0.28em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
               animate="visible"
               custom={0}
@@ -115,7 +115,7 @@ export default function Hero({ content }: { content: HomeHero }) {
               {content.headlineLine1}
             </motion.span>
             <motion.span
-              className="text-display block overflow-hidden pb-[0.06em] max-md:mt-0 max-md:pl-8 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
+              className="text-display block overflow-hidden pb-[0.28em] max-md:mt-0 max-md:pl-8 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
               animate="visible"
               custom={0.12}
@@ -124,7 +124,7 @@ export default function Hero({ content }: { content: HomeHero }) {
               <em className="italic-display text-accent">{content.headlineLine2Italic}</em>
             </motion.span>
             <motion.span
-              className="text-display block overflow-hidden pb-[0.06em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
+              className="text-display block overflow-hidden pb-[0.28em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
               animate="visible"
               custom={0.24}
