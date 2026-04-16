@@ -44,7 +44,7 @@ export default function AdminSaveForm({
   }
 
   return (
-    <form action={wrappedAction} className={className}>
+    <form action={wrappedAction} className={className} data-save-form>
       {children}
     </form>
   );

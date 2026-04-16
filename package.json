@@ -18,6 +18,8 @@
   "dependencies": {
     "@prisma/client": "5.22.0",
     "@prisma/extension-accelerate": "^3.0.1",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
     "@types/marked": "^5.0.2",
     "framer-motion": "^12.38.0",
     "marked": "^18.0.0",
