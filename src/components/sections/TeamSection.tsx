@@ -1,16 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
-import {
-  motion,
-  useInView,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
-import RadarChart, { parseCapabilities } from "@/components/RadarChart";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { motion, useSpring, useInView, AnimatePresence } from "framer-motion";
 
 type TeamMember = {
   id: number;
@@ -27,467 +18,418 @@ type TeamMember = {
   capabilities: string;
 };
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+// ─── Arc helpers ─────────────────────────────────────────────────────────────
 
-// ─── Shared: circle headshot ──────────────────────────────────────────────────
+const DEG = Math.PI / 180;
 
-function Headshot({
-  photoUrl,
-  name,
-  size = 96,
-}: {
-  photoUrl: string;
-  name: string;
-  size?: number;
-}) {
-  const initial = name.charAt(0).toUpperCase();
-  const px = `${size}px`;
+function pt(cx: number, cy: number, r: number, deg: number): [number, number] {
+  return [cx + r * Math.cos(deg * DEG), cy + r * Math.sin(deg * DEG)];
+}
+
+/** SVG arc path. angleDeg follows SVG convention (y-down): 0°=right, 90°=bottom, 270°=top */
+function arc(cx: number, cy: number, r: number, startDeg: number, endDeg: number, sweep: 0 | 1) {
+  const [sx, sy] = pt(cx, cy, r, startDeg);
+  const [ex, ey] = pt(cx, cy, r, endDeg);
+  return `M ${sx},${sy} A ${r},${r} 0 0,${sweep} ${ex},${ey}`;
+}
+
+// ─── Ribbon ───────────────────────────────────────────────────────────────────
+
+function Ribbon({ balance, featured }: { balance: number; featured: boolean }) {
+  const h = featured ? 76 : 60;
+  const w = featured ? 28 : 22;
+
+  const stripe1 = balance >= 60 ? "#c9a55a" : balance <= 40 ? "#7888a0" : "#c9a55a";
+  const stripe2 = "#0d0c08";
 
   return (
-    <div
-      className="relative shrink-0 overflow-hidden rounded-full ring-1 ring-accent/25 transition-[box-shadow] duration-500 group-hover:ring-accent/50 group-hover:shadow-[0_0_20px_rgba(201,165,90,0.2)]"
-      style={{ width: px, height: px }}
-    >
-      {/* bg for monogram case */}
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* Mounting hook */}
       <div
-        className="absolute inset-0"
         style={{
+          width: 7,
+          height: 11,
+          borderRadius: "0 0 4px 4px",
+          background: "linear-gradient(to bottom, #d0b060, #5a3e18)",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.7)",
+        }}
+      />
+
+      {/* Top metal bar */}
+      <div
+        style={{
+          width: w + 12,
+          height: 9,
+          borderRadius: 3,
           background:
-            "linear-gradient(135deg, #1e1a10 0%, #13110a 60%, #0e0c08 100%)",
+            "linear-gradient(to bottom, #d0b060 0%, #9a7030 35%, #5a3a18 70%, #2e1e0c 100%)",
+          boxShadow:
+            "0 3px 8px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,240,160,0.22)",
         }}
       />
+
+      {/* Ribbon fabric */}
       <div
-        aria-hidden
-        className="absolute inset-0"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(201,165,90,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(201,165,90,0.05) 1px, transparent 1px)",
-          backgroundSize: "12px 12px",
+          width: w,
+          height: h,
+          backgroundImage: `repeating-linear-gradient(-50deg, ${stripe1} 0px, ${stripe1} 2.5px, ${stripe2} 2.5px, ${stripe2} 5px)`,
+          boxShadow:
+            "inset 2px 0 5px rgba(0,0,0,0.3), inset -2px 0 5px rgba(0,0,0,0.3)",
         }}
       />
-      {photoUrl ? (
-        <img
-          src={photoUrl}
-          alt={name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-      ) : (
-        <span
-          className="absolute inset-0 flex items-center justify-center font-display font-extralight text-accent select-none transition-opacity duration-500 opacity-60 group-hover:opacity-80"
-          style={{ fontSize: size * 0.42 }}
-        >
-          {initial}
-        </span>
-      )}
+
+      {/* Bottom metal bar */}
+      <div
+        style={{
+          width: w + 12,
+          height: 9,
+          borderRadius: 3,
+          background:
+            "linear-gradient(to bottom, #d0b060 0%, #9a7030 35%, #5a3a18 70%, #2e1e0c 100%)",
+          boxShadow:
+            "0 4px 10px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,240,160,0.22)",
+        }}
+      />
     </div>
   );
 }
 
-// ─── Brand/Code balance bar ───────────────────────────────────────────────────
+// ─── Medal SVG ────────────────────────────────────────────────────────────────
 
-function BalanceBar({ balance, inView }: { balance: number; inView: boolean }) {
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="font-mono text-[9px] tracking-[0.15em] text-text-tertiary uppercase">Brand</span>
-        <span className="font-mono text-[9px] tracking-[0.15em] text-text-tertiary uppercase">Code</span>
-      </div>
-      <div className="relative h-[2px] w-full overflow-hidden rounded-full bg-border">
-        <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
-          initial={{ width: 0 }}
-          animate={{ width: inView ? `${balance}%` : "0%" }}
-          transition={{ duration: 1.4, ease: EASE, delay: 0.4 }}
-          style={{
-            background: "linear-gradient(to right, rgba(201,165,90,0.95), rgba(201,165,90,0.35))",
-          }}
-        />
-      </div>
-      <div className="mt-1.5 flex items-center justify-between">
-        <motion.span
-          className="font-mono text-[9px] text-accent"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: inView ? 1 : 0 }}
-          transition={{ duration: 0.4, delay: 1.0 }}
-        >
-          {balance}%
-        </motion.span>
-        <motion.span
-          className="font-mono text-[9px] text-text-tertiary"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: inView ? 1 : 0 }}
-          transition={{ duration: 0.4, delay: 1.0 }}
-        >
-          {100 - balance}%
-        </motion.span>
-      </div>
-    </div>
-  );
-}
+function MedalFace({ member, size }: { member: TeamMember; size: number }) {
+  const uid = `medal-${member.id}`;
+  const cx = size / 2;
+  const cy = size / 2;
 
-// ─── Shared cursor-following tag pill ─────────────────────────────────────────
+  // Radius tiers
+  const outerR = size * 0.455; // bevel ring
+  const faceR  = size * 0.40;  // polished face
+  const ring1R = faceR * 0.882; // outer groove
+  const ring2R = faceR * 0.742; // middle groove
+  const ring3R = faceR * 0.598; // inner groove
+  const bossR  = faceR * 0.438; // raised boss
+  const wellR  = faceR * 0.336; // recessed center field
 
-function useTagPill(tags: string[], enabled: boolean) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [tagIdx, setTagIdx] = useState(0);
-  const pillX = useMotionValue(-300);
-  const pillY = useMotionValue(-300);
-  const springPillX = useSpring(pillX, { stiffness: 380, damping: 26 });
-  const springPillY = useSpring(pillY, { stiffness: 380, damping: 26 });
+  // Text arcs
+  // Bottom name: counterclockwise from 130° to 50° passes through 90° (bottom).
+  // sweep=0, text baseline on arc, letters point toward center (inward) — classic inscribed coin text.
+  const nameArcR = (ring2R + ring3R) / 2;
+  const nameArcPath = arc(cx, cy, nameArcR, 130, 50, 0);
 
-  useEffect(() => {
-    if (!enabled || tags.length < 2) return;
-    const id = setInterval(() => setTagIdx((i) => (i + 1) % tags.length), 1000);
-    return () => clearInterval(id);
-  }, [enabled, tags.length]);
+  // Top role: clockwise from 220° to 320° passes through 270° (top).
+  // sweep=1, text appears outside the arc (toward the outer rim) — letters face upward.
+  const roleArcR = (ring1R + faceR) / 2;
+  const roleArcPath = arc(cx, cy, roleArcR, 220, 320, 1);
 
-  const onMouseEnter = useCallback(() => setIsHovered(true), []);
-  const onMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      pillX.set(e.clientX + 14);
-      pillY.set(e.clientY + 18);
-    },
-    [pillX, pillY],
-  );
-  const onMouseLeave = useCallback(() => setIsHovered(false), []);
+  // 6 decorative dots evenly spaced between ring2 and boss
+  const dotR = (ring2R + bossR) / 2;
+  const dotAngles = Array.from({ length: 6 }, (_, i) => i * 60 + 0);
 
-  const pill =
-    enabled && tags.length > 0 && typeof document !== "undefined"
-      ? createPortal(
-          <motion.div
-            aria-hidden
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.88 }}
-            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              x: springPillX,
-              y: springPillY,
-              position: "fixed",
-              top: 0,
-              left: 0,
-              pointerEvents: "none",
-              zIndex: 9998,
-            }}
-            className="rounded border border-accent-muted bg-surface-2 px-3 py-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.45),0_0_0_1px_rgba(201,165,90,0.12)]"
-          >
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.span
-                key={tagIdx}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="block whitespace-nowrap font-mono text-[10px] tracking-wider text-accent"
-              >
-                {tags[tagIdx]}
-              </motion.span>
-            </AnimatePresence>
-          </motion.div>,
-          document.body,
-        )
-      : null;
-
-  return { isHovered, onMouseEnter, onMouseMove, onMouseLeave, pill };
-}
-
-// ─── Featured card ─────────────────────────────────────────────────────────────
-// Full-width, architectural dark bg, large ghost name, circle headshot top-right,
-// radar chart right-side, balance bar at bottom.
-
-function CinematicCard({ member, index }: { member: TeamMember; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-6% 0px" });
-  const [hovered, setHovered] = useState(false);
-
-  const { onMouseEnter, onMouseMove, onMouseLeave, pill } = useTagPill(
-    member.skills,
-    member.showTags,
-  );
-
-  const radarItems = parseCapabilities(member.capabilities);
-  const words = member.name.split(" ");
+  const initials = member.name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 48 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 1.0, ease: EASE, delay: index * 0.08 }}
-      onMouseEnter={() => { setHovered(true); onMouseEnter(); }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={() => { setHovered(false); onMouseLeave(); }}
-      className="group relative overflow-hidden rounded-2xl border border-border lg:col-span-2 transition-[border-color,box-shadow] duration-500 hover:border-accent-muted hover:shadow-[0_16px_64px_rgba(0,0,0,0.5)]"
-      style={{
-        background: "linear-gradient(145deg, #1a1710 0%, #0f0d09 55%, #0a0907 100%)",
-        minHeight: "460px",
-      }}
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      width={size}
+      height={size}
+      style={{ overflow: "visible" }}
+      aria-hidden
     >
-      {/* Architectural grid texture */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(201,165,90,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,165,90,0.04) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
+      <defs>
+        {/* Outer bevel ring */}
+        <radialGradient id={`${uid}-bevel`} cx="36%" cy="30%" r="64%">
+          <stop offset="0%"   stopColor="#7a5c22" />
+          <stop offset="28%"  stopColor="#4a3418" />
+          <stop offset="62%"  stopColor="#1e1208" />
+          <stop offset="100%" stopColor="#0a0704" />
+        </radialGradient>
 
-      {/* Ghost first-name typography art */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center overflow-hidden"
-      >
-        <motion.span
-          className="font-display font-black leading-none tracking-[-0.05em] select-none text-white"
-          animate={{ opacity: hovered ? 0.06 : 0.03 }}
-          transition={{ duration: 0.8 }}
-          style={{ fontSize: "clamp(8rem, 20vw, 20rem)", marginLeft: "-0.04em" }}
-        >
-          {words[0]}
-        </motion.span>
-      </div>
+        {/* Main face — multi-stop linear for brushed gold */}
+        <linearGradient id={`${uid}-face`} x1="8%" y1="4%" x2="92%" y2="96%">
+          <stop offset="0%"   stopColor="#1e1408" />
+          <stop offset="8%"   stopColor="#5a4018" />
+          <stop offset="20%"  stopColor="#a87838" />
+          <stop offset="34%"  stopColor="#d4a848" />
+          <stop offset="44%"  stopColor="#e6c45e" />
+          <stop offset="50%"  stopColor="#f0d46a" />
+          <stop offset="58%"  stopColor="#d0a848" />
+          <stop offset="72%"  stopColor="#8a6028" />
+          <stop offset="86%"  stopColor="#4a3018" />
+          <stop offset="100%" stopColor="#180e04" />
+        </linearGradient>
 
-      {/* Corner accent glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-bl-full opacity-30 transition-opacity duration-700 group-hover:opacity-50"
-        style={{
-          background:
-            "radial-gradient(circle at 100% 0%, rgba(201,165,90,0.12) 0%, transparent 70%)",
-        }}
-      />
+        {/* Boss — convex highlight */}
+        <radialGradient id={`${uid}-boss`} cx="33%" cy="27%" r="68%">
+          <stop offset="0%"   stopColor="#f0dda0" />
+          <stop offset="18%"  stopColor="#c9a550" />
+          <stop offset="45%"  stopColor="#7a5820" />
+          <stop offset="72%"  stopColor="#3a2410" />
+          <stop offset="100%" stopColor="#180e08" />
+        </radialGradient>
 
-      {/* Main layout: content left, radar right */}
-      <div className="relative z-10 flex h-full min-h-[460px] items-stretch">
-        {/* Left: identity + philosophy */}
-        <div className="flex flex-1 flex-col justify-between p-10 lg:p-14">
-          <div className="flex flex-col gap-7 pr-4">
-            <motion.p
-              className="font-mono text-[10px] tracking-[0.28em] text-accent uppercase"
-              initial={{ opacity: 0, x: -16 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.7, ease: EASE, delay: 0.18 }}
-            >
-              {member.role}
-            </motion.p>
+        {/* Well — recessed dark field */}
+        <radialGradient id={`${uid}-well`} cx="42%" cy="36%" r="58%">
+          <stop offset="0%"   stopColor="#1a1208" />
+          <stop offset="50%"  stopColor="#0e0a04" />
+          <stop offset="100%" stopColor="#070504" />
+        </radialGradient>
 
-            <div className="flex flex-col">
-              {words.map((word, i) => (
-                <motion.span
-                  key={`${word}-${i}`}
-                  className="font-display font-light leading-[0.92] tracking-tight text-text-primary"
-                  style={{ fontSize: "clamp(2.8rem, 5.5vw, 5rem)" }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, ease: EASE, delay: 0.24 + i * 0.07 }}
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </div>
+        {/* Specular highlight (top-left light source) */}
+        <radialGradient id={`${uid}-spec`} cx="27%" cy="22%" r="54%">
+          <stop offset="0%"   stopColor="rgba(255,252,210,0.20)" />
+          <stop offset="55%"  stopColor="rgba(255,252,210,0.05)" />
+          <stop offset="100%" stopColor="rgba(255,252,210,0)" />
+        </radialGradient>
 
-            {member.philosophy && (
-              <motion.p
-                className="max-w-[400px] text-base italic leading-relaxed text-text-secondary"
-                initial={{ opacity: 0, y: 14 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.42 }}
-              >
-                &ldquo;{member.philosophy}&rdquo;
-              </motion.p>
-            )}
-          </div>
+        {/* Boss specular */}
+        <radialGradient id={`${uid}-boss-spec`} cx="32%" cy="25%" r="56%">
+          <stop offset="0%"   stopColor="rgba(255,252,210,0.30)" />
+          <stop offset="100%" stopColor="rgba(255,252,210,0)" />
+        </radialGradient>
 
-          {/* Balance bar at bottom of left column */}
-          {member.showBalance && (
-            <motion.div
-              className="mt-10 max-w-[300px]"
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.6 }}
-            >
-              <BalanceBar balance={member.brandCodeBalance} inView={inView} />
-            </motion.div>
-          )}
-        </div>
+        {/* Drop shadow */}
+        <filter id={`${uid}-shadow`} x="-22%" y="-12%" width="144%" height="144%">
+          <feDropShadow dx="0" dy="9" stdDeviation="11" floodColor="#000" floodOpacity="0.7" />
+        </filter>
 
-        {/* Right: headshot corner + radar */}
-        <div className="relative hidden flex-col items-center justify-between py-10 pr-10 lg:flex" style={{ width: "320px" }}>
-          {/* Circle headshot — top right */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
+        {/* Text paths */}
+        <path id={`${uid}-name`} d={nameArcPath} />
+        <path id={`${uid}-role`} d={roleArcPath} />
+
+        {/* Photo clip */}
+        <clipPath id={`${uid}-clip`}>
+          <circle cx={cx} cy={cy} r={wellR - 2} />
+        </clipPath>
+      </defs>
+
+      <g filter={`url(#${uid}-shadow)`}>
+        {/* Outer bevel ring */}
+        <circle cx={cx} cy={cy} r={outerR} fill={`url(#${uid}-bevel)`} />
+
+        {/* Main polished face */}
+        <circle cx={cx} cy={cy} r={faceR} fill={`url(#${uid}-face)`} />
+
+        {/* Specular overlay */}
+        <circle cx={cx} cy={cy} r={faceR} fill={`url(#${uid}-spec)`} />
+
+        {/* Outer groove (shadow + highlight pair) */}
+        <circle cx={cx} cy={cy} r={ring1R}       fill="none" stroke="rgba(0,0,0,0.55)"       strokeWidth="2" />
+        <circle cx={cx} cy={cy} r={ring1R - 1.5} fill="none" stroke="rgba(255,220,120,0.18)"  strokeWidth="0.75" />
+
+        {/* Middle groove */}
+        <circle cx={cx} cy={cy} r={ring2R}     fill="none" stroke="rgba(0,0,0,0.45)"      strokeWidth="1.5" />
+        <circle cx={cx} cy={cy} r={ring2R - 1} fill="none" stroke="rgba(255,220,120,0.14)" strokeWidth="0.75" />
+
+        {/* Six decorative dots */}
+        {dotAngles.map((deg, i) => {
+          const [x, y] = pt(cx, cy, dotR, deg);
+          return <circle key={i} cx={x} cy={y} r={2.2} fill="rgba(201,165,90,0.42)" />;
+        })}
+
+        {/* Inner groove */}
+        <circle cx={cx} cy={cy} r={ring3R}       fill="none" stroke="rgba(0,0,0,0.38)"       strokeWidth="1.25" />
+        <circle cx={cx} cy={cy} r={ring3R - 0.8} fill="none" stroke="rgba(255,220,120,0.12)"  strokeWidth="0.5" />
+
+        {/* Boss (raised disc) */}
+        <circle cx={cx} cy={cy} r={bossR} fill={`url(#${uid}-boss)`} />
+        <circle cx={cx} cy={cy} r={bossR} fill={`url(#${uid}-boss-spec)`} />
+        <circle cx={cx} cy={cy} r={bossR} fill="none" stroke="rgba(255,240,170,0.28)" strokeWidth="1.5" />
+
+        {/* Well inner groove */}
+        <circle cx={cx} cy={cy} r={wellR + 2}   fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="2" />
+        <circle cx={cx} cy={cy} r={wellR + 0.5} fill="none" stroke="rgba(255,220,120,0.2)" strokeWidth="0.75" />
+
+        {/* Recessed well */}
+        <circle cx={cx} cy={cy} r={wellR} fill={`url(#${uid}-well)`} />
+
+        {/* Photo or initials */}
+        {member.photoUrl ? (
+          <image
+            href={member.photoUrl}
+            x={cx - wellR}
+            y={cy - wellR}
+            width={wellR * 2}
+            height={wellR * 2}
+            clipPath={`url(#${uid}-clip)`}
+            preserveAspectRatio="xMidYMid slice"
+          />
+        ) : (
+          <text
+            x={cx}
+            y={cy + faceR * 0.04}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill="rgba(201,165,90,0.82)"
+            fontSize={wellR * 0.88}
+            fontFamily="var(--font-fraunces, Georgia, serif)"
+            fontWeight="300"
           >
-            <Headshot photoUrl={member.photoUrl} name={member.name} size={96} />
-          </motion.div>
+            {initials}
+          </text>
+        )}
 
-          {/* Radar chart */}
-          {radarItems.length >= 3 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={inView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 1.0, ease: EASE, delay: 0.55 }}
-            >
-              <RadarChart items={radarItems} size={248} />
-            </motion.div>
-          )}
-        </div>
-      </div>
+        {/* Name arc (bottom, letters toward center) */}
+        <text
+          fontFamily="var(--font-dm-mono, monospace)"
+          fontSize={faceR * 0.085}
+          letterSpacing={faceR * 0.013}
+          fill="rgba(201,165,90,0.68)"
+        >
+          <textPath href={`#${uid}-name`} startOffset="50%" textAnchor="middle">
+            {member.name.toUpperCase()}
+          </textPath>
+        </text>
 
-      {/* Mobile: headshot floats top-right */}
-      <div className="absolute top-6 right-6 lg:hidden z-20">
-        <Headshot photoUrl={member.photoUrl} name={member.name} size={72} />
-      </div>
-
-      {pill}
-    </motion.div>
+        {/* Role arc (top, letters toward outer rim) */}
+        <text
+          fontFamily="var(--font-dm-mono, monospace)"
+          fontSize={faceR * 0.072}
+          letterSpacing={faceR * 0.01}
+          fill="rgba(201,165,90,0.40)"
+        >
+          <textPath href={`#${uid}-role`} startOffset="50%" textAnchor="middle">
+            {member.role.toUpperCase().substring(0, 22)}
+          </textPath>
+        </text>
+      </g>
+    </svg>
   );
 }
 
-// ─── Portrait card (non-featured) ────────────────────────────────────────────
-// Compact card: circle headshot in top-right corner, name/role top-left,
-// philosophy, radar, optional balance bar.
+// ─── Full medal with sway ─────────────────────────────────────────────────────
 
-function PortraitCard({ member, index }: { member: TeamMember; index: number }) {
+function Medal({ member, index }: { member: TeamMember; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+  const [hovered, setHovered] = useState(false);
 
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
-  const springX = useSpring(mouseX, { stiffness: 55, damping: 22 });
-  const springY = useSpring(mouseY, { stiffness: 55, damping: 22 });
-  // Subtle parallax on the headshot
-  const hsX = useTransform(springX, [0, 1], ["-5px", "5px"]);
-  const hsY = useTransform(springY, [0, 1], ["-4px", "4px"]);
+  const rotate = useSpring(0, { stiffness: 50, damping: 10, mass: 1.2 });
 
-  const { onMouseEnter, onMouseMove: onPillMove, onMouseLeave: onPillLeave, pill } = useTagPill(
-    member.skills,
-    member.showTags,
+  // Entry sway: settle like a just-hung medal
+  useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => {
+      rotate.set(-9);
+      setTimeout(() => rotate.set(6), 340);
+      setTimeout(() => rotate.set(-3.5), 680);
+      setTimeout(() => rotate.set(1.5), 1020);
+      setTimeout(() => rotate.set(0), 1360);
+    }, index * 140 + 250);
+    return () => clearTimeout(t);
+  }, [inView, index, rotate]);
+
+  const onMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width / 2);
+      rotate.set(dx * 0.09);
+    },
+    [rotate],
   );
 
-  const radarItems = parseCapabilities(member.capabilities);
+  const onMouseLeave = useCallback(() => {
+    rotate.set(0);
+    setHovered(false);
+  }, [rotate]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mouseX.set((e.clientX - r.left) / r.width);
-    mouseY.set((e.clientY - r.top) / r.height);
-    onPillMove(e);
-  };
-  const handleMouseLeave = () => {
-    mouseX.set(0.5);
-    mouseY.set(0.5);
-    onPillLeave();
-  };
+  const medalSize = member.featured ? 200 : 160;
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: -28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.85, ease: EASE, delay: index * 0.1 }}
-      onMouseEnter={onMouseEnter}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="group relative overflow-hidden rounded-2xl border border-border transition-[border-color,box-shadow] duration-500 hover:border-accent-muted hover:shadow-[0_16px_56px_rgba(0,0,0,0.45)]"
-      style={{
-        background: "linear-gradient(150deg, #181510 0%, #100e09 60%, #0a0907 100%)",
-      }}
+      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      className="flex flex-col items-center select-none"
+      onMouseMove={onMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={onMouseLeave}
     >
-      {/* Grid texture */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(201,165,90,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(201,165,90,0.035) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
+      {/* Assembly that swings from the hook */}
+      <motion.div
+        style={{ rotate, transformOrigin: "50% 0%" }}
+        className="flex flex-col items-center"
+      >
+        <Ribbon balance={member.brandCodeBalance} featured={member.featured} />
+        <MedalFace member={member} size={medalSize} />
+      </motion.div>
 
-      {/* Diagonal glint on hover */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/2 translate-x-[-115%] transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:translate-x-[230%]"
-        style={{
-          background:
-            "linear-gradient(108deg, transparent 30%, rgba(255,248,220,0.04) 45%, rgba(255,255,255,0.07) 50%, rgba(255,248,220,0.04) 55%, transparent 70%)",
-        }}
-      />
+      {/* Name plate */}
+      <div className="mt-5 text-center">
+        <p
+          className="font-display font-light tracking-tight transition-colors duration-300"
+          style={{
+            fontSize: member.featured ? "var(--text-lg)" : "var(--text-base)",
+            color: hovered ? "var(--color-accent)" : "var(--color-text-primary)",
+          }}
+        >
+          {member.name}
+        </p>
+        <p
+          className="mt-1 font-mono text-[10px] uppercase tracking-widest"
+          style={{ color: "var(--color-text-tertiary)" }}
+        >
+          {member.role}
+        </p>
+      </div>
 
-      <div className="relative z-10 flex flex-col p-8">
-        {/* Top row: role+name left, headshot right */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-2 min-w-0">
-            <motion.p
-              className="font-mono text-[9px] tracking-[0.24em] text-accent uppercase"
-              initial={{ opacity: 0, x: -12 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.15 }}
-            >
-              {member.role}
-            </motion.p>
-            <motion.h3
-              className="font-display font-light text-[1.85rem] leading-[1.0] tracking-tight text-text-primary"
-              initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
-            >
-              {member.name}
-            </motion.h3>
-          </div>
-
-          {/* Circle headshot with subtle parallax */}
-          <motion.div
-            style={{ x: hsX, y: hsY }}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.12 }}
-            className="shrink-0"
-          >
-            <Headshot photoUrl={member.photoUrl} name={member.name} size={76} />
-          </motion.div>
-        </div>
-
-        {/* Philosophy */}
-        {member.philosophy && (
+      {/* Philosophy on hover */}
+      <AnimatePresence>
+        {hovered && member.philosophy && (
           <motion.p
-            className="mt-5 text-sm italic leading-relaxed text-text-secondary"
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="mt-3 max-w-[190px] text-center text-xs italic leading-relaxed"
+            style={{ color: "var(--color-text-tertiary)" }}
           >
             &ldquo;{member.philosophy}&rdquo;
           </motion.p>
         )}
-
-        {/* Radar chart */}
-        {radarItems.length >= 3 && (
-          <motion.div
-            className="mt-6 flex justify-center"
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 1.0, ease: EASE, delay: 0.35 }}
-          >
-            <RadarChart items={radarItems} size={210} />
-          </motion.div>
-        )}
-
-        {/* Balance bar */}
-        {member.showBalance && (
-          <motion.div
-            className="mt-6"
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.5, ease: EASE, delay: 0.45 }}
-          >
-            <BalanceBar balance={member.brandCodeBalance} inView={inView} />
-          </motion.div>
-        )}
-      </div>
-
-      {pill}
+      </AnimatePresence>
     </motion.div>
+  );
+}
+
+// ─── Wall strip with screw details ────────────────────────────────────────────
+
+function WallStrip() {
+  return (
+    <div
+      className="absolute top-0 left-0 right-0 h-[14px] rounded-t-lg"
+      style={{
+        background:
+          "linear-gradient(to bottom, #3a2e18 0%, #241c0e 60%, #1a1408 100%)",
+        boxShadow: "0 3px 10px rgba(0,0,0,0.65)",
+      }}
+    >
+      {/* Screw details */}
+      {[14, 50, 86].map((pct) => (
+        <div
+          key={pct}
+          style={{
+            position: "absolute",
+            left: `${pct}%`,
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 9,
+            height: 9,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 35% 30%, #9a7840, #2a1e0e)",
+            boxShadow:
+              "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 2px rgba(255,220,100,0.1)",
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -497,21 +439,26 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
   if (!raw.length) return null;
 
   const featured = raw.filter((m) => m.featured);
-  const others = raw.filter((m) => !m.featured);
+  const others   = raw.filter((m) => !m.featured);
+  const all      = [...featured, ...others];
 
   return (
     <section
       aria-labelledby="team-heading"
-      className="section border-b border-border bg-surface"
+      className="section border-b border-border"
+      style={{
+        background: "linear-gradient(160deg, #0f0e0a 0%, #0b0a07 50%, #0f0e0a 100%)",
+      }}
     >
       <div className="container">
-        <div className="mb-16">
+        {/* Section heading */}
+        <div className="mb-20">
           <motion.p
             className="text-overline mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: EASE }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             The Team
           </motion.p>
@@ -521,28 +468,36 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
           >
             People built at the intersection of{" "}
             <em className="italic-display text-accent">brand and code</em>
           </motion.h2>
         </div>
 
-        {featured.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-            {featured.map((m, i) => (
-              <CinematicCard key={m.id} member={m} index={i} />
-            ))}
-          </div>
-        )}
+        {/* Medal wall */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="relative overflow-hidden rounded-lg px-8 pb-16 pt-10"
+          style={{
+            background:
+              "radial-gradient(ellipse at 55% 25%, rgba(201,165,90,0.04) 0%, transparent 65%), linear-gradient(to bottom, #111009 0%, #0d0c08 100%)",
+            border: "1px solid rgba(201,165,90,0.07)",
+            boxShadow:
+              "inset 0 2px 24px rgba(0,0,0,0.45), 0 12px 40px rgba(0,0,0,0.55)",
+          }}
+        >
+          <WallStrip />
 
-        {others.length > 0 && (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {others.map((m, i) => (
-              <PortraitCard key={m.id} member={m} index={i + featured.length} />
+          <div className="flex flex-wrap items-start justify-center gap-x-14 gap-y-12 lg:gap-x-20">
+            {all.map((m, i) => (
+              <Medal key={m.id} member={m} index={i} />
             ))}
           </div>
-        )}
+        </motion.div>
       </div>
     </section>
   );
