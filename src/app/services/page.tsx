@@ -57,10 +57,7 @@ export default async function ServicesPage() {
                     className="service-item block no-underline"
                     aria-label={`Learn about ${service.title}`}
                   >
-                    <article
-                      className="service-article rounded-lg border border-border p-10 transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)]"
-                      style={{ background: "rgba(20, 20, 19, 0.55)" }}
-                    >
+                    <article className="service-article rounded-lg border border-border bg-surface p-10 transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)]">
                       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
                         <div className="flex flex-wrap items-start gap-5">
                           <div className="flex size-[52px] shrink-0 items-center justify-center rounded-md border border-accent-muted bg-accent-subtle text-accent">
