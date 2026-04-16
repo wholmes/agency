@@ -6,6 +6,7 @@ import CapabilitiesScroll from "@/components/sections/CapabilitiesScroll";
 import CtaSection from "@/components/sections/CtaSection";
 import FireworksCanvas from "@/components/FireworksCanvas";
 import ServicesPageHero from "@/components/sections/ServicesPageHero";
+import ServicesHeroBleed from "@/components/ServicesHeroBleed";
 import ScopeEstimator from "@/components/ScopeEstimator";
 import { ServiceIconGlyph, parseOutcomeList } from "@/lib/service-icons";
 import {
@@ -43,12 +44,22 @@ export default async function ServicesPage() {
 
   return (
     <>
-      <ServicesPageHero content={servicesHero} />
+      <ServicesHeroBleed>
+        <ServicesPageHero content={servicesHero} />
 
-      <section aria-label="Service details" className="section border-t border-border">
-        <div className="container">
-          <div className="flex flex-col gap-4">
-            {offerings.map((service, i) => {
+        <section
+          aria-label="Service details"
+          className="relative section border-t border-border"
+        >
+          {/* Near-opaque dark veil — animation peeks through as a whisper without shifting the section's read color */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "rgba(12,12,11,0.92)" }}
+          />
+          <div className="container relative z-[1]">
+            <div className="flex flex-col gap-4">
+              {offerings.map((service, i) => {
               const outcomes = parseOutcomeList(service.outcomesListing);
               return (
                 <ScrollReveal key={service.slug} delay={i * 80}>
@@ -93,9 +104,10 @@ export default async function ServicesPage() {
                 </ScrollReveal>
               );
             })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ServicesHeroBleed>
 
       <CapabilitiesScroll capabilities={capabilities} />
 
