@@ -1,7 +1,12 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
-import { motion, useSpring, useInView, AnimatePresence } from "framer-motion";
+import { useRef, useMemo, useState, useEffect, Suspense } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Environment, Html } from "@react-three/drei";
+import * as THREE from "three";
+import { motion, AnimatePresence } from "framer-motion";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type TeamMember = {
   id: number;
@@ -18,422 +23,605 @@ type TeamMember = {
   capabilities: string;
 };
 
-// ─── Arc helpers ─────────────────────────────────────────────────────────────
+// ─── Arc-text helper ──────────────────────────────────────────────────────────
 
-const DEG = Math.PI / 180;
+/**
+ * Draws text along a circular arc on a 2D canvas.
+ *
+ * centerDeg: angle of the text midpoint, SVG convention (y-down):
+ *   90  = bottom of circle
+ *   270 = top of circle
+ *
+ * inward = true  → letters face center (inscribed, used for bottom name)
+ * inward = false → letters face outward (used for top role label)
+ *
+ * Math is verified: at 90° inward, each char rotates by (angle - π/2),
+ * which equals 0 at the exact bottom → upright, pointing up toward center.
+ * At 270° outward, each char rotates by (angle + π/2), also 0 at exact top.
+ */
+function drawArcText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  cx: number,
+  cy: number,
+  r: number,
+  centerDeg: number,
+  inward: boolean,
+  fontSize: number,
+  color: string,
+) {
+  ctx.save();
+  ctx.font = `500 ${fontSize}px "DM Mono", monospace`;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
 
-function pt(cx: number, cy: number, r: number, deg: number): [number, number] {
-  return [cx + r * Math.cos(deg * DEG), cy + r * Math.sin(deg * DEG)];
+  const chars = text.split("");
+  const widths = chars.map((c) => ctx.measureText(c).width);
+  const totalAngle = widths.reduce((s, w) => s + w / r, 0); // total radians
+
+  const centerRad = centerDeg * (Math.PI / 180);
+  // dir: -1 → angle decreases (rightward at bottom), +1 → angle increases (rightward at top)
+  const dir = inward ? -1 : 1;
+  let angle = centerRad - dir * totalAngle / 2; // start at left edge
+
+  for (let i = 0; i < chars.length; i++) {
+    const da = widths[i] / r;
+    const ca = angle + dir * da / 2; // center angle for this char
+    ctx.save();
+    ctx.translate(cx + r * Math.cos(ca), cy + r * Math.sin(ca));
+    ctx.rotate(inward ? ca - Math.PI / 2 : ca + Math.PI / 2);
+    ctx.fillText(chars[i], 0, 0);
+    ctx.restore();
+    angle += dir * da;
+  }
+
+  ctx.restore();
 }
 
-/** SVG arc path. angleDeg follows SVG convention (y-down): 0°=right, 90°=bottom, 270°=top */
-function arc(cx: number, cy: number, r: number, startDeg: number, endDeg: number, sweep: 0 | 1) {
-  const [sx, sy] = pt(cx, cy, r, startDeg);
-  const [ex, ey] = pt(cx, cy, r, endDeg);
-  return `M ${sx},${sy} A ${r},${r} 0 0,${sweep} ${ex},${ey}`;
-}
+// ─── Medal face canvas texture ────────────────────────────────────────────────
 
-// ─── Ribbon ───────────────────────────────────────────────────────────────────
+function createMedalTexture(member: TeamMember): THREE.CanvasTexture {
+  const S = 1024;
+  const canvas = document.createElement("canvas");
+  canvas.width = S;
+  canvas.height = S;
+  const ctx = canvas.getContext("2d")!;
+  const cx = S / 2, cy = S / 2;
 
-function Ribbon({ balance, featured }: { balance: number; featured: boolean }) {
-  const h = featured ? 76 : 60;
-  const w = featured ? 28 : 22;
+  // Clip to circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, S / 2 - 2, 0, Math.PI * 2);
+  ctx.clip();
 
-  const stripe1 = balance >= 60 ? "#c9a55a" : balance <= 40 ? "#7888a0" : "#c9a55a";
-  const stripe2 = "#0d0c08";
+  // Brushed gold gradient (angled light source top-left)
+  const faceGrad = ctx.createLinearGradient(0, 0, S, S);
+  faceGrad.addColorStop(0.00, "#1e1408");
+  faceGrad.addColorStop(0.08, "#5a4018");
+  faceGrad.addColorStop(0.20, "#a87838");
+  faceGrad.addColorStop(0.34, "#d4a848");
+  faceGrad.addColorStop(0.44, "#e8c860");
+  faceGrad.addColorStop(0.50, "#f2da72");
+  faceGrad.addColorStop(0.58, "#d0a848");
+  faceGrad.addColorStop(0.72, "#8a6028");
+  faceGrad.addColorStop(0.86, "#4a3018");
+  faceGrad.addColorStop(1.00, "#180e04");
+  ctx.fillStyle = faceGrad;
+  ctx.fillRect(0, 0, S, S);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      {/* Mounting hook */}
-      <div
-        style={{
-          width: 7,
-          height: 11,
-          borderRadius: "0 0 4px 4px",
-          background: "linear-gradient(to bottom, #d0b060, #5a3e18)",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.7)",
-        }}
-      />
+  // Specular bloom (top-left)
+  const spec = ctx.createRadialGradient(cx - 145, cy - 200, 0, cx, cy, S * 0.52);
+  spec.addColorStop(0, "rgba(255,252,210,0.22)");
+  spec.addColorStop(0.5, "rgba(255,252,210,0.05)");
+  spec.addColorStop(1, "rgba(255,252,210,0)");
+  ctx.fillStyle = spec;
+  ctx.fillRect(0, 0, S, S);
 
-      {/* Top metal bar */}
-      <div
-        style={{
-          width: w + 12,
-          height: 9,
-          borderRadius: 3,
-          background:
-            "linear-gradient(to bottom, #d0b060 0%, #9a7030 35%, #5a3a18 70%, #2e1e0c 100%)",
-          boxShadow:
-            "0 3px 8px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,240,160,0.22)",
-        }}
-      />
+  // Engraved concentric rings — each is a shadow line + highlight line
+  const rings: [number, string, number][] = [
+    [455, "rgba(0,0,0,0.60)", 3.5],
+    [452, "rgba(255,220,120,0.22)", 1.5],
+    [382, "rgba(0,0,0,0.48)", 3],
+    [379, "rgba(255,220,120,0.17)", 1.2],
+    [306, "rgba(0,0,0,0.40)", 2],
+    [304, "rgba(255,220,120,0.13)", 0.8],
+  ];
+  for (const [r, color, w] of rings) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 
-      {/* Ribbon fabric */}
-      <div
-        style={{
-          width: w,
-          height: h,
-          backgroundImage: `repeating-linear-gradient(-50deg, ${stripe1} 0px, ${stripe1} 2.5px, ${stripe2} 2.5px, ${stripe2} 5px)`,
-          boxShadow:
-            "inset 2px 0 5px rgba(0,0,0,0.3), inset -2px 0 5px rgba(0,0,0,0.3)",
-        }}
-      />
+  // Six dot details between the middle and inner rings
+  const dotR = (382 + 225) / 2;
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + Math.PI / 12;
+    ctx.fillStyle = "rgba(201,165,90,0.48)";
+    ctx.beginPath();
+    ctx.arc(cx + dotR * Math.cos(a), cy + dotR * Math.sin(a), 9.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
-      {/* Bottom metal bar */}
-      <div
-        style={{
-          width: w + 12,
-          height: 9,
-          borderRadius: 3,
-          background:
-            "linear-gradient(to bottom, #d0b060 0%, #9a7030 35%, #5a3a18 70%, #2e1e0c 100%)",
-          boxShadow:
-            "0 4px 10px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,240,160,0.22)",
-        }}
-      />
-    </div>
+  // Boss (raised disc) — radial gradient, highlight at top-left
+  const bossGrad = ctx.createRadialGradient(cx - 60, cy - 80, 0, cx, cy, 232);
+  bossGrad.addColorStop(0, "#f2e0a8");
+  bossGrad.addColorStop(0.18, "#c9a550");
+  bossGrad.addColorStop(0.50, "#7a5820");
+  bossGrad.addColorStop(0.80, "#3a2410");
+  bossGrad.addColorStop(1, "#180e08");
+  ctx.fillStyle = bossGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 225, 0, Math.PI * 2);
+  ctx.fill();
+  // Boss rim
+  ctx.strokeStyle = "rgba(255,240,170,0.30)";
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 225, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Well groove
+  ctx.strokeStyle = "rgba(0,0,0,0.65)";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 180, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(255,220,120,0.25)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 177, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Recessed well (deep dark field)
+  const wellGrad = ctx.createRadialGradient(cx - 30, cy - 42, 0, cx, cy, 174);
+  wellGrad.addColorStop(0, "#1c1408");
+  wellGrad.addColorStop(0.5, "#0e0a04");
+  wellGrad.addColorStop(1, "#070504");
+  ctx.fillStyle = wellGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 170, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gilded initials in the well
+  const initials = member.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  ctx.fillStyle = "rgba(201,165,90,0.88)";
+  ctx.font = `300 115px Georgia, "Times New Roman", serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(initials, cx, cy + 5);
+
+  // Name arc — bottom of face, letters face toward center
+  drawArcText(ctx, member.name.toUpperCase(), cx, cy, 332, 90, true, 25, "rgba(201,165,90,0.72)");
+
+  // Role arc — top of face, letters face outward toward rim
+  drawArcText(
+    ctx,
+    member.role.toUpperCase().slice(0, 22),
+    cx, cy, 415, 270, false, 22, "rgba(201,165,90,0.44)",
   );
+
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
 }
 
-// ─── Medal SVG ────────────────────────────────────────────────────────────────
+// ─── Ribbon stripe texture ─────────────────────────────────────────────────────
 
-function MedalFace({ member, size }: { member: TeamMember; size: number }) {
-  const uid = `medal-${member.id}`;
-  const cx = size / 2;
-  const cy = size / 2;
+function createRibbonTexture(balance: number): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d")!;
+  const stripe = balance >= 60 ? "#c9a55a" : balance <= 40 ? "#7888a0" : "#c9a55a";
+  const dark = "#0d0c08";
 
-  // Radius tiers
-  const outerR = size * 0.455; // bevel ring
-  const faceR  = size * 0.40;  // polished face
-  const ring1R = faceR * 0.882; // outer groove
-  const ring2R = faceR * 0.742; // middle groove
-  const ring3R = faceR * 0.598; // inner groove
-  const bossR  = faceR * 0.438; // raised boss
-  const wellR  = faceR * 0.336; // recessed center field
+  // Fill background
+  ctx.fillStyle = dark;
+  ctx.fillRect(0, 0, 128, 512);
 
-  // Text arcs
-  // Bottom name: counterclockwise from 130° to 50° passes through 90° (bottom).
-  // sweep=0, text baseline on arc, letters point toward center (inward) — classic inscribed coin text.
-  const nameArcR = (ring2R + ring3R) / 2;
-  const nameArcPath = arc(cx, cy, nameArcR, 130, 50, 0);
+  // Diagonal stripes
+  ctx.strokeStyle = stripe;
+  ctx.lineWidth = 5;
+  for (let x = -512; x < 640; x += 14) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 512, 512);
+    ctx.stroke();
+  }
 
-  // Top role: clockwise from 220° to 320° passes through 270° (top).
-  // sweep=1, text appears outside the arc (toward the outer rim) — letters face upward.
-  const roleArcR = (ring1R + faceR) / 2;
-  const roleArcPath = arc(cx, cy, roleArcR, 220, 320, 1);
+  // Side shadows for fabric depth
+  const leftShadow = ctx.createLinearGradient(0, 0, 20, 0);
+  leftShadow.addColorStop(0, "rgba(0,0,0,0.35)");
+  leftShadow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = leftShadow;
+  ctx.fillRect(0, 0, 20, 512);
 
-  // 6 decorative dots evenly spaced between ring2 and boss
-  const dotR = (ring2R + bossR) / 2;
-  const dotAngles = Array.from({ length: 6 }, (_, i) => i * 60 + 0);
+  const rightShadow = ctx.createLinearGradient(108, 0, 128, 0);
+  rightShadow.addColorStop(0, "rgba(0,0,0,0)");
+  rightShadow.addColorStop(1, "rgba(0,0,0,0.35)");
+  ctx.fillStyle = rightShadow;
+  ctx.fillRect(108, 0, 20, 512);
 
-  const initials = member.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  return (
-    <svg
-      viewBox={`0 0 ${size} ${size}`}
-      width={size}
-      height={size}
-      style={{ overflow: "visible" }}
-      aria-hidden
-    >
-      <defs>
-        {/* Outer bevel ring */}
-        <radialGradient id={`${uid}-bevel`} cx="36%" cy="30%" r="64%">
-          <stop offset="0%"   stopColor="#7a5c22" />
-          <stop offset="28%"  stopColor="#4a3418" />
-          <stop offset="62%"  stopColor="#1e1208" />
-          <stop offset="100%" stopColor="#0a0704" />
-        </radialGradient>
-
-        {/* Main face — multi-stop linear for brushed gold */}
-        <linearGradient id={`${uid}-face`} x1="8%" y1="4%" x2="92%" y2="96%">
-          <stop offset="0%"   stopColor="#1e1408" />
-          <stop offset="8%"   stopColor="#5a4018" />
-          <stop offset="20%"  stopColor="#a87838" />
-          <stop offset="34%"  stopColor="#d4a848" />
-          <stop offset="44%"  stopColor="#e6c45e" />
-          <stop offset="50%"  stopColor="#f0d46a" />
-          <stop offset="58%"  stopColor="#d0a848" />
-          <stop offset="72%"  stopColor="#8a6028" />
-          <stop offset="86%"  stopColor="#4a3018" />
-          <stop offset="100%" stopColor="#180e04" />
-        </linearGradient>
-
-        {/* Boss — convex highlight */}
-        <radialGradient id={`${uid}-boss`} cx="33%" cy="27%" r="68%">
-          <stop offset="0%"   stopColor="#f0dda0" />
-          <stop offset="18%"  stopColor="#c9a550" />
-          <stop offset="45%"  stopColor="#7a5820" />
-          <stop offset="72%"  stopColor="#3a2410" />
-          <stop offset="100%" stopColor="#180e08" />
-        </radialGradient>
-
-        {/* Well — recessed dark field */}
-        <radialGradient id={`${uid}-well`} cx="42%" cy="36%" r="58%">
-          <stop offset="0%"   stopColor="#1a1208" />
-          <stop offset="50%"  stopColor="#0e0a04" />
-          <stop offset="100%" stopColor="#070504" />
-        </radialGradient>
-
-        {/* Specular highlight (top-left light source) */}
-        <radialGradient id={`${uid}-spec`} cx="27%" cy="22%" r="54%">
-          <stop offset="0%"   stopColor="rgba(255,252,210,0.20)" />
-          <stop offset="55%"  stopColor="rgba(255,252,210,0.05)" />
-          <stop offset="100%" stopColor="rgba(255,252,210,0)" />
-        </radialGradient>
-
-        {/* Boss specular */}
-        <radialGradient id={`${uid}-boss-spec`} cx="32%" cy="25%" r="56%">
-          <stop offset="0%"   stopColor="rgba(255,252,210,0.30)" />
-          <stop offset="100%" stopColor="rgba(255,252,210,0)" />
-        </radialGradient>
-
-        {/* Drop shadow */}
-        <filter id={`${uid}-shadow`} x="-22%" y="-12%" width="144%" height="144%">
-          <feDropShadow dx="0" dy="9" stdDeviation="11" floodColor="#000" floodOpacity="0.7" />
-        </filter>
-
-        {/* Text paths */}
-        <path id={`${uid}-name`} d={nameArcPath} />
-        <path id={`${uid}-role`} d={roleArcPath} />
-
-        {/* Photo clip */}
-        <clipPath id={`${uid}-clip`}>
-          <circle cx={cx} cy={cy} r={wellR - 2} />
-        </clipPath>
-      </defs>
-
-      <g filter={`url(#${uid}-shadow)`}>
-        {/* Outer bevel ring */}
-        <circle cx={cx} cy={cy} r={outerR} fill={`url(#${uid}-bevel)`} />
-
-        {/* Main polished face */}
-        <circle cx={cx} cy={cy} r={faceR} fill={`url(#${uid}-face)`} />
-
-        {/* Specular overlay */}
-        <circle cx={cx} cy={cy} r={faceR} fill={`url(#${uid}-spec)`} />
-
-        {/* Outer groove (shadow + highlight pair) */}
-        <circle cx={cx} cy={cy} r={ring1R}       fill="none" stroke="rgba(0,0,0,0.55)"       strokeWidth="2" />
-        <circle cx={cx} cy={cy} r={ring1R - 1.5} fill="none" stroke="rgba(255,220,120,0.18)"  strokeWidth="0.75" />
-
-        {/* Middle groove */}
-        <circle cx={cx} cy={cy} r={ring2R}     fill="none" stroke="rgba(0,0,0,0.45)"      strokeWidth="1.5" />
-        <circle cx={cx} cy={cy} r={ring2R - 1} fill="none" stroke="rgba(255,220,120,0.14)" strokeWidth="0.75" />
-
-        {/* Six decorative dots */}
-        {dotAngles.map((deg, i) => {
-          const [x, y] = pt(cx, cy, dotR, deg);
-          return <circle key={i} cx={x} cy={y} r={2.2} fill="rgba(201,165,90,0.42)" />;
-        })}
-
-        {/* Inner groove */}
-        <circle cx={cx} cy={cy} r={ring3R}       fill="none" stroke="rgba(0,0,0,0.38)"       strokeWidth="1.25" />
-        <circle cx={cx} cy={cy} r={ring3R - 0.8} fill="none" stroke="rgba(255,220,120,0.12)"  strokeWidth="0.5" />
-
-        {/* Boss (raised disc) */}
-        <circle cx={cx} cy={cy} r={bossR} fill={`url(#${uid}-boss)`} />
-        <circle cx={cx} cy={cy} r={bossR} fill={`url(#${uid}-boss-spec)`} />
-        <circle cx={cx} cy={cy} r={bossR} fill="none" stroke="rgba(255,240,170,0.28)" strokeWidth="1.5" />
-
-        {/* Well inner groove */}
-        <circle cx={cx} cy={cy} r={wellR + 2}   fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth="2" />
-        <circle cx={cx} cy={cy} r={wellR + 0.5} fill="none" stroke="rgba(255,220,120,0.2)" strokeWidth="0.75" />
-
-        {/* Recessed well */}
-        <circle cx={cx} cy={cy} r={wellR} fill={`url(#${uid}-well)`} />
-
-        {/* Photo or initials */}
-        {member.photoUrl ? (
-          <image
-            href={member.photoUrl}
-            x={cx - wellR}
-            y={cy - wellR}
-            width={wellR * 2}
-            height={wellR * 2}
-            clipPath={`url(#${uid}-clip)`}
-            preserveAspectRatio="xMidYMid slice"
-          />
-        ) : (
-          <text
-            x={cx}
-            y={cy + faceR * 0.04}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="rgba(201,165,90,0.82)"
-            fontSize={wellR * 0.88}
-            fontFamily="var(--font-fraunces, Georgia, serif)"
-            fontWeight="300"
-          >
-            {initials}
-          </text>
-        )}
-
-        {/* Name arc (bottom, letters toward center) */}
-        <text
-          fontFamily="var(--font-dm-mono, monospace)"
-          fontSize={faceR * 0.085}
-          letterSpacing={faceR * 0.013}
-          fill="rgba(201,165,90,0.68)"
-        >
-          <textPath href={`#${uid}-name`} startOffset="50%" textAnchor="middle">
-            {member.name.toUpperCase()}
-          </textPath>
-        </text>
-
-        {/* Role arc (top, letters toward outer rim) */}
-        <text
-          fontFamily="var(--font-dm-mono, monospace)"
-          fontSize={faceR * 0.072}
-          letterSpacing={faceR * 0.01}
-          fill="rgba(201,165,90,0.40)"
-        >
-          <textPath href={`#${uid}-role`} startOffset="50%" textAnchor="middle">
-            {member.role.toUpperCase().substring(0, 22)}
-          </textPath>
-        </text>
-      </g>
-    </svg>
-  );
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
 }
 
-// ─── Full medal with sway ─────────────────────────────────────────────────────
+// ─── Bar material (brass) ─────────────────────────────────────────────────────
 
-function Medal({ member, index }: { member: TeamMember; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-8% 0px" });
+const BAR_MATERIAL = new THREE.MeshStandardMaterial({
+  color: new THREE.Color("#c0a050"),
+  metalness: 0.92,
+  roughness: 0.22,
+});
+
+// ─── 3D Medal group ───────────────────────────────────────────────────────────
+
+interface MedalGroupProps {
+  member: TeamMember;
+  posX: number;
+  scale: number;
+  index: number;
+}
+
+function MedalGroup({ member, posX, scale, index }: MedalGroupProps) {
+  const pivotRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
-  const rotate = useSpring(0, { stiffness: 50, damping: 10, mass: 1.2 });
+  const target = useRef(0);
+  const settled = useRef(false);
+  const settleStart = useRef<number | null>(null);
 
-  // Entry sway: settle like a just-hung medal
-  useEffect(() => {
-    if (!inView) return;
-    const t = setTimeout(() => {
-      rotate.set(-9);
-      setTimeout(() => rotate.set(6), 340);
-      setTimeout(() => rotate.set(-3.5), 680);
-      setTimeout(() => rotate.set(1.5), 1020);
-      setTimeout(() => rotate.set(0), 1360);
-    }, index * 140 + 250);
-    return () => clearTimeout(t);
-  }, [inView, index, rotate]);
+  // Medal face texture (canvas)
+  const faceTexture = useMemo(() => createMedalTexture(member), [member.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      rotate.set(dx * 0.09);
-    },
-    [rotate],
+  // Ribbon stripe texture
+  const ribbonTexture = useMemo(() => createRibbonTexture(member.brandCodeBalance), [member.brandCodeBalance]);
+
+  // Gold side material
+  const goldMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("#c9a55a"),
+        metalness: 0.95,
+        roughness: 0.16,
+        envMapIntensity: 1.6,
+      }),
+    [],
   );
 
-  const onMouseLeave = useCallback(() => {
-    rotate.set(0);
-    setHovered(false);
-  }, [rotate]);
+  // Medal disc geometry — cylinder rotated so cap faces +Z toward camera
+  const discGeo = useMemo(() => {
+    const g = new THREE.CylinderGeometry(1, 1.045, 0.14, 128, 1, false);
+    g.rotateX(Math.PI / 2); // top cap (+Y → +Z) faces the camera
+    return g;
+  }, []);
 
-  const medalSize = member.featured ? 200 : 160;
+  // Boss geometry
+  const bossGeo = useMemo(() => {
+    const g = new THREE.CylinderGeometry(0.43, 0.46, 0.07, 64, 1, false);
+    g.rotateX(Math.PI / 2);
+    return g;
+  }, []);
+
+  // Medal face material array [side, front-cap, back-cap]
+  const discMaterials = useMemo(
+    () => [
+      goldMaterial,
+      new THREE.MeshStandardMaterial({
+        map: faceTexture,
+        metalness: 0.72,
+        roughness: 0.28,
+        envMapIntensity: 1.0,
+      }),
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("#1a1208"),
+        metalness: 0.6,
+        roughness: 0.5,
+      }),
+    ],
+    [goldMaterial, faceTexture],
+  );
+
+  const bossMaterials = useMemo(
+    () => [
+      goldMaterial,
+      new THREE.MeshStandardMaterial({ color: new THREE.Color("#1a1208") }),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color("#1a1208") }),
+    ],
+    [goldMaterial],
+  );
+
+  // Track pointer for sway target
+  const { pointer, size } = useThree();
+
+  useEffect(() => {
+    if (hovered) return;
+    // Each medal is influenced by a region of the x-axis
+    const unsubscribe = () => {};
+    return unsubscribe;
+  }, [hovered]);
+
+  // Pendulum animation
+  useFrame((state, delta) => {
+    if (!pivotRef.current) return;
+
+    // Entry settle: damped oscillation when first becoming visible
+    if (!settled.current) {
+      if (settleStart.current === null) {
+        settleStart.current = state.clock.elapsedTime + index * 0.14;
+      }
+      const elapsed = state.clock.elapsedTime - settleStart.current;
+      if (elapsed < 0) return;
+      if (elapsed < 3.0) {
+        const envelope = Math.exp(-elapsed * 2.2);
+        pivotRef.current.rotation.z = Math.sin(elapsed * 3.2) * envelope * 0.18;
+        return;
+      }
+      settled.current = true;
+    }
+
+    // Mouse-driven sway: the medal nearest the cursor sways more
+    const normalizedX = pointer.x; // -1 to +1 across the canvas
+    const medalNDC = posX / 6; // approximate NDC position of this medal
+    const proximity = 1 - Math.min(Math.abs(normalizedX - medalNDC), 1);
+    const swayAmount = hovered ? normalizedX * 0.18 : normalizedX * 0.06 * proximity;
+
+    target.current = swayAmount;
+    pivotRef.current.rotation.z = THREE.MathUtils.lerp(
+      pivotRef.current.rotation.z,
+      target.current,
+      Math.min(delta * 5, 1),
+    );
+
+    // Hover: tilt medal slightly toward viewer
+    pivotRef.current.rotation.x = THREE.MathUtils.lerp(
+      pivotRef.current.rotation.x,
+      hovered ? -0.12 : 0,
+      Math.min(delta * 6, 1),
+    );
+  });
+
+  // Assembly dimensions
+  const hookH = 0.2;
+  const barW = 0.72, barH = 0.09, barD = 0.16;
+  const ribbonW = 0.44, ribbonH = 1.1;
+  const medalY = -2.55; // medal center below pivot
+
+  // Positioning (all relative to pivot at y=0)
+  const hookY = -hookH / 2;
+  const topBarY = -hookH - barH / 2;
+  const ribbonY = topBarY - barH / 2 - ribbonH / 2;
+  const botBarY = ribbonY - ribbonH / 2 - barH / 2;
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: -28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col items-center select-none"
-      onMouseMove={onMouseMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={onMouseLeave}
-    >
-      {/* Assembly that swings from the hook */}
-      <motion.div
-        style={{ rotate, transformOrigin: "50% 0%" }}
-        className="flex flex-col items-center"
+    <group position={[posX, 0, 0]} scale={scale}>
+      <group
+        ref={pivotRef}
+        onPointerEnter={() => setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
       >
-        <Ribbon balance={member.brandCodeBalance} featured={member.featured} />
-        <MedalFace member={member} size={medalSize} />
-      </motion.div>
+        {/* Hook pin */}
+        <mesh position={[0, hookY, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, hookH, 16]} />
+          <meshStandardMaterial color="#b09050" metalness={0.95} roughness={0.15} />
+        </mesh>
 
-      {/* Name plate */}
-      <div className="mt-5 text-center">
-        <p
-          className="font-display font-light tracking-tight transition-colors duration-300"
-          style={{
-            fontSize: member.featured ? "var(--text-lg)" : "var(--text-base)",
-            color: hovered ? "var(--color-accent)" : "var(--color-text-primary)",
-          }}
-        >
-          {member.name}
-        </p>
-        <p
-          className="mt-1 font-mono text-[10px] uppercase tracking-widest"
-          style={{ color: "var(--color-text-tertiary)" }}
-        >
-          {member.role}
-        </p>
-      </div>
+        {/* Top ribbon bar */}
+        <mesh position={[0, topBarY, 0]} material={BAR_MATERIAL}>
+          <boxGeometry args={[barW, barH, barD]} />
+        </mesh>
 
-      {/* Philosophy on hover */}
-      <AnimatePresence>
-        {hovered && member.philosophy && (
-          <motion.p
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="mt-3 max-w-[190px] text-center text-xs italic leading-relaxed"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            &ldquo;{member.philosophy}&rdquo;
-          </motion.p>
-        )}
-      </AnimatePresence>
-    </motion.div>
+        {/* Ribbon fabric */}
+        <mesh position={[0, ribbonY, -0.01]}>
+          <planeGeometry args={[ribbonW, ribbonH]} />
+          <meshStandardMaterial
+            map={ribbonTexture}
+            side={THREE.FrontSide}
+            roughness={0.85}
+            metalness={0.0}
+          />
+        </mesh>
+
+        {/* Bottom ribbon bar */}
+        <mesh position={[0, botBarY, 0]} material={BAR_MATERIAL}>
+          <boxGeometry args={[barW, barH, barD]} />
+        </mesh>
+
+        {/* Medal disc */}
+        <mesh
+          position={[0, medalY, 0]}
+          geometry={discGeo}
+          material={discMaterials}
+        />
+
+        {/* Boss (raised centre disc) */}
+        <mesh
+          position={[0, medalY, 0.075]}
+          geometry={bossGeo}
+          material={bossMaterials}
+        />
+
+        {/* Name plate and philosophy — rendered as HTML overlay */}
+        <Html
+          position={[0, medalY - 1.35, 0]}
+          center
+          style={{ pointerEvents: "none", userSelect: "none" }}
+        >
+          <div style={{ textAlign: "center", width: 220 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontWeight: 300,
+                fontSize: member.featured ? 18 : 15,
+                letterSpacing: "-0.02em",
+                color: hovered ? "var(--color-accent, #c9a55a)" : "var(--color-text-primary, #e8e4dc)",
+                transition: "color 0.3s ease",
+                margin: 0,
+                lineHeight: 1.2,
+              }}
+            >
+              {member.name}
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-dm-mono, monospace)",
+                fontSize: 10,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "var(--color-text-tertiary, #6b6762)",
+                marginTop: 5,
+                margin: "5px 0 0",
+              }}
+            >
+              {member.role}
+            </p>
+
+            {hovered && member.philosophy && (
+              <p
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontStyle: "italic",
+                  fontSize: 11,
+                  lineHeight: 1.55,
+                  color: "var(--color-text-tertiary, #6b6762)",
+                  marginTop: 8,
+                  maxWidth: 200,
+                  opacity: 0.85,
+                }}
+              >
+                &ldquo;{member.philosophy}&rdquo;
+              </p>
+            )}
+          </div>
+        </Html>
+      </group>
+    </group>
   );
 }
 
-// ─── Wall strip with screw details ────────────────────────────────────────────
+// ─── Wall screw detail ─────────────────────────────────────────────────────────
 
-function WallStrip() {
+function WallScrews({ count, spread }: { count: number; spread: number }) {
+  const screwGeo = useMemo(() => new THREE.CylinderGeometry(0.06, 0.06, 0.04, 16), []);
+  const screwMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("#8a7040"),
+        metalness: 0.9,
+        roughness: 0.3,
+      }),
+    [],
+  );
+
+  const positions = Array.from({ length: count }, (_, i) => {
+    const t = count === 1 ? 0 : (i / (count - 1) - 0.5) * 2;
+    return t * spread;
+  });
+
   return (
-    <div
-      className="absolute top-0 left-0 right-0 h-[14px] rounded-t-lg"
-      style={{
-        background:
-          "linear-gradient(to bottom, #3a2e18 0%, #241c0e 60%, #1a1408 100%)",
-        boxShadow: "0 3px 10px rgba(0,0,0,0.65)",
-      }}
-    >
-      {/* Screw details */}
-      {[14, 50, 86].map((pct) => (
-        <div
-          key={pct}
-          style={{
-            position: "absolute",
-            left: `${pct}%`,
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 9,
-            height: 9,
-            borderRadius: "50%",
-            background: "radial-gradient(circle at 35% 30%, #9a7840, #2a1e0e)",
-            boxShadow:
-              "inset 0 1px 2px rgba(0,0,0,0.6), 0 1px 2px rgba(255,220,100,0.1)",
-          }}
+    <>
+      {positions.map((x, i) => (
+        <mesh key={i} position={[x, 0.42, 0.06]} geometry={screwGeo} material={screwMat}>
+          {/* Slot groove on screw face */}
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+// ─── Mounting strip (top of display case) ────────────────────────────────────
+
+function MountingStrip({ width }: { width: number }) {
+  return (
+    <mesh position={[0, 0.46, -0.05]}>
+      <boxGeometry args={[width, 0.12, 0.15]} />
+      <meshStandardMaterial
+        color={new THREE.Color("#2e2210")}
+        metalness={0.1}
+        roughness={0.85}
+      />
+    </mesh>
+  );
+}
+
+// ─── Full scene ────────────────────────────────────────────────────────────────
+
+function MedalScene({ members }: { members: TeamMember[] }) {
+  const n = members.length;
+  const spacing = n <= 2 ? 3.4 : 2.8;
+  const stripW = Math.max(n * spacing, 6);
+
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight intensity={0.55} />
+      <directionalLight
+        position={[4, 7, 7]}
+        intensity={1.8}
+        color={new THREE.Color("#fff6e0")}
+        castShadow={false}
+      />
+      <pointLight position={[-4, 2, 5]} intensity={1.1} color={new THREE.Color("#c9a55a")} />
+      <pointLight position={[4, -2, 4]} intensity={0.5} color={new THREE.Color("#8090c0")} />
+
+      {/* HDRI environment for real reflections on the gold */}
+      <Environment preset="studio" />
+
+      {/* Mounting strip */}
+      <MountingStrip width={stripW} />
+      <WallScrews count={Math.max(3, n + 1)} spread={stripW * 0.42} />
+
+      {/* Medals */}
+      {members.map((m, i) => (
+        <MedalGroup
+          key={m.id}
+          member={m}
+          posX={(i - (n - 1) / 2) * spacing}
+          scale={m.featured ? 1.22 : 1.0}
+          index={i}
         />
+      ))}
+    </>
+  );
+}
+
+// ─── Fallback (while WebGL initialises) ──────────────────────────────────────
+
+function CanvasFallback({ members }: { members: TeamMember[] }) {
+  return (
+    <div className="flex items-center justify-center gap-12 py-16">
+      {members.map((m) => (
+        <div key={m.id} className="flex flex-col items-center gap-3 opacity-40">
+          <div
+            className="flex items-center justify-center rounded-full border border-accent-muted"
+            style={{
+              width: m.featured ? 120 : 96,
+              height: m.featured ? 120 : 96,
+              background: "radial-gradient(circle at 35% 30%, #c9a55a, #3a2410)",
+            }}
+          >
+            <span className="font-display text-2xl font-light text-accent">
+              {m.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+            </span>
+          </div>
+          <p className="font-display text-sm font-light text-text-primary">{m.name}</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-text-tertiary">{m.role}</p>
+        </div>
       ))}
     </div>
   );
 }
 
 // ─── Section ──────────────────────────────────────────────────────────────────
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function TeamSection({ members: raw }: { members: TeamMember[] }) {
   if (!raw.length) return null;
@@ -452,13 +640,13 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
     >
       <div className="container">
         {/* Section heading */}
-        <div className="mb-20">
+        <div className="mb-16">
           <motion.p
             className="text-overline mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.6, ease: EASE }}
           >
             The Team
           </motion.p>
@@ -468,35 +656,39 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.08 }}
           >
             People built at the intersection of{" "}
             <em className="italic-display text-accent">brand and code</em>
           </motion.h2>
         </div>
 
-        {/* Medal wall */}
+        {/* Display case */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative overflow-hidden rounded-lg px-8 pb-16 pt-10"
+          transition={{ duration: 1.0 }}
+          className="relative overflow-hidden rounded-lg"
           style={{
+            height: 540,
             background:
-              "radial-gradient(ellipse at 55% 25%, rgba(201,165,90,0.04) 0%, transparent 65%), linear-gradient(to bottom, #111009 0%, #0d0c08 100%)",
-            border: "1px solid rgba(201,165,90,0.07)",
+              "radial-gradient(ellipse at 55% 30%, rgba(201,165,90,0.05) 0%, transparent 60%), linear-gradient(to bottom, #111009 0%, #0c0b08 100%)",
+            border: "1px solid rgba(201,165,90,0.08)",
             boxShadow:
-              "inset 0 2px 24px rgba(0,0,0,0.45), 0 12px 40px rgba(0,0,0,0.55)",
+              "inset 0 2px 28px rgba(0,0,0,0.5), 0 16px 48px rgba(0,0,0,0.6)",
           }}
         >
-          <WallStrip />
-
-          <div className="flex flex-wrap items-start justify-center gap-x-14 gap-y-12 lg:gap-x-20">
-            {all.map((m, i) => (
-              <Medal key={m.id} member={m} index={i} />
-            ))}
-          </div>
+          <Canvas
+            dpr={[1, 2]}
+            gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.1 }}
+            camera={{ position: [0, -1.8, 7.5], fov: 44 }}
+            style={{ width: "100%", height: "100%" }}
+          >
+            <Suspense fallback={null}>
+              <MedalScene members={all} />
+            </Suspense>
+          </Canvas>
         </motion.div>
       </div>
     </section>
