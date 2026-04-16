@@ -391,6 +391,12 @@ export const getAllBlogPostsForAdmin = cache(async () => {
   return rows.map(blogRowToPost);
 });
 
+// ── Redirects ────────────────────────────────────────────────────────────────
+
+export const getAllRedirectsForAdmin = cache(async () => {
+  return prisma.redirect.findMany({ orderBy: { id: "asc" } });
+});
+
 export const getTeamMembers = cache(async () => {
   return prisma.teamMember.findMany({
     where: { published: true },

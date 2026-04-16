@@ -58,6 +58,12 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
       { href: "/admin/blog", label: "Articles" },
     ],
   },
+  {
+    heading: "Technical",
+    items: [
+      { href: "/admin/redirects", label: "Redirects" },
+    ],
+  },
 ];
 
 function NavLinks({ className }: { className?: string }) {

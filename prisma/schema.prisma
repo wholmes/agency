@@ -450,6 +450,22 @@ model SiteChrome {
   configJson String
 }
 
+/// URL redirects — managed via admin, applied at the Edge via middleware.ts
+model Redirect {
+  id          Int      @id @default(autoincrement())
+  /// Source path — must start with /  e.g. /old-page
+  source      String   @unique
+  /// Destination — path or absolute URL  e.g. /new-page or https://example.com
+  destination String
+  /// true = 308 Permanent, false = 307 Temporary
+  permanent   Boolean  @default(false)
+  enabled     Boolean  @default(true)
+  /// Optional internal note for the team
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 /// Blog posts — supports draft / published workflow, markdown body, and full SEO fields
 model BlogPost {
   id              String    @id @default(cuid())
