@@ -450,6 +450,28 @@ model SiteChrome {
   configJson String
 }
 
+/// Blog posts — supports draft / published workflow, markdown body, and full SEO fields
+model BlogPost {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  status          String    @default("draft")   // "draft" | "published"
+  featured        Boolean   @default(false)
+  sortOrder       Int       @default(0)
+  title           String
+  excerpt         String    @default("")
+  body            String    @default("")         // Markdown content
+  coverImage      String    @default("")
+  author          String    @default("")
+  authorTitle     String    @default("")
+  tags            String    @default("[]")       // JSON array of strings
+  metaTitle       String    @default("")
+  metaDescription String    @default("")
+  readingTime     Int       @default(0)          // estimated minutes
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 /// Email / notification settings for the contact form
 /// The RESEND_API_KEY must still be set as an environment variable — it is never stored here.
 model EmailSettings {

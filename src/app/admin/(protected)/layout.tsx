@@ -52,6 +52,12 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
       { href: "/admin/contact", label: "Contact" },
     ],
   },
+  {
+    heading: "Journal",
+    items: [
+      { href: "/admin/blog", label: "Articles" },
+    ],
+  },
 ];
 
 function NavLinks({ className }: { className?: string }) {

@@ -327,6 +327,70 @@ export const getAboutHomeTeaser = cache(async () => {
   return prisma.aboutHomeTeaser.findUniqueOrThrow({ where: { id: 1 } });
 });
 
+// ── Blog ────────────────────────────────────────────────────────────────────
+
+function parseTags(raw: string): string[] {
+  try {
+    const v = JSON.parse(raw) as unknown;
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function blogRowToPost(row: {
+  id: string;
+  slug: string;
+  status: string;
+  featured: boolean;
+  sortOrder: number;
+  title: string;
+  excerpt: string;
+  body: string;
+  coverImage: string;
+  author: string;
+  authorTitle: string;
+  tags: string;
+  metaTitle: string;
+  metaDescription: string;
+  readingTime: number;
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return { ...row, tags: parseTags(row.tags) };
+}
+
+export type BlogPostData = ReturnType<typeof blogRowToPost>;
+
+export const getBlogPosts = cache(async () => {
+  const rows = await prisma.blogPost.findMany({
+    where: { status: "published" },
+    orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { sortOrder: "asc" }],
+  });
+  return rows.map(blogRowToPost);
+});
+
+export const getBlogPost = cache(async (slug: string) => {
+  const row = await prisma.blogPost.findUnique({ where: { slug } });
+  return row ? blogRowToPost(row) : null;
+});
+
+export const getBlogPostSlugs = cache(async (): Promise<string[]> => {
+  const rows = await prisma.blogPost.findMany({
+    where: { status: "published" },
+    select: { slug: true },
+  });
+  return rows.map((r) => r.slug);
+});
+
+export const getAllBlogPostsForAdmin = cache(async () => {
+  const rows = await prisma.blogPost.findMany({
+    orderBy: [{ createdAt: "desc" }],
+  });
+  return rows.map(blogRowToPost);
+});
+
 export const getTeamMembers = cache(async () => {
   return prisma.teamMember.findMany({
     where: { published: true },
