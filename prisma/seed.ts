@@ -1058,7 +1058,7 @@ async function main() {
           featured: true,
           published: true,
           photoUrl: "",
-          capabilities: "Creative Direction, Front-End Engineering, Brand Architecture, Motion Design",
+          capabilities: "Brand Strategy: 90, Full Stack Dev: 78, Creative Direction: 85, Analytics & Data: 65, Client Services: 80",
         },
         {
           sortOrder: 2,
@@ -1071,7 +1071,7 @@ async function main() {
           featured: true,
           published: true,
           photoUrl: "",
-          capabilities: "Brand Identity, Visual Design, Design Systems, Art Direction",
+          capabilities: "Brand Strategy: 82, Full Stack Dev: 18, Creative Direction: 96, Analytics & Data: 30, Client Services: 55",
         },
         {
           sortOrder: 3,
@@ -1084,7 +1084,7 @@ async function main() {
           featured: true,
           published: true,
           photoUrl: "",
-          capabilities: "Client Management, Project Delivery, Brand Strategy, Ops",
+          capabilities: "Brand Strategy: 72, Full Stack Dev: 15, Creative Direction: 48, Analytics & Data: 45, Client Services: 96",
         },
         {
           sortOrder: 4,
@@ -1097,7 +1097,7 @@ async function main() {
           featured: true,
           published: true,
           photoUrl: "",
-          capabilities: "Back-End Engineering, Infrastructure, Database Architecture, DevOps",
+          capabilities: "Brand Strategy: 22, Full Stack Dev: 96, Creative Direction: 18, Analytics & Data: 55, Client Services: 35",
         },
         {
           sortOrder: 5,
@@ -1110,7 +1110,7 @@ async function main() {
           featured: false,
           published: true,
           photoUrl: "",
-          capabilities: "Front-End Engineering, Interaction Design, Animation, Accessibility",
+          capabilities: "Brand Strategy: 40, Full Stack Dev: 85, Creative Direction: 62, Analytics & Data: 42, Client Services: 38",
         },
         {
           sortOrder: 6,
@@ -1123,7 +1123,7 @@ async function main() {
           featured: false,
           published: true,
           photoUrl: "",
-          capabilities: "Full-Stack Development, CMS Architecture, API Integration, Testing",
+          capabilities: "Brand Strategy: 28, Full Stack Dev: 90, Creative Direction: 22, Analytics & Data: 52, Client Services: 40",
         },
         {
           sortOrder: 7,
@@ -1136,7 +1136,7 @@ async function main() {
           featured: true,
           published: true,
           photoUrl: "",
-          capabilities: "Analytics Engineering, Measurement Strategy, Data Infrastructure, Reporting",
+          capabilities: "Brand Strategy: 48, Full Stack Dev: 68, Creative Direction: 25, Analytics & Data: 96, Client Services: 45",
         },
         {
           sortOrder: 8,
@@ -1149,7 +1149,7 @@ async function main() {
           featured: false,
           published: true,
           photoUrl: "",
-          capabilities: "Growth Strategy, Paid Media, Analytics Consulting, CRO",
+          capabilities: "Brand Strategy: 65, Full Stack Dev: 38, Creative Direction: 35, Analytics & Data: 90, Client Services: 72",
         },
       ],
     });
