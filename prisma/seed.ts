@@ -894,6 +894,39 @@ async function main() {
     },
   });
 
+  await prisma.industryPage.create({
+    data: {
+      slug: "law-firms",
+      sortOrder: 2,
+      listTitle: "Law Firms & Legal",
+      listBlurb: "Law firms and in-house legal teams that need a credible, conversion-focused web presence without looking like every other firm on Martindale.",
+      metaTitle: "Web Design & Development for Law Firms — BrandMeetsCode",
+      metaDescription:
+        "Premium web strategy for law firms and legal teams. We build sites that differentiate practices, earn client trust, and convert qualified inquiries — not just traffic.",
+      heroOverline: "For law firms & legal teams",
+      heroTitle: "A web presence as sharp as your practice",
+      heroBody:
+        "Most law firm websites look the same: stock photography of handshakes, a wall of practice areas, and a contact form buried at the bottom. We build sites that reflect your firm's actual character, attract the right clients, and make it easy for them to take the next step.",
+      introTitle: "Why law firms work with us",
+      introBody:
+        "Legal buyers are high-trust, low-tolerance for ambiguity, and they research deeply before making contact. Your site needs to answer the right questions fast — jurisdiction, practice focus, who the attorneys are, and what outcomes you've achieved — without reading like a legal brief. We build sites that earn trust on the first visit and convert it into qualified inquiries.",
+      focusTitle: "Where we typically plug in",
+      focusBullets: JSON.stringify([
+        "Full firm rebrands and positioning for practices differentiating from BigLaw",
+        "Attorney profile pages that read like people, not résumés",
+        "Practice area pages built for SEO and client conversion",
+        "Intake form and consultation booking flows",
+        "Thought leadership and content strategy for niche practices",
+        "Analytics setup to track which channels drive qualified inquiries",
+      ]),
+      differentiatorTitle: "How we think about legal marketing",
+      differentiatorBody:
+        "Legal marketing has real constraints — bar rules on advertising, jurisdiction-specific compliance, and the need to avoid anything that implies guaranteed outcomes. We know the guardrails and design within them. Our copy is precise, our claims are defensible, and our process is built to move at the pace of a busy practice without requiring your time at every step.",
+      ctaLabel: "Start a project",
+      ctaHref: "/contact",
+    },
+  });
+
   await prisma.siteChrome.create({
     data: {
       id: 1,
