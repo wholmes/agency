@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateSiteSettings } from "../mutations";
 
@@ -24,18 +25,13 @@ export default async function AdminSettingsPage() {
             className="form-input"
           />
         </div>
-        <div className="form-field flex items-center gap-3">
-          <input
-            id="availabilityAvailable"
-            name="availabilityAvailable"
-            type="checkbox"
-            defaultChecked={s.availabilityAvailable}
-            className="size-4 rounded border-border accent-accent"
-          />
-          <label htmlFor="availabilityAvailable" className="text-sm text-text-primary">
-            Show as available (green dot)
-          </label>
-        </div>
+        <AdminToggle
+          id="availabilityAvailable"
+          name="availabilityAvailable"
+          label="Show as available"
+          description="Displays the green availability dot in the nav"
+          defaultChecked={s.availabilityAvailable}
+        />
         <div className="form-field">
           <label className="form-label" htmlFor="availabilityLabel">
             Availability label
@@ -64,18 +60,13 @@ export default async function AdminSettingsPage() {
         </div>
         <div className="border-t border-border pt-5">
           <p className="form-label mb-3 text-text-tertiary">Navigation</p>
-          <div className="form-field flex items-center gap-3">
-            <input
-              id="navHideOnScroll"
-              name="navHideOnScroll"
-              type="checkbox"
-              defaultChecked={s.navHideOnScroll}
-              className="size-4 rounded border-border accent-accent"
-            />
-            <label htmlFor="navHideOnScroll" className="text-sm text-text-primary">
-              Hide nav on scroll down, reveal on scroll up
-            </label>
-          </div>
+          <AdminToggle
+            id="navHideOnScroll"
+            name="navHideOnScroll"
+            label="Hide nav on scroll"
+            description="Hides on scroll down, reveals on scroll up"
+            defaultChecked={s.navHideOnScroll}
+          />
         </div>
         <button type="submit" className="btn btn-primary w-fit">
           Save
