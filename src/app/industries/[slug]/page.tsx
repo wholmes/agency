@@ -43,6 +43,7 @@ export default async function IndustryDetailPage({ params }: Props) {
   return (
     <>
       <IndustryDetailHero
+        slug={slug}
         heroOverline={detail.heroOverline}
         heroTitle={detail.heroTitle}
         heroBody={detail.heroBody}
