@@ -960,6 +960,39 @@ async function main() {
     },
   });
 
+  await prisma.industryPage.create({
+    data: {
+      slug: "restaurants",
+      sortOrder: 4,
+      listTitle: "Restaurants & Hospitality",
+      listBlurb: "Independent restaurants, multi-location groups, and hospitality brands that need a site as considered as their menu.",
+      metaTitle: "Web Design & Development for Restaurants — BrandMeetsCode",
+      metaDescription:
+        "Premium web strategy for restaurants, restaurant groups, and hospitality brands. Sites that drive reservations, tell your story, and hold up under Friday night traffic.",
+      heroOverline: "For restaurants & hospitality brands",
+      heroTitle: "Your site should make people hungry before they even read the menu",
+      heroBody:
+        "A restaurant site has one job: turn a browser into a reservation. That means atmosphere before information — the right image, the right feeling, the right friction level on the booking flow. Too many restaurant sites bury the reservation button under a PDF menu that takes 8 seconds to load. We build the opposite.",
+      introTitle: "Why restaurants work with us",
+      introBody:
+        "We know that hospitality brands live and die by atmosphere — and that atmosphere has to translate to a screen before a guest ever walks through the door. We build sites that carry the weight of your brand: the light, the pace, the story of why you opened. Then we make sure the reservation flow, the events page, and the private dining inquiry all convert without friction.",
+      focusTitle: "Where we typically plug in",
+      focusBullets: JSON.stringify([
+        "Launch sites for new restaurants, concepts, and pop-ups",
+        "Multi-location group sites with per-location pages and unified brand",
+        "Reservation and waitlist integration (Resy, OpenTable, Tock)",
+        "Private dining and events pages built to convert group inquiries",
+        "Online ordering and takeout flow optimization",
+        "Analytics to understand which channels drive covers and repeat visits",
+      ]),
+      differentiatorTitle: "How we work with hospitality brands",
+      differentiatorBody:
+        "Restaurants operate on thin margins and unpredictable timelines. We move fast, keep the process light, and build systems you can actually maintain — menu updates, hours, seasonal specials — without a developer on call. For groups with multiple concepts, we build a shared design system so every location feels like family without feeling like a chain.",
+      ctaLabel: "Start a project",
+      ctaHref: "/contact",
+    },
+  });
+
   await prisma.siteChrome.create({
     data: {
       id: 1,
