@@ -41,7 +41,6 @@ async function main() {
     prisma.seoSettings.deleteMany(),
     prisma.emailSettings.deleteMany(),
     prisma.siteSettings.deleteMany(),
-    prisma.project.deleteMany(),
   ]);
 
   await prisma.seoSettings.create({
@@ -81,7 +80,10 @@ async function main() {
     },
   });
 
-  await prisma.project.createMany({
+  // Project: only seed placeholder case studies if no projects exist yet.
+  // Real projects entered via the admin panel are never wiped by a reseed.
+  const existingProjectCount = await prisma.project.count();
+  if (existingProjectCount === 0) await prisma.project.createMany({
     data: [
       {
         id: "meridian",
@@ -145,6 +147,7 @@ async function main() {
       },
     ],
   });
+  // end: existingProjectCount === 0
 
   const stats = [
     { value: "Senior team only", label: "No juniors on client-facing work. Every project is handled by people who have done this before.", sortOrder: 0 },
@@ -1038,35 +1041,119 @@ async function main() {
   });
 
   // Team Members
-  await prisma.teamMember.deleteMany();
-  await prisma.teamMember.createMany({
-    data: [
-      {
-        sortOrder: 1,
-        name: "Whittfield Holmes",
-        role: "Founder & Creative Director",
-        philosophy: "The best digital products don't choose between beautiful and functional — they insist on both.",
-        bio: "Whittfield founded BrandMeetsCode at the intersection of brand strategy and technical execution. With a background spanning agency creative direction and full-stack engineering, he leads every engagement from concept through deployment.",
-        skills: "Brand Strategy, Next.js, Motion Design, Product Architecture, TypeScript",
-        brandCodeBalance: 62,
-        featured: true,
-        published: true,
-        photoUrl: "",
-      },
-      {
-        sortOrder: 2,
-        name: "Creative Collaborator",
-        role: "Senior Developer",
-        philosophy: "Code is a craft. Performance and elegance are not in conflict — they reinforce each other.",
-        bio: "Focused on the technical layer: component architecture, animation systems, and the infrastructure that makes premium experiences possible at scale.",
-        skills: "React, Three.js, WebGL, PostgreSQL, Framer Motion, CI/CD",
-        brandCodeBalance: 28,
-        featured: false,
-        published: false,
-        photoUrl: "",
-      },
-    ],
-  });
+  // TeamMember: only seed if the table is completely empty.
+  // This preserves any team members added manually via the admin panel.
+  const existingTeamCount = await prisma.teamMember.count();
+  if (existingTeamCount === 0) {
+    await prisma.teamMember.createMany({
+      data: [
+        {
+          sortOrder: 1,
+          name: "Whittfield Holmes",
+          role: "Founder & Creative Director",
+          philosophy: "The best digital products don't choose between beautiful and functional — they insist on both.",
+          bio: "Whittfield founded BrandMeetsCode at the intersection of brand strategy and technical execution. With a background spanning agency creative direction and full-stack engineering, he leads every engagement from concept through deployment.",
+          skills: "Brand Strategy, Next.js, Motion Design, Product Architecture, TypeScript",
+          brandCodeBalance: 62,
+          featured: true,
+          published: true,
+          photoUrl: "",
+          capabilities: "Creative Direction, Front-End Engineering, Brand Architecture, Motion Design",
+        },
+        {
+          sortOrder: 2,
+          name: "Elliot Drummond",
+          role: "Creative Director",
+          philosophy: "Design without strategy is decoration. Strategy without design is a memo nobody reads.",
+          bio: "Elliot brings a decade of brand and identity work across B2B SaaS, fintech, and professional services. He leads visual direction and design systems at BMC — from the first positioning workshop to the final design token. His background in both editorial and product design means he thinks in systems, not screens.",
+          skills: "Brand Identity, Design Systems, UI/UX, Figma, Typography, Motion Design, Art Direction",
+          brandCodeBalance: 82,
+          featured: true,
+          published: true,
+          photoUrl: "",
+          capabilities: "Brand Identity, Visual Design, Design Systems, Art Direction",
+        },
+        {
+          sortOrder: 3,
+          name: "Simone Abara",
+          role: "Head of Client Services",
+          philosophy: "Clarity is the rarest luxury a client can receive. It's also the most valuable thing we deliver.",
+          bio: "Simone manages client relationships and internal delivery across every active engagement. Her background spans agency operations, brand consulting, and product management — which means she can translate between what clients mean, what designers see, and what engineers build. She keeps projects on track without losing the nuance.",
+          skills: "Client Strategy, Project Management, Brand Consulting, Stakeholder Alignment, Agile, Scoping",
+          brandCodeBalance: 68,
+          featured: true,
+          published: true,
+          photoUrl: "",
+          capabilities: "Client Management, Project Delivery, Brand Strategy, Ops",
+        },
+        {
+          sortOrder: 4,
+          name: "Marcus Oyelaran",
+          role: "Senior Full Stack Developer",
+          philosophy: "Performance is a feature — and it's the one that affects every other feature.",
+          bio: "Marcus leads infrastructure and back-end architecture at BMC. He's built systems for Series A startups and enterprise teams alike, with a focus on performance, reliability, and developer experience. He has a secondary interest in brand systems that carries into how he approaches component architecture.",
+          skills: "Next.js, TypeScript, Node.js, PostgreSQL, Prisma, AWS, Docker, CI/CD, Supabase",
+          brandCodeBalance: 22,
+          featured: true,
+          published: true,
+          photoUrl: "",
+          capabilities: "Back-End Engineering, Infrastructure, Database Architecture, DevOps",
+        },
+        {
+          sortOrder: 5,
+          name: "Priya Nair",
+          role: "Full Stack Developer",
+          philosophy: "The interface is the product. Everything behind it exists to make the interface honest.",
+          bio: "Priya specialises in front-end engineering and interaction design implementation. She bridges design and engineering — equally fluent in Figma and TypeScript — and has a particular strength in animation systems and accessibility. Her cross-disciplinary background means she catches design gaps that engineering teams typically miss.",
+          skills: "React, Next.js, TypeScript, Tailwind CSS, Framer Motion, Figma, Accessibility, GSAP",
+          brandCodeBalance: 38,
+          featured: false,
+          published: true,
+          photoUrl: "",
+          capabilities: "Front-End Engineering, Interaction Design, Animation, Accessibility",
+        },
+        {
+          sortOrder: 6,
+          name: "Jordan Calloway",
+          role: "Full Stack Developer",
+          philosophy: "Readable code and readable interfaces come from the same discipline: respect for the next person.",
+          bio: "Jordan handles full-stack feature delivery, CMS architecture, and API integrations. He's the person who builds the admin panels, data pipelines, and third-party integrations that clients never see but always depend on. His methodical approach to documentation has become a BMC standard.",
+          skills: "Next.js, TypeScript, GraphQL, Prisma, REST APIs, PostgreSQL, CMS Architecture, Testing",
+          brandCodeBalance: 28,
+          featured: false,
+          published: true,
+          photoUrl: "",
+          capabilities: "Full-Stack Development, CMS Architecture, API Integration, Testing",
+        },
+        {
+          sortOrder: 7,
+          name: "Nina Vasquez",
+          role: "Senior Analytics Engineer",
+          philosophy: "Data should answer questions, not just track events. The gap between those two is where most analytics fail.",
+          bio: "Nina designs and implements measurement systems that actually get used. Her work spans GA4 implementation, GTM architecture, custom reporting in Looker Studio, and data pipeline work in BigQuery. She came up through engineering before moving into analytics, which shows in how she structures tracking — precise, scalable, and documented.",
+          skills: "GA4, Google Tag Manager, Looker Studio, BigQuery, SQL, Python, Data Layer Architecture, CRO",
+          brandCodeBalance: 42,
+          featured: true,
+          published: true,
+          photoUrl: "",
+          capabilities: "Analytics Engineering, Measurement Strategy, Data Infrastructure, Reporting",
+        },
+        {
+          sortOrder: 8,
+          name: "Theo Park",
+          role: "Analytics & Growth Strategist",
+          philosophy: "Attribution is a lie we tell ourselves — but understanding the lie is where the real insight lives.",
+          bio: "Theo sits at the intersection of paid media, organic growth, and analytics strategy. He builds the reporting frameworks clients use to make budget decisions, and runs the analytics audits that typically reveal where traffic is leaking. His paid search background means he thinks about measurement with a commercial lens — not just what happened, but what to do next.",
+          skills: "Google Ads, GA4, Attribution Modeling, SEO, CRO, Looker Studio, Paid Media Strategy, A/B Testing",
+          brandCodeBalance: 52,
+          featured: false,
+          published: true,
+          photoUrl: "",
+          capabilities: "Growth Strategy, Paid Media, Analytics Consulting, CRO",
+        },
+      ],
+    });
+  }
 
   console.log("Seed complete.");
 }
