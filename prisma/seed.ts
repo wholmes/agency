@@ -927,6 +927,39 @@ async function main() {
     },
   });
 
+  await prisma.industryPage.create({
+    data: {
+      slug: "real-estate",
+      sortOrder: 3,
+      listTitle: "Real Estate",
+      listBlurb: "Developers, brokerages, and property brands that need more than a listings page — sites built to move inventory and build lasting brand equity.",
+      metaTitle: "Web Design & Development for Real Estate — BrandMeetsCode",
+      metaDescription:
+        "Premium web strategy for real estate developers, brokerages, and property brands. We build sites that sell projects, attract qualified buyers, and differentiate you from the competition.",
+      heroOverline: "For developers, brokerages & property brands",
+      heroTitle: "Your properties deserve a site that sells the vision, not just the square footage",
+      heroBody:
+        "Real estate is an emotional purchase made with rational justification. The best property sites create desire before they deliver data — neighborhood story, lifestyle positioning, and social proof first, floor plans and price per square foot second. We build sites that work that way.",
+      introTitle: "Why real estate teams work with us",
+      introBody:
+        "We understand that real estate buyers move in stages — awareness, consideration, and then a very intentional contact event. Your site needs to serve all three: brand and lifestyle for early browsers, detailed specs and comparables for serious evaluators, and a frictionless inquiry path for ready buyers. We architect the full journey, then measure every step.",
+      focusTitle: "Where we typically plug in",
+      focusBullets: JSON.stringify([
+        "New development launch sites for residential and mixed-use projects",
+        "Brokerage and team brand sites that stand apart from franchise templates",
+        "Luxury property marketing with editorial-quality design and copy",
+        "Neighborhood and lifestyle storytelling for location-driven projects",
+        "Lead capture and CRM integration for sales team handoff",
+        "Analytics to track buyer journey from first visit to inquiry",
+      ]),
+      differentiatorTitle: "How we think about property marketing",
+      differentiatorBody:
+        "Real estate moves on timeline pressure — launches, phase releases, and market windows. We are built for that pace. Our process front-loads the strategic decisions so execution is fast: brand position and messaging locked in week one, design in week two, built and tested by week four. We also know that a launch site is not the end — we build systems your sales team can update without calling a developer.",
+      ctaLabel: "Start a project",
+      ctaHref: "/contact",
+    },
+  });
+
   await prisma.siteChrome.create({
     data: {
       id: 1,
