@@ -90,6 +90,10 @@ export default async function EditTeamMemberPage({
             <label htmlFor="published" className="text-sm text-text-primary">Published</label>
           </div>
           <div className="form-field flex items-center gap-3">
+            <input id="showBio" name="showBio" type="checkbox" defaultChecked={member.showBio} className="size-4 rounded border-border accent-accent" />
+            <label htmlFor="showBio" className="text-sm text-text-primary">Show bio</label>
+          </div>
+          <div className="form-field flex items-center gap-3">
             <input id="showTags" name="showTags" type="checkbox" defaultChecked={member.showTags} className="size-4 rounded border-border accent-accent" />
             <label htmlFor="showTags" className="text-sm text-text-primary">Show skills pill</label>
           </div>

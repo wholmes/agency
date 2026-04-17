@@ -14,6 +14,7 @@ type TeamMember = {
   skills: string[];
   brandCodeBalance: number;
   featured: boolean;
+  showBio: boolean;
   showTags: boolean;
   showBalance: boolean;
   photoUrl: string;
@@ -381,6 +382,11 @@ function MemberCard({
         {member.philosophy && (
           <p className="mt-2 line-clamp-2 text-xs italic leading-relaxed text-text-secondary">
             &ldquo;{member.philosophy}&rdquo;
+          </p>
+        )}
+        {member.showBio && member.bio && (
+          <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-text-tertiary">
+            {member.bio}
           </p>
         )}
         {member.showTags && member.skills.length > 0 && (
