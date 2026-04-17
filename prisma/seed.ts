@@ -147,22 +147,28 @@ async function main() {
   });
 
   const stats = [
-    { value: "40+", label: "Projects Delivered", sortOrder: 0 },
-    { value: "98%", label: "Client Retention", sortOrder: 1 },
-    { value: "4.9★", label: "Average Rating", sortOrder: 2 },
-    { value: "<2s", label: "Avg Load Time", sortOrder: 3 },
+    { value: "Senior team only", label: "No juniors on client-facing work. Every project is handled by people who have done this before.", sortOrder: 0 },
+    { value: "Performance guaranteed", label: "Lighthouse ≥ 90 on every build, or we fix it at no cost.", sortOrder: 1 },
+    { value: "Brand-first approach", label: "Strategy before a single pixel. We understand positioning, not just code.", sortOrder: 2 },
+    { value: "Full-stack delivery", label: "Brand strategy, design, engineering, and analytics — one team, one invoice.", sortOrder: 3 },
   ];
   for (const s of stats) {
     await prisma.socialStat.create({ data: s });
   }
 
   const clients = [
-    { name: "Meridian SaaS", context: "B2B SaaS · pipeline & demo conversion", sortOrder: 0 },
-    { name: "Croft & Webb", context: "Professional services · brand & lead gen", sortOrder: 1 },
-    { name: "Arclight Labs", context: "Enterprise AI · Series A & enterprise pilots", sortOrder: 2 },
-    { name: "Nova Analytics", context: "Product analytics · self-serve growth", sortOrder: 3 },
-    { name: "Sable Studio", context: "Creative studio · profitability & ops reporting", sortOrder: 4 },
-    { name: "Tether Finance", context: "Fintech · compliance-first UX", sortOrder: 5 },
+    { name: "Next.js", context: "App Router · React framework", sortOrder: 0 },
+    { name: "TypeScript", context: "Type-safe codebase", sortOrder: 1 },
+    { name: "Tailwind CSS", context: "Utility-first styling", sortOrder: 2 },
+    { name: "Supabase", context: "Postgres · Auth · Storage", sortOrder: 3 },
+    { name: "Prisma", context: "Type-safe ORM", sortOrder: 4 },
+    { name: "Custom CMS", context: "Bespoke admin — built in-house", sortOrder: 5 },
+    { name: "Vercel", context: "Edge deployment · CI/CD", sortOrder: 6 },
+    { name: "Google Analytics 4", context: "GMP · event-based measurement", sortOrder: 7 },
+    { name: "Google Tag Manager", context: "GMP · tag & trigger management", sortOrder: 8 },
+    { name: "Looker Studio", context: "GMP · live reporting dashboards", sortOrder: 9 },
+    { name: "Google Ads", context: "GMP · paid search & display", sortOrder: 10 },
+    { name: "Figma", context: "Design system · prototyping", sortOrder: 11 },
   ];
   for (const c of clients) {
     await prisma.socialClient.create({ data: c });
@@ -172,10 +178,10 @@ async function main() {
     data: {
       id: 1,
       quote:
-        "They didn't just build our site — they understood the business. The result increased demo requests by 40% in the first month.",
-      authorName: "Jordan Kim",
-      authorTitle: "Head of Marketing, Meridian SaaS",
-      authorInitials: "JK",
+        "We built BrandMeetsCode because we kept seeing the same problem: beautiful brands shipped on brittle code, and fast code with no soul. The gap between those two things is exactly where we work.",
+      authorName: "Whittfield Holmes",
+      authorTitle: "Founder, BrandMeetsCode",
+      authorInitials: "WH",
       starCount: 5,
     },
   });

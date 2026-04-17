@@ -486,7 +486,7 @@ export default function Navigation({
                 </span>
               </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
-                Brand<em className="italic text-accent">Meets</em>Code
+                Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
               </span>
             </span>
 
@@ -497,7 +497,7 @@ export default function Navigation({
                   <span className="font-mono text-sm font-semibold leading-none">B</span>
                 </span>
                 <span className="font-display max-w-0 overflow-hidden pr-3 text-md font-normal tracking-tight whitespace-nowrap text-text-primary opacity-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-1 group-hover:max-w-[min(220px,42vw)] group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:max-w-[min(220px,42vw)] group-focus-within:translate-x-0 group-focus-within:opacity-100">
-                  Brand<em className="italic text-accent">Meets</em>Code
+                  Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
                 </span>
               </span>
             </span>
@@ -510,7 +510,7 @@ export default function Navigation({
                 </span>
               </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
-                Brand<em className="italic text-accent">Meets</em>Code
+                Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
               </span>
             </span>
           </Link>
