@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import PhotoUpload from "@/components/admin/PhotoUpload";
 import { prisma } from "@/lib/prisma";
 import { updateTeamMember, deleteTeamMember } from "@/lib/admin/mutations-data";
@@ -80,31 +81,13 @@ export default async function EditTeamMemberPage({
           <p className="mt-1 text-xs text-text-tertiary">Comma-separated as <code className="rounded bg-border/50 px-1">Name:Value</code> (0–100). E.g. <code className="rounded bg-border/50 px-1">Brand Strategy:92, Motion Design:78, React:88</code>. Use 5–8 items.</p>
         </div>
 
-        <div className="flex flex-wrap gap-x-6 gap-y-3">
-          <div className="form-field flex items-center gap-3">
-            <input id="featured" name="featured" type="checkbox" defaultChecked={member.featured} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="featured" className="text-sm text-text-primary">Featured (full-width card)</label>
-          </div>
-          <div className="form-field flex items-center gap-3">
-            <input id="published" name="published" type="checkbox" defaultChecked={member.published} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="published" className="text-sm text-text-primary">Published</label>
-          </div>
-          <div className="form-field flex items-center gap-3">
-            <input id="showPhilosophy" name="showPhilosophy" type="checkbox" defaultChecked={member.showPhilosophy} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="showPhilosophy" className="text-sm text-text-primary">Show tagline</label>
-          </div>
-          <div className="form-field flex items-center gap-3">
-            <input id="showBio" name="showBio" type="checkbox" defaultChecked={member.showBio} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="showBio" className="text-sm text-text-primary">Show bio</label>
-          </div>
-          <div className="form-field flex items-center gap-3">
-            <input id="showTags" name="showTags" type="checkbox" defaultChecked={member.showTags} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="showTags" className="text-sm text-text-primary">Show skills pill</label>
-          </div>
-          <div className="form-field flex items-center gap-3">
-            <input id="showBalance" name="showBalance" type="checkbox" defaultChecked={member.showBalance} className="size-4 rounded border-border accent-accent" />
-            <label htmlFor="showBalance" className="text-sm text-text-primary">Show Brand / Code balance</label>
-          </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <AdminToggle id="featured" name="featured" label="Featured" description="Full-width card in team section" defaultChecked={member.featured} />
+          <AdminToggle id="published" name="published" label="Published" description="Visible on the site" defaultChecked={member.published} />
+          <AdminToggle id="showPhilosophy" name="showPhilosophy" label="Show tagline" description="Philosophy / quote line" defaultChecked={member.showPhilosophy} />
+          <AdminToggle id="showBio" name="showBio" label="Show bio" description="Full biography paragraph" defaultChecked={member.showBio} />
+          <AdminToggle id="showTags" name="showTags" label="Show skills" description="Skills pill tags" defaultChecked={member.showTags} />
+          <AdminToggle id="showBalance" name="showBalance" label="Show balance bar" description="Brand / Code percentage bar" defaultChecked={member.showBalance} />
         </div>
 
         <div className="flex items-center gap-4">
