@@ -861,6 +861,39 @@ async function main() {
     },
   });
 
+  await prisma.industryPage.create({
+    data: {
+      slug: "life-sciences",
+      sortOrder: 1,
+      listTitle: "Life Sciences",
+      listBlurb: "Biotech, medtech, and pharma teams that need credibility, compliance awareness, and a site built for scientific audiences.",
+      metaTitle: "Web Design & Development for Life Sciences — BrandMeetsCode",
+      metaDescription:
+        "Premium web strategy for biotech, medtech, and pharmaceutical brands. We build sites that earn trust with scientific and clinical audiences without sacrificing performance.",
+      heroOverline: "For biotech, medtech & pharma",
+      heroTitle: "A digital presence built for audiences that read the footnotes",
+      heroBody:
+        "Life sciences buyers are educated, skeptical, and risk-aware. Your site needs to communicate scientific credibility, regulatory alignment, and commercial seriousness — often to three different audiences at once. We build web presences that do all three without becoming a wall of text.",
+      introTitle: "Why life sciences teams work with us",
+      introBody:
+        "We understand the tension between scientific precision and commercial narrative. Our process starts with audience mapping — KOLs, payers, patients, and investors each need a different story from the same brand — then builds a system that serves all of them. Every engagement is documented, version-controlled, and designed to hand off cleanly to your regulatory or comms team.",
+      focusTitle: "Where we typically plug in",
+      focusBullets: JSON.stringify([
+        "Pre-launch and Series A/B brand positioning for biotech and medtech",
+        "Investor-facing sites and data room companion pages",
+        "KOL and HCP-targeted content architecture",
+        "Clinical trial recruitment landing pages",
+        "Regulatory-aware copy frameworks (FDA, CE, HIPAA context)",
+        "Analytics and measurement for scientific conference traffic spikes",
+      ]),
+      differentiatorTitle: "How we work in regulated environments",
+      differentiatorBody:
+        "We are not a regulated affairs consultancy — but we know how to work alongside one. Our deliverables are structured for MLR and legal review: annotated copy decks, component-level change logs, and staging environments your compliance team can access directly. We build so that approvals are fast and updates are low-risk.",
+      ctaLabel: "Start a project",
+      ctaHref: "/contact",
+    },
+  });
+
   await prisma.siteChrome.create({
     data: {
       id: 1,
