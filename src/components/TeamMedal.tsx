@@ -50,7 +50,10 @@ function drawArcText(
 
 // ─── Medal face texture ───────────────────────────────────────────────────────
 
-function createTeamMedalTexture(): THREE.CanvasTexture {
+function createTeamMedalTexture(
+  topText = "DESIGN  •  DEVELOPMENT",
+  bottomText = "THE  TEAM",
+): THREE.CanvasTexture {
   const S = 1024;
   const canvas = document.createElement("canvas");
   canvas.width = S;
@@ -135,6 +138,7 @@ function createTeamMedalTexture(): THREE.CanvasTexture {
   ctx.arc(cx, cy, 177, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Dark inner well
   const well = ctx.createRadialGradient(cx - 30, cy - 42, 0, cx, cy, 174);
   well.addColorStop(0, "#1c1408");
   well.addColorStop(0.5, "#0e0a04");
@@ -144,27 +148,32 @@ function createTeamMedalTexture(): THREE.CanvasTexture {
   ctx.arc(cx, cy, 170, 0, Math.PI * 2);
   ctx.fill();
 
+  // Dark centre well — clear canvas for engraved text
   ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+  ctx.fillStyle = "#0d0905";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(201,165,90,0.45)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Engraved "BMC" — pre-rotate 90° + horizontal flip to cancel the cylinder cap UV's rotation+mirror
   ctx.translate(cx, cy);
-  ctx.fillStyle = "rgba(201,165,90,0.72)";
-  ctx.beginPath();
-  const pts = 8, outerR = 110, innerR = 46;
-  for (let i = 0; i < pts * 2; i++) {
-    const r = i % 2 === 0 ? outerR : innerR;
-    const a = (i / (pts * 2)) * Math.PI * 2 - Math.PI / 2;
-    if (i === 0) ctx.moveTo(r * Math.cos(a), r * Math.sin(a));
-    else ctx.lineTo(r * Math.cos(a), r * Math.sin(a));
-  }
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "rgba(30,18,6,0.75)";
-  ctx.beginPath();
-  ctx.arc(0, 0, 38, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.rotate(-Math.PI / 2);
+  ctx.font = `bold 92px Georgia, serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(0,0,0,0.95)";
+  ctx.fillText("BMC", 3, 4);
+  ctx.fillStyle = "rgba(242,218,114,0.25)";
+  ctx.fillText("BMC", -2, -2);
+  ctx.fillStyle = "rgba(201,165,90,0.85)";
+  ctx.fillText("BMC", 0, 0);
   ctx.restore();
 
-  drawArcText(ctx, "DESIGN  •  DEVELOPMENT", cx, cy, 332, 90, true, 24, "rgba(201,165,90,0.80)");
-  drawArcText(ctx, "THE  TEAM", cx, cy, 415, 270, false, 22, "rgba(201,165,90,0.50)");
+  drawArcText(ctx, topText, cx, cy, 332, 90, true, 24, "rgba(201,165,90,0.80)");
+  drawArcText(ctx, bottomText, cx, cy, 415, 270, false, 22, "rgba(201,165,90,0.50)");
 
   ctx.restore();
   const tex = new THREE.CanvasTexture(canvas);
@@ -209,7 +218,7 @@ const ASSEMBLY_HEIGHT = 3.55;
 const DISPLAY_SCALE   = 1.22;
 const POS_Y           = (ASSEMBLY_HEIGHT * DISPLAY_SCALE) / 2;
 
-function MedalGroup() {
+function MedalGroup({ topText, bottomText }: { topText?: string; bottomText?: string }) {
   const pivotRef  = useRef<THREE.Group>(null);
   const scaleRef  = useRef(0);
   const settled   = useRef(false);
@@ -232,7 +241,7 @@ function MedalGroup() {
   const barMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: new THREE.Color("#c0a050"), metalness: 0.92, roughness: 0.22,
   }), []);
-  const faceTexture   = useMemo(() => createTeamMedalTexture(), []);
+  const faceTexture   = useMemo(() => createTeamMedalTexture(topText, bottomText), [topText, bottomText]);
   const ribbonTexture = useMemo(() => createRibbonTexture(), []);
   const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: new THREE.Color("#c9a55a"), metalness: 0.95, roughness: 0.16, envMapIntensity: 1.6,
@@ -274,9 +283,9 @@ function MedalGroup() {
       settled.current = true;
     }
     const active = hoveredRef.current;
-    pivotRef.current.rotation.z = THREE.MathUtils.lerp(pivotRef.current.rotation.z, active ? pointer.x * 0.07 : 0, Math.min(delta * 5, 1));
-    pivotRef.current.rotation.y = THREE.MathUtils.lerp(pivotRef.current.rotation.y, active ? -pointer.x * 0.65 : 0, Math.min(delta * 4, 1));
-    pivotRef.current.rotation.x = THREE.MathUtils.lerp(pivotRef.current.rotation.x, active ? pointer.y * 0.18 : 0, Math.min(delta * 3.5, 1));
+    pivotRef.current.rotation.z = THREE.MathUtils.lerp(pivotRef.current.rotation.z, active ? pointer.x * 0.14 : 0, Math.min(delta * 5, 1));
+    pivotRef.current.rotation.y = THREE.MathUtils.lerp(pivotRef.current.rotation.y, active ? -pointer.x * 1.4 : 0, Math.min(delta * 4, 1));
+    pivotRef.current.rotation.x = THREE.MathUtils.lerp(pivotRef.current.rotation.x, active ? pointer.y * 0.55 : 0, Math.min(delta * 3.5, 1));
   });
 
   const topBarY = -0.245;
@@ -297,13 +306,12 @@ function MedalGroup() {
         </mesh>
         <mesh position={[0, botBarY, 0]} material={barMat}><boxGeometry args={[0.72, 0.09, 0.15]} /></mesh>
         <mesh position={[0, -2.55, 0]} geometry={discGeo} material={discMats} />
-        <mesh position={[0, -2.55, 0.075]} geometry={bossGeo} material={bossMats} />
       </group>
     </group>
   );
 }
 
-function MedalScene() {
+function MedalScene({ topText, bottomText }: { topText?: string; bottomText?: string }) {
   return (
     <>
       <ambientLight intensity={0.55} />
@@ -311,7 +319,7 @@ function MedalScene() {
       <pointLight position={[-4, 2, 5]} intensity={1.1} color={new THREE.Color("#c9a55a")} />
       <pointLight position={[4, -2, 4]} intensity={0.5} color={new THREE.Color("#8090c0")} />
       <Environment preset="studio" />
-      <MedalGroup />
+      <MedalGroup topText={topText} bottomText={bottomText} />
     </>
   );
 }
@@ -321,9 +329,13 @@ function MedalScene() {
 export default function TeamMedal({
   width = 340,
   height = 480,
+  topText,
+  bottomText,
 }: {
   width?: number;
   height?: number;
+  topText?: string;
+  bottomText?: string;
 }) {
   return (
     <div style={{ width, height }}>
@@ -334,7 +346,7 @@ export default function TeamMedal({
         style={{ width: "100%", height: "100%" }}
       >
         <Suspense fallback={null}>
-          <MedalScene />
+          <MedalScene topText={topText} bottomText={bottomText} />
         </Suspense>
       </Canvas>
     </div>

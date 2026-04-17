@@ -226,7 +226,10 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     };
 
     // Scroll/resize/visibility handlers declared early so dispose() can reference them.
-    const scroll = { pct: 0 };
+    // `pct`    = raw scroll position (updated instantly on scroll events)
+    // `smooth` = lerped value used by the render loop — prevents violent jumps
+    //            when returning from a hidden tab that was scrolled while away.
+    const scroll = { pct: 0, smooth: 0 };
     const onScroll = () => {
       const heroH = canvas.parentElement?.offsetHeight ?? window.innerHeight;
       scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
@@ -309,6 +312,9 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         accumulatedHiddenMs += now - hiddenAtMs;
         hiddenAtMs = 0;
         onScroll();
+        // Snap smooth to the real position so we don't lerp across a large
+        // gap caused by scrolling while the tab was in the background.
+        scroll.smooth = scroll.pct;
       }
       tabVisible = !document.hidden;
     };
@@ -427,7 +433,11 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         lastFrameTime = now;
 
         const t = reduced ? 0.5 : (now - t0 - accumulatedHiddenMs) * 0.001;
-        const sp = Math.sqrt(scroll.pct);
+        // Lerp smooth scroll toward the real value — fast enough to feel
+        // responsive during normal scrolling, but prevents the violent jump
+        // when returning to a tab that was scrolled while hidden.
+        scroll.smooth += (scroll.pct - scroll.smooth) * 0.1;
+        const sp = Math.sqrt(scroll.smooth);
 
         for (let row = 0; row < cfg.rows; row++) {
           for (let col = 0; col < cfg.cols; col++) {

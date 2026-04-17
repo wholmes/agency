@@ -5,6 +5,7 @@ import { IconArrowUpRight, IconCheck } from "@/components/icons";
 import CtaSection from "@/components/sections/CtaSection";
 import TeamSection from "@/components/sections/TeamSection";
 import AboutHero from "./AboutHero";
+import MedalCard from "./MedalCard";
 import {
   getAboutPageHero,
   getAboutStoryParagraphs,
@@ -61,18 +62,7 @@ export default async function AboutPage() {
 
             <ScrollReveal delay={200}>
               <div className="overflow-hidden rounded-lg border border-border bg-surface">
-                <div
-                  className="relative flex h-[280px] items-center justify-center overflow-hidden bg-[linear-gradient(135deg,var(--color-surface-2)_0%,#1c1810_100%)]"
-                  aria-hidden="true"
-                >
-                  <div className="absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.04)_1px,transparent_1px)] bg-size-[40px_40px]" />
-                  <div className="relative text-center">
-                    <div className="font-display text-[5rem] leading-none font-light tracking-tighter text-accent opacity-15">
-                      {storySection.bmcMonogram}
-                    </div>
-                    <p className="mt-4 text-xs tracking-[0.15em] text-text-tertiary uppercase">{storySection.bmcTagline}</p>
-                  </div>
-                </div>
+                <MedalCard />
                 <div className="p-8">
                   <p className="mb-4 text-sm leading-relaxed text-text-secondary">{teaserCard.body}</p>
                   <Link href={teaserCard.ctaHref} className="btn btn-ghost px-0 text-sm text-accent">
