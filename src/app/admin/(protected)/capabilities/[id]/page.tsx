@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateCapability, deleteCapability } from "@/lib/admin/mutations-data";
 import DeleteCapabilityButton from "./DeleteCapabilityButton";
@@ -79,26 +80,9 @@ export default async function EditCapabilityPage({
           </p>
         </div>
 
-        <div className="form-field flex items-center gap-3">
-          <input
-            id="showTags"
-            name="showTags"
-            type="checkbox"
-            defaultChecked={cap.showTags}
-            className="size-4 rounded border-border accent-accent"
-          />
-          <label htmlFor="showTags" className="text-sm text-text-primary">Show tags</label>
-        </div>
-
-        <div className="form-field flex items-center gap-3">
-          <input
-            id="published"
-            name="published"
-            type="checkbox"
-            defaultChecked={cap.published}
-            className="size-4 rounded border-border accent-accent"
-          />
-          <label htmlFor="published" className="text-sm text-text-primary">Published</label>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <AdminToggle id="showTags" name="showTags" label="Show tags" description="Display skill tags on the card" defaultChecked={cap.showTags} />
+          <AdminToggle id="published" name="published" label="Published" description="Visible on the site" defaultChecked={cap.published} />
         </div>
 
         <div className="flex items-center gap-4">

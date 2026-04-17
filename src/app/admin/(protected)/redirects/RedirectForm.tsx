@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 
 interface DefaultValues {
   source?: string;
@@ -108,18 +109,7 @@ export default function RedirectForm({ action, defaultValues, submitLabel = "Sav
         {/* Status */}
         <div className="form-field">
           <label className="form-label">Status</label>
-          <div className="flex items-center gap-3 pt-1">
-            <input
-              id="enabled"
-              name="enabled"
-              type="checkbox"
-              defaultChecked={defaultValues?.enabled ?? true}
-              className="size-4 rounded border-border accent-accent"
-            />
-            <label htmlFor="enabled" className="text-sm text-text-primary cursor-pointer">
-              Active — rule is applied on every request
-            </label>
-          </div>
+          <AdminToggle id="enabled" name="enabled" label="Active" description="Rule is applied on every request" defaultChecked={defaultValues?.enabled ?? true} />
         </div>
 
         {/* Note */}

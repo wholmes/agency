@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
 import { updateServiceDetailPage } from "@/lib/admin/mutations-data";
@@ -55,18 +56,7 @@ export default async function AdminServiceDetailEditPage({ params }: Props) {
           </div>
 
           <h2 className="pt-6 text-sm font-medium uppercase tracking-wider text-text-tertiary">Hero</h2>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="heroHasGradient"
-              id="heroHasGradient"
-              defaultChecked={p.heroHasGradient}
-              className="rounded border-border"
-            />
-            <label htmlFor="heroHasGradient" className="text-sm text-text-secondary">
-              Gradient background
-            </label>
-          </div>
+          <AdminToggle id="heroHasGradient" name="heroHasGradient" label="Gradient background" description="Applies a gradient to the hero section" defaultChecked={p.heroHasGradient} />
           <div className="form-field">
             <label className="form-label">Overline</label>
             <input name="heroOverline" required defaultValue={p.heroOverline} className="form-input" />
@@ -144,29 +134,9 @@ export default async function AdminServiceDetailEditPage({ params }: Props) {
             <label className="form-label">Heading</label>
             <input name="includedHeading" required defaultValue={p.includedHeading} className="form-input" />
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="includedSectionBgSurface"
-              id="includedSectionBgSurface"
-              defaultChecked={p.includedSectionBgSurface}
-              className="rounded border-border"
-            />
-            <label htmlFor="includedSectionBgSurface" className="text-sm text-text-secondary">
-              Section uses surface background
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="includedItemsUseSurfaceBg"
-              id="includedItemsUseSurfaceBg"
-              defaultChecked={p.includedItemsUseSurfaceBg}
-              className="rounded border-border"
-            />
-            <label htmlFor="includedItemsUseSurfaceBg" className="text-sm text-text-secondary">
-              Items use surface background
-            </label>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <AdminToggle id="includedSectionBgSurface" name="includedSectionBgSurface" label="Section surface background" description="Section uses the surface colour" defaultChecked={p.includedSectionBgSurface} />
+            <AdminToggle id="includedItemsUseSurfaceBg" name="includedItemsUseSurfaceBg" label="Items surface background" description="Individual items use surface colour" defaultChecked={p.includedItemsUseSurfaceBg} />
           </div>
           <div className="form-field">
             <label className="form-label">Inclusions (JSON)</label>

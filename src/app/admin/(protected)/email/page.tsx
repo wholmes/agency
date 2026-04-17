@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateEmailSettings } from "@/lib/admin/mutations-data";
 
@@ -134,18 +135,7 @@ export default async function AdminEmailPage() {
             Auto-reply
           </legend>
           <div className="mt-4 flex flex-col gap-4">
-            <div className="form-field flex items-center gap-3">
-              <input
-                id="autoReplyEnabled"
-                name="autoReplyEnabled"
-                type="checkbox"
-                defaultChecked={s.autoReplyEnabled}
-                className="size-4 rounded border-border accent-accent"
-              />
-              <label htmlFor="autoReplyEnabled" className="text-sm text-text-primary">
-                Send an auto-reply to the person who submitted the form
-              </label>
-            </div>
+            <AdminToggle id="autoReplyEnabled" name="autoReplyEnabled" label="Enable auto-reply" description="Sends a confirmation email to the person who submitted the form" defaultChecked={s.autoReplyEnabled} />
             <div className="form-field">
               <label className="form-label" htmlFor="autoReplySubject">
                 Subject line

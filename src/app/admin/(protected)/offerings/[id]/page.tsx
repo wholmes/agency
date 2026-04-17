@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateServiceOffering } from "@/lib/admin/mutations-data";
 
@@ -107,12 +108,7 @@ export default async function AdminOfferingEditPage({ params }: Props) {
           <label className="form-label">Detail page href</label>
           <input name="href" required defaultValue={o.href} className="form-input" />
         </div>
-        <div className="flex items-center gap-2">
-          <input type="checkbox" name="showOnHomepage" id="showOnHomepage" defaultChecked={o.showOnHomepage} className="rounded border-border" />
-          <label htmlFor="showOnHomepage" className="text-sm text-text-secondary">
-            Show on homepage
-          </label>
-        </div>
+        <AdminToggle id="showOnHomepage" name="showOnHomepage" label="Show on homepage" description="Displayed in the homepage services section" defaultChecked={o.showOnHomepage} />
         <button type="submit" className="btn btn-primary w-fit">
           Save
         </button>

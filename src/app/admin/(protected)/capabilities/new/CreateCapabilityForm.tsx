@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createCapability } from "@/lib/admin/mutations-data";
+import AdminToggle from "@/components/admin/AdminToggle";
 
 export default function CreateCapabilityForm() {
   const [state, action, pending] = useActionState(createCapability, null);
@@ -49,14 +50,9 @@ export default function CreateCapabilityForm() {
         </p>
       </div>
 
-      <div className="form-field flex items-center gap-3">
-        <input id="showTags" name="showTags" type="checkbox" defaultChecked className="size-4 rounded border-border accent-accent" />
-        <label htmlFor="showTags" className="text-sm text-text-primary">Show tags</label>
-      </div>
-
-      <div className="form-field flex items-center gap-3">
-        <input id="published" name="published" type="checkbox" defaultChecked className="size-4 rounded border-border accent-accent" />
-        <label htmlFor="published" className="text-sm text-text-primary">Published</label>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <AdminToggle id="showTags" name="showTags" label="Show tags" description="Display skill tags on the card" defaultChecked />
+        <AdminToggle id="published" name="published" label="Published" description="Visible on the site" defaultChecked />
       </div>
 
       <button type="submit" disabled={pending} className="btn btn-primary w-fit">

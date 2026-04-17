@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateProject } from "../../mutations";
 
@@ -153,18 +154,7 @@ export default async function AdminProjectEditPage({ params }: Props) {
             spellCheck={false}
           />
         </div>
-        <div className="form-field flex items-center gap-3">
-          <input
-            id="published"
-            name="published"
-            type="checkbox"
-            defaultChecked={p.published}
-            className="size-4 rounded border-border accent-accent"
-          />
-          <label htmlFor="published" className="text-sm text-text-primary">
-            Published — visible on the public work page
-          </label>
-        </div>
+        <AdminToggle id="published" name="published" label="Published" description="Visible on the public work page" defaultChecked={p.published} />
 
         <button type="submit" className="btn btn-primary w-fit">
           Save

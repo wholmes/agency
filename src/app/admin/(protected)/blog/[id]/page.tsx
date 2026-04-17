@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { updateBlogPost, deleteBlogPost } from "../mutations";
 import DeleteBlogPostButton from "./DeleteBlogPostButton";
 
@@ -267,18 +268,7 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              id="featured"
-              name="featured"
-              type="checkbox"
-              defaultChecked={post.featured}
-              className="size-4 rounded border-border accent-accent"
-            />
-            <label htmlFor="featured" className="text-sm text-text-primary">
-              Featured — shown prominently at the top of the blog
-            </label>
-          </div>
+          <AdminToggle id="featured" name="featured" label="Featured" description="Shown prominently at the top of the blog" defaultChecked={post.featured} />
         </fieldset>
 
         <div className="flex items-center gap-4 pt-2">

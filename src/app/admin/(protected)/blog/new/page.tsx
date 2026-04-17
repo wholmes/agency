@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { createBlogPost } from "../mutations";
 
 export const metadata = { title: "Admin — New article" };
@@ -252,18 +253,7 @@ function BlogPostForm({
           </select>
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            id="featured"
-            name="featured"
-            type="checkbox"
-            defaultChecked={defaultValues?.featured ?? false}
-            className="size-4 rounded border-border accent-accent"
-          />
-          <label htmlFor="featured" className="text-sm text-text-primary">
-            Featured — shown prominently at the top of the blog
-          </label>
-        </div>
+          <AdminToggle id="featured" name="featured" label="Featured" description="Shown prominently at the top of the blog" defaultChecked={defaultValues?.featured ?? false} />
       </fieldset>
 
       <div className="pt-2">

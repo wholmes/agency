@@ -1,4 +1,5 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
 import { updateSeoSettings } from "@/lib/admin/mutations-data";
 
@@ -86,29 +87,19 @@ export default async function AdminSeoPage() {
           <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
             Indexing
           </legend>
-          <div className="mt-4">
-            <div className="form-field flex items-start gap-3">
-              <input
-                id="noIndex"
-                name="noIndex"
-                type="checkbox"
-                defaultChecked={s.noIndex}
-                className="mt-0.5 size-4 rounded border-border accent-accent"
-              />
-              <div>
-                <label htmlFor="noIndex" className="text-sm text-text-primary">
-                  Block all search engine indexing (noindex, nofollow)
-                </label>
-                <p className="mt-0.5 text-xs text-text-tertiary">
-                  Enable on staging / pre-launch. Disable before going live.
-                </p>
-                {s.noIndex && (
-                  <p className="mt-2 text-xs font-medium text-yellow-400">
-                    ⚠ Site is currently blocking search engines.
-                  </p>
-                )}
-              </div>
-            </div>
+          <div className="mt-4 flex flex-col gap-2">
+            <AdminToggle
+              id="noIndex"
+              name="noIndex"
+              label="Block search engine indexing"
+              description="Adds noindex, nofollow — enable on staging, disable before going live"
+              defaultChecked={s.noIndex}
+            />
+            {s.noIndex && (
+              <p className="text-xs font-medium text-yellow-400 px-1">
+                ⚠ Site is currently blocking search engines.
+              </p>
+            )}
           </div>
         </fieldset>
 
