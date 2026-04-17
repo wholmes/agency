@@ -14,6 +14,7 @@ type TeamMember = {
   skills: string[];
   brandCodeBalance: number;
   featured: boolean;
+  showPhilosophy: boolean;
   showBio: boolean;
   showTags: boolean;
   showBalance: boolean;
@@ -379,7 +380,7 @@ function MemberCard({
         >
           {member.role}
         </p>
-        {member.philosophy && (
+        {member.showPhilosophy && member.philosophy && (
           <p className="mt-2 line-clamp-2 text-xs italic leading-relaxed text-text-secondary">
             &ldquo;{member.philosophy}&rdquo;
           </p>

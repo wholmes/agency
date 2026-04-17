@@ -51,6 +51,7 @@ model TeamMember {
   brandCodeBalance  Int     @default(50)
   featured          Boolean @default(false)
   published         Boolean @default(true)
+  showPhilosophy    Boolean @default(true)
   showBio           Boolean @default(true)
   showTags          Boolean @default(true)
   showBalance       Boolean @default(true)
