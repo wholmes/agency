@@ -41,10 +41,12 @@ export default function WorkPageClient({
   projects,
   workHero,
   ctaCopy,
+  isAdmin = false,
 }: {
   projects: Project[];
   workHero: WorkPageHero;
   ctaCopy: CtaSectionCopy;
+  isAdmin?: boolean;
 }) {
   return (
     <>
@@ -112,7 +114,7 @@ export default function WorkPageClient({
         <div className="container">
           <div className="flex flex-col gap-24">
             {projects.map((project) => (
-              <CaseStudy key={project.id} project={project} />
+              <CaseStudy key={project.id} project={project} isAdmin={isAdmin} />
             ))}
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function WorkPageClient({
   );
 }
 
-function CaseStudy({ project }: { project: Project }) {
+function CaseStudy({ project, isAdmin }: { project: Project; isAdmin?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "0px 0px -80px 0px" });
 
@@ -139,24 +141,58 @@ function CaseStudy({ project }: { project: Project }) {
           href={`/work/${project.id}`}
           className="case-header mb-10 grid grid-cols-1 items-center gap-8 no-underline transition-opacity hover:opacity-90 md:grid-cols-[1.2fr_1fr]"
         >
-          <div
-            className="relative flex h-[clamp(240px,35vw,400px)] items-center justify-center overflow-hidden rounded-lg"
-            style={{ background: project.color }}
-            aria-hidden="true"
-          >
+          {project.coverImage ? (
+            /* ── Browser window ──────────────────────────────── */
             <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%)`,
-              }}
-            />
-            <span
-              className="font-display select-none text-[clamp(4rem,12vw,8rem)] font-light tracking-tighter"
-              style={{ color: project.accent, opacity: 0.12 }}
+              className="overflow-hidden rounded-lg"
+              style={{ boxShadow: `0 16px 48px -8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)` }}
+              aria-hidden="true"
             >
-              {project.title.split(" ")[0]}
-            </span>
-          </div>
+              {/* Chrome bar */}
+              <div className="flex items-center gap-3 border-b border-white/[0.06] bg-[#131313] px-3 py-2">
+                <div className="flex shrink-0 gap-1.5">
+                  <span className="size-2.5 rounded-full bg-[#ff5f56]" />
+                  <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+                  <span className="size-2.5 rounded-full bg-[#27c93f]" />
+                </div>
+                <div className="flex flex-1 justify-center">
+                  <div className="flex h-5 w-36 items-center gap-1.5 rounded bg-white/[0.05] px-2.5">
+                    <span className="size-1 shrink-0 rounded-full bg-white/20" />
+                    <div className="h-1 w-20 rounded-full bg-white/10" />
+                  </div>
+                </div>
+                <div className="w-10 shrink-0" aria-hidden="true" />
+              </div>
+              {/* Screenshot — full width, aspect-preserving, clips from bottom only */}
+              <div className="aspect-[16/9] overflow-hidden">
+                <img
+                  src={project.coverImage}
+                  alt={`${project.title} website`}
+                  className="block h-auto w-full"
+                />
+              </div>
+            </div>
+          ) : (
+            /* ── Fallback placeholder ─────────────────────────── */
+            <div
+              className="relative flex h-[clamp(240px,35vw,400px)] items-center justify-center overflow-hidden rounded-lg"
+              style={{ background: project.color }}
+              aria-hidden="true"
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%)`,
+                }}
+              />
+              <span
+                className="font-display select-none text-[clamp(4rem,12vw,8rem)] font-light tracking-tighter"
+                style={{ color: project.accent, opacity: 0.12 }}
+              >
+                {project.title.split(" ")[0]}
+              </span>
+            </div>
+          )}
 
           <div>
             <p className="mb-3 text-xs tracking-wider text-text-tertiary uppercase">
@@ -170,8 +206,23 @@ function CaseStudy({ project }: { project: Project }) {
               <span className="text-xs font-medium text-accent">{project.result}</span>
             </div>
             <p className="text-sm text-text-tertiary">{project.resultDetail}</p>
-            <div className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent">
-              Read case study <IconArrowUpRight size={14} />
+            <div className="mt-5 flex items-center gap-4">
+              <span className="inline-flex items-center gap-2 text-sm font-medium text-accent">
+                Read case study <IconArrowUpRight size={14} />
+              </span>
+              {isAdmin && (
+                <Link
+                  href={`/admin/projects/${project.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-xs text-text-tertiary no-underline transition-colors hover:border-accent-muted hover:text-accent"
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  Edit
+                </Link>
+              )}
             </div>
           </div>
         </Link>

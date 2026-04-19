@@ -62,39 +62,73 @@ function ProjectRow({
         data-cursor-label="Case Study"
       >
         <article className="project-article grid grid-cols-1 gap-6 rounded-lg border border-border bg-bg p-8 transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] md:grid-cols-[1fr_1.2fr] md:items-center">
-          <div
-            className="project-visual relative flex h-[clamp(180px,25vw,280px)] items-center justify-center overflow-hidden rounded-md md:rounded-md"
-            style={{ background: project.color }}
-          >
+          {project.thumbImage ? (
+            /* ── Browser window — full-width, no side-crop ─────────── */
             <div
-              aria-hidden="true"
-              className="project-gradient absolute inset-0 opacity-90 transition-[opacity] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
-              style={{
-                backgroundImage: `
-                  radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%),
-                  radial-gradient(circle at 70% 70%, ${project.accent}11 0%, transparent 50%)
-                `,
-              }}
-            />
-            <div
-              aria-hidden="true"
-              className="project-ghost-letter relative text-[clamp(3rem,8vw,5rem)] font-light tracking-tighter transition-[transform,opacity] [transition-duration:500ms] [transition-timing-function:var(--ease-out)] select-none"
-              style={{ color: project.accent, opacity: 0.15, transformOrigin: "center center" }}
+              className="project-visual relative overflow-hidden rounded-md"
+              style={{ background: project.color }}
             >
-              {project.title.charAt(0)}
+              {/* Chrome bar — in flow so it doesn't overlay the screenshot */}
+              <div className="flex items-center gap-2 border-b border-white/[0.06] bg-[#131313] px-3 py-2">
+                <div className="flex shrink-0 gap-1">
+                  <span className="size-2 rounded-full bg-[#ff5f56]" aria-hidden="true" />
+                  <span className="size-2 rounded-full bg-[#ffbd2e]" aria-hidden="true" />
+                  <span className="size-2 rounded-full bg-[#27c93f]" aria-hidden="true" />
+                </div>
+                <div className="flex flex-1 justify-center">
+                  <div className="h-3.5 w-24 rounded bg-white/[0.05]" />
+                </div>
+                <div className="w-[28px] shrink-0" aria-hidden="true" />
+              </div>
+              {/* Screenshot — aspect-ratio driven, full width, clips from bottom only */}
+              <div className="aspect-[16/9] overflow-hidden">
+                <img
+                  src={project.thumbImage}
+                  alt=""
+                  className="block h-auto w-full"
+                />
+              </div>
+              <div
+                aria-hidden="true"
+                className="project-border-accent pointer-events-none absolute inset-0 rounded-md border border-transparent transition-[border-color] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
+              />
             </div>
+          ) : (
+            /* ── Fallback placeholder ───────────────────────────────── */
             <div
-              className="project-year absolute top-4 right-4 font-mono text-xs tracking-wider transition-opacity [transition-duration:300ms] [transition-timing-function:var(--ease-out)]"
-              style={{ color: `${project.accent}99` }}
-              aria-hidden="true"
+              className="project-visual relative flex h-[clamp(180px,25vw,280px)] items-center justify-center overflow-hidden rounded-md"
+              style={{ background: project.color }}
             >
-              {project.year}
+              <div
+                aria-hidden="true"
+                className="project-gradient absolute inset-0 opacity-90 transition-[opacity] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
+                style={{
+                  backgroundImage: `
+                radial-gradient(circle at 30% 40%, ${project.accent}22 0%, transparent 60%),
+                radial-gradient(circle at 70% 70%, ${project.accent}11 0%, transparent 50%)
+              `,
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className="project-ghost-letter relative text-[clamp(3rem,8vw,5rem)] font-light tracking-tighter transition-[transform,opacity] [transition-duration:500ms] [transition-timing-function:var(--ease-out)] select-none"
+                style={{ color: project.accent, opacity: 0.15, transformOrigin: "center center" }}
+              >
+                {project.title.charAt(0)}
+              </div>
+              <div
+                className="project-year absolute top-4 right-4 font-mono text-xs tracking-wider transition-opacity [transition-duration:300ms] [transition-timing-function:var(--ease-out)]"
+                style={{ color: `${project.accent}99` }}
+                aria-hidden="true"
+              >
+                {project.year}
+              </div>
+              <div
+                aria-hidden="true"
+                className="project-border-accent pointer-events-none absolute inset-0 rounded-md border border-transparent transition-[border-color] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
+              />
             </div>
-            <div
-              aria-hidden="true"
-              className="project-border-accent pointer-events-none absolute inset-0 rounded-md border border-transparent transition-[border-color] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
-            />
-          </div>
+          )}
 
           <div>
             <div className="mb-4 flex items-start justify-between gap-4">

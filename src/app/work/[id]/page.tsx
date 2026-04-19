@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/projects";
-import { getCaseStudyUiLabels, getCtaSectionCopy, getProjects } from "@/lib/cms/queries";
+import { getCaseStudyUiLabels, getCtaSectionCopy } from "@/lib/cms/queries";
 import CtaSection from "@/components/sections/CtaSection";
 import CaseStudyContent from "./CaseStudyContent";
 
@@ -9,16 +9,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  try {
-    const projects = await getProjects();
-    return projects.map((p) => ({ id: p.id }));
-  } catch {
-    return [];
-  }
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;

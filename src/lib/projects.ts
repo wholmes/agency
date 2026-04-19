@@ -13,6 +13,12 @@ export interface Project {
   color: string;
   accent: string;
   services: string[];
+  /** Card / home preview — 4:3 */
+  thumbImage: string;
+  /** Work index listing — 3:2 */
+  coverImage: string;
+  /** Case study detail hero — 16:9 full width (~2200px) */
+  heroImage: string;
 }
 
 export { getProject, getProjects } from "@/lib/cms/queries";

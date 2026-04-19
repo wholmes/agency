@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createProject } from "@/lib/admin/mutations-data";
+import CaseStudyImageUpload from "@/components/admin/CaseStudyImageUpload";
 
 export default function CreateProjectForm() {
   const [state, action, pending] = useActionState(createProject, null);
@@ -183,6 +184,16 @@ export default function CreateProjectForm() {
               placeholder="#c9a55a"
             />
           </div>
+        </div>
+      </fieldset>
+
+      {/* Images */}
+      <fieldset className="rounded-lg border border-border p-5">
+        <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+          Images
+        </legend>
+        <div className="mt-4">
+          <CaseStudyImageUpload />
         </div>
       </fieldset>
 

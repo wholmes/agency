@@ -12,6 +12,7 @@ export function getAdminEditHref(pathname: string): string | null {
   if (path === "/work") return "/admin/work";
   if (path === "/services") return "/admin/services";
   if (path === "/industries") return "/admin/industries";
+  if (path === "/blog") return "/admin/blog";
 
   const workMatch = /^\/work\/([^/]+)$/.exec(path);
   if (workMatch) {
@@ -26,6 +27,12 @@ export function getAdminEditHref(pathname: string): string | null {
   const industryMatch = /^\/industries\/([^/]+)$/.exec(path);
   if (industryMatch) {
     return `/admin/industries/${encodeURIComponent(industryMatch[1])}`;
+  }
+
+  // Blog post pages use slug in the URL but id in the admin — link to the list
+  const blogMatch = /^\/blog\/([^/]+)$/.exec(path);
+  if (blogMatch) {
+    return `/admin/blog`;
   }
 
   return null;

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import AdminToggle from "@/components/admin/AdminToggle";
+import CaseStudyImageUpload from "@/components/admin/CaseStudyImageUpload";
+import { IconExternalLink } from "@/components/icons";
 import { prisma } from "@/lib/prisma";
 import { updateProject } from "../../mutations";
 
@@ -36,12 +38,21 @@ export default async function AdminProjectEditPage({ params }: Props) {
           <h1 className="font-display mb-1 text-2xl font-light tracking-tight">{p.title}</h1>
           <p className="font-mono text-xs text-text-tertiary">id: {p.id}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {!p.published && (
             <span className="rounded-full border border-yellow-700/50 bg-yellow-950/40 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-yellow-400">
               Draft
             </span>
           )}
+          <Link
+            href={`/work/${p.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary inline-flex items-center gap-2 text-sm"
+          >
+            <IconExternalLink size={14} />
+            Open live page
+          </Link>
           <Link
             href="/admin/projects"
             className="text-sm text-text-tertiary no-underline hover:text-text-secondary"
@@ -154,6 +165,16 @@ export default async function AdminProjectEditPage({ params }: Props) {
             spellCheck={false}
           />
         </div>
+        {/* Images */}
+        <div className="rounded-lg border border-border p-5">
+          <p className="mb-5 text-xs font-semibold uppercase tracking-wider text-text-tertiary">Images</p>
+          <CaseStudyImageUpload
+            thumbImage={p.thumbImage}
+            coverImage={p.coverImage}
+            heroImage={p.heroImage}
+          />
+        </div>
+
         <AdminToggle id="published" name="published" label="Published" description="Visible on the public work page" defaultChecked={p.published} />
 
         <button type="submit" className="btn btn-primary w-fit">

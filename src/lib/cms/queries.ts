@@ -198,6 +198,9 @@ function projectRowToProject(row: {
   color: string;
   accent: string;
   services: string;
+  thumbImage: string;
+  coverImage: string;
+  heroImage: string;
 }): Project {
   return {
     id: row.id,
@@ -213,6 +216,9 @@ function projectRowToProject(row: {
     color: row.color,
     accent: row.accent,
     services: parseJsonArray(row.services),
+    thumbImage: row.thumbImage,
+    coverImage: row.coverImage,
+    heroImage: row.heroImage,
   };
 }
 

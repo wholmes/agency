@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
+import { IconExternalLink } from "@/components/icons";
 import { getAllProjectsForAdmin } from "@/lib/cms/queries";
 import { moveProjectUp, moveProjectDown, toggleProjectPublished } from "@/lib/admin/mutations-data";
 
@@ -95,6 +96,16 @@ export default async function AdminProjectsPage() {
                   </button>
                 </AdminSaveForm>
 
+                <Link
+                  href={`/work/${p.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Open case study on the public site"
+                  className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs text-text-secondary no-underline transition-colors hover:border-accent-muted hover:text-accent"
+                >
+                  <IconExternalLink size={12} />
+                  Live
+                </Link>
                 <Link
                   href={`/admin/projects/${p.id}`}
                   className="rounded-md border border-border px-3 py-1.5 text-xs text-accent no-underline transition-colors hover:border-accent-muted"

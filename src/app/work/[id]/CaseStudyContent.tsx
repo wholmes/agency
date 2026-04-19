@@ -151,23 +151,62 @@ export default function CaseStudyContent({
       {/* ── Hero image block ─────────────────────────────────────── */}
       <InViewMotion>
         <div
-          className="relative flex h-[clamp(280px,40vw,480px)] items-center justify-center overflow-hidden"
+          className="relative overflow-hidden py-14 md:py-20"
           style={{ background: project.color }}
           aria-hidden="true"
         >
+          {/* Ambient background gradients */}
           <div
-            className="absolute inset-0"
+            className="pointer-events-none absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle at 30% 40%, ${project.accent}28 0%, transparent 55%), radial-gradient(circle at 75% 70%, ${project.accent}14 0%, transparent 50%)`,
+              backgroundImage: `radial-gradient(ellipse at 20% 50%, ${project.accent}22 0%, transparent 55%), radial-gradient(ellipse at 80% 50%, ${project.accent}10 0%, transparent 50%)`,
             }}
           />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.02)_1px,transparent_1px)] bg-size-[60px_60px]" />
-          <span
-            className="relative select-none font-display text-[clamp(6rem,18vw,14rem)] font-light tracking-tighter"
-            style={{ color: project.accent, opacity: 0.1 }}
-          >
-            {project.title.split(" ")[0]}
-          </span>
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-size-[72px_72px]" />
+
+          {project.heroImage ? (
+            /* ── Browser window ─────────────────────────────────── */
+            <div className="container relative">
+              <div
+                className="mx-auto max-w-5xl overflow-hidden rounded-xl shadow-2xl"
+                style={{ boxShadow: `0 32px 80px -12px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06)` }}
+              >
+                {/* Chrome bar */}
+                <div className="flex items-center gap-3 border-b border-white/[0.06] bg-[#131313] px-4 py-2.5">
+                  <div className="flex shrink-0 gap-1.5">
+                    <span className="size-3 rounded-full bg-[#ff5f56]" />
+                    <span className="size-3 rounded-full bg-[#ffbd2e]" />
+                    <span className="size-3 rounded-full bg-[#27c93f]" />
+                  </div>
+                  <div className="flex flex-1 justify-center">
+                    <div className="flex h-6 w-52 items-center gap-2 rounded bg-white/[0.05] px-3">
+                      <span className="size-1.5 shrink-0 rounded-full bg-white/20" />
+                      <div className="h-1.5 w-28 rounded-full bg-white/10" />
+                    </div>
+                  </div>
+                  <div className="w-[52px] shrink-0" aria-hidden="true" />
+                </div>
+                {/* Screenshot — full width, aspect-preserving, clips from bottom only */}
+                <div className="aspect-[16/9] overflow-hidden">
+                  <img
+                    src={project.heroImage}
+                    alt={`${project.title} website`}
+                    className="block h-auto w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* ── Fallback placeholder ───────────────────────────── */
+            <div className="relative flex h-[clamp(200px,30vw,360px)] items-center justify-center">
+              <span
+                className="relative select-none font-display text-[clamp(6rem,18vw,14rem)] font-light tracking-tighter"
+                style={{ color: project.accent, opacity: 0.1 }}
+              >
+                {project.title.split(" ")[0]}
+              </span>
+            </div>
+          )}
         </div>
       </InViewMotion>
 
@@ -227,6 +266,7 @@ export default function CaseStudyContent({
           </InViewMotion>
         </div>
       </section>
+
     </>
   );
 }
