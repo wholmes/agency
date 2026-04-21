@@ -39,9 +39,10 @@ model Project {
   sortOrder    Int     @default(0)
   published    Boolean @default(true)
   // Images — stored as base64 data URLs or absolute URLs
-  thumbImage   String  @default("")   // Card thumbnail  — 800 × 600 px (4:3)
-  coverImage   String  @default("")   // Work listing hero — 1200 × 800 px (3:2)
-  heroImage    String  @default("")   // Case study hero   — 2200 × 1238 px (16:9), full width
+  thumbImage   String  @default("")   // Card thumbnail     — 1280 × 720 px  (16:9)
+  coverImage   String  @default("")   // Work listing card  — 1440 × 810 px  (16:9)
+  heroImage    String  @default("")   // Case study hero    — 2200 × 1238 px (16:9), full width
+  mobileImage  String  @default("")   // Phone mockup       — 780 × 1688 px  (9:19.5)
 }
 
 model TeamMember {

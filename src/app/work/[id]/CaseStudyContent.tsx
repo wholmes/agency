@@ -210,6 +210,67 @@ export default function CaseStudyContent({
         </div>
       </InViewMotion>
 
+      {/* ── Mobile preview ───────────────────────────────────────── */}
+      {project.mobileImage && (
+        <InViewMotion>
+          <div className="relative overflow-hidden border-b border-border py-20 md:py-28">
+            {/* Ambient glow */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage: `radial-gradient(ellipse at 50% 80%, ${project.accent}0d 0%, transparent 60%)`,
+              }}
+            />
+
+            <div className="container relative">
+              <div className="flex flex-col items-center gap-10">
+                <p className="text-overline">Mobile Experience</p>
+
+                {/* Phone frame ─ pure-CSS iPhone-style */}
+                <div className="relative" aria-hidden="true">
+                  {/* Body */}
+                  <div
+                    className="relative overflow-hidden rounded-[40px] border-[8px]"
+                    style={{
+                      borderColor: "#1c1c1e",
+                      boxShadow: `0 48px 72px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)`,
+                      width: 280,
+                    }}
+                  >
+                    {/* Dynamic Island bar */}
+                    <div className="flex h-10 items-center justify-center bg-[#0a0a0a]">
+                      <div className="h-[18px] w-[88px] rounded-full bg-black" />
+                    </div>
+                    {/* Screenshot — full width, natural height */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={project.mobileImage}
+                      alt={`${project.title} mobile`}
+                      className="block h-auto w-full"
+                    />
+                    {/* Home indicator */}
+                    <div className="flex items-center justify-center bg-[#0a0a0a] py-2.5">
+                      <div className="h-[5px] w-28 rounded-full bg-white/20" />
+                    </div>
+                  </div>
+
+                  {/* Power button — right side */}
+                  <div className="absolute -right-[11px] top-24 h-16 w-[3px] rounded-full bg-[#2c2c2e]" />
+
+                  {/* Volume buttons — left side */}
+                  <div className="absolute -left-[11px] top-[5.5rem] h-8 w-[3px] rounded-full bg-[#2c2c2e]" />
+                  <div className="absolute -left-[11px] top-[9rem] h-8 w-[3px] rounded-full bg-[#2c2c2e]" />
+
+                  {/* Silent switch */}
+                  <div className="absolute -left-[11px] top-[3.5rem] h-4 w-[3px] rounded-full bg-[#2c2c2e]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </InViewMotion>
+      )}
+
       {/* ── Case study body ──────────────────────────────────────── */}
       <section aria-label="Case study details" className="section">
         <div className="container">

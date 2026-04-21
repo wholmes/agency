@@ -48,6 +48,17 @@ const SLOTS: ImageSlot[] = [
     maxW: 2200,
     maxH: 1238,
   },
+  {
+    name: "mobileImage",
+    label: "Mobile screenshot",
+    idealDims: "780 × 1688 px",
+    displayCtx: "Phone mockup on detail page · renders ~280 px wide · portrait, clips from bottom if taller than 9:19.5",
+    aspect: "9 : 19.5",
+    previewW: 72,
+    previewH: 156,
+    maxW: 780,
+    maxH: 1688,
+  },
 ];
 
 function processImage(file: File, maxW: number, maxH: number, quality = 0.88): Promise<string> {
@@ -79,10 +90,11 @@ interface Props {
   thumbImage?: string;
   coverImage?: string;
   heroImage?: string;
+  mobileImage?: string;
 }
 
-export default function CaseStudyImageUpload({ thumbImage = "", coverImage = "", heroImage = "" }: Props) {
-  const defaults: Record<string, string> = { thumbImage, coverImage, heroImage };
+export default function CaseStudyImageUpload({ thumbImage = "", coverImage = "", heroImage = "", mobileImage = "" }: Props) {
+  const defaults: Record<string, string> = { thumbImage, coverImage, heroImage, mobileImage };
 
   const [states, setStates] = useState<Record<string, SlotState>>(() =>
     Object.fromEntries(SLOTS.map(s => [s.name, { url: defaults[s.name] ?? "", processing: false, error: "" }]))

@@ -4,29 +4,11 @@ import Link from "next/link";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
 import { IconArrowUpRight } from "@/components/icons";
-import WorkSunburst from "@/components/WorkSunburst";
 import CtaSection from "@/components/sections/CtaSection";
 import type { Project } from "@/lib/projects";
 import type { CtaSectionCopy, WorkPageHero } from "@prisma/client";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
-
-const clipVariant: Variants = {
-  hidden: { clipPath: "inset(0 0 100% 0)" },
-  visible: (delay: number) => ({
-    clipPath: "inset(0 0 0% 0)",
-    transition: { delay, duration: 1.1, ease: EASE_OUT },
-  }),
-};
-
-const enterVariant: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay, duration: 0.9, ease: EASE_OUT },
-  }),
-};
 
 const cardVariant: Variants = {
   hidden: { opacity: 0, y: 48 },
@@ -39,78 +21,17 @@ const cardVariant: Variants = {
 
 export default function WorkPageClient({
   projects,
-  workHero,
   ctaCopy,
   isAdmin = false,
 }: {
   projects: Project[];
-  workHero: WorkPageHero;
+  workHero?: WorkPageHero;
   ctaCopy: CtaSectionCopy;
   isAdmin?: boolean;
 }) {
   return (
     <>
-      <section
-        aria-label="Work hero"
-        className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]"
-      >
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-          <WorkSunburst />
-        </div>
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(201,165,90,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.055)_1px,transparent_1px)] bg-size-[80px_80px]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(0,0,0,0.35)_100%)]"
-        />
-
-        <div className="container relative z-[1] pb-16 md:pb-20">
-          <motion.p
-            className="text-overline mb-5"
-            initial="hidden"
-            animate="visible"
-            custom={0.05}
-            variants={enterVariant}
-          >
-            {workHero.overline}
-          </motion.p>
-
-          <h1 className="text-h1 mb-0 max-w-[640px]">
-            <motion.span
-              className="block overflow-hidden pb-[0.06em] leading-[1.05]"
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              variants={clipVariant}
-            >
-              {workHero.headlineLine1}
-            </motion.span>
-            <motion.span
-              className="block overflow-hidden pb-[0.42em] leading-[1.2]"
-              initial="hidden"
-              animate="visible"
-              custom={0.14}
-              variants={clipVariant}
-            >
-              <em className="italic-display text-accent">{workHero.headlineLine2Italic}</em>
-            </motion.span>
-          </h1>
-
-          <motion.p
-            className="text-body-lg max-w-[520px]"
-            initial="hidden"
-            animate="visible"
-            custom={0.42}
-            variants={enterVariant}
-          >
-            {workHero.body}
-          </motion.p>
-        </div>
-      </section>
-
-      <section aria-label="Case studies" className="section">
+      <section aria-label="Case studies" className="section pt-[calc(var(--nav-height)+4rem)]">
         <div className="container">
           <div className="flex flex-col gap-24">
             {projects.map((project) => (

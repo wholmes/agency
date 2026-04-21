@@ -172,6 +172,7 @@ export default async function AdminProjectEditPage({ params }: Props) {
             thumbImage={p.thumbImage}
             coverImage={p.coverImage}
             heroImage={p.heroImage}
+            mobileImage={p.mobileImage}
           />
         </div>
 

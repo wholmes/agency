@@ -151,9 +151,10 @@ export async function updateProject(id: string, formData: FormData) {
       services: servicesJson,
       sortOrder: Number(formData.get("sortOrder") ?? 0),
       published: formData.get("published") === "on",
-      thumbImage: String(formData.get("thumbImage") ?? ""),
-      coverImage: String(formData.get("coverImage") ?? ""),
-      heroImage:  String(formData.get("heroImage")  ?? ""),
+      thumbImage:  String(formData.get("thumbImage")  ?? ""),
+      coverImage:  String(formData.get("coverImage")  ?? ""),
+      heroImage:   String(formData.get("heroImage")   ?? ""),
+      mobileImage: String(formData.get("mobileImage") ?? ""),
     },
   });
   revalidatePath("/work");

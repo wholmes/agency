@@ -201,6 +201,7 @@ function projectRowToProject(row: {
   thumbImage: string;
   coverImage: string;
   heroImage: string;
+  mobileImage: string;
 }): Project {
   return {
     id: row.id,
@@ -219,6 +220,7 @@ function projectRowToProject(row: {
     thumbImage: row.thumbImage,
     coverImage: row.coverImage,
     heroImage: row.heroImage,
+    mobileImage: row.mobileImage,
   };
 }
 

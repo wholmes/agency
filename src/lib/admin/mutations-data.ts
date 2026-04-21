@@ -673,9 +673,10 @@ export async function createProject(
       accent: String(formData.get("accent") ?? "#c9a55a"),
       services: "[]",
       sortOrder,
-      thumbImage: String(formData.get("thumbImage") ?? ""),
-      coverImage: String(formData.get("coverImage") ?? ""),
-      heroImage:  String(formData.get("heroImage")  ?? ""),
+      thumbImage:  String(formData.get("thumbImage")  ?? ""),
+      coverImage:  String(formData.get("coverImage")  ?? ""),
+      heroImage:   String(formData.get("heroImage")   ?? ""),
+      mobileImage: String(formData.get("mobileImage") ?? ""),
     },
   });
 
