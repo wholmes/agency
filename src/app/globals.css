@@ -447,6 +447,31 @@
     resize: vertical;
   }
 
+  /* Public contact page — glass inputs on #0e0e0e (admin forms stay default) */
+  .contact-form-v2 .form-row {
+    @apply max-md:grid-cols-1;
+  }
+
+  .contact-form-v2 .form-label {
+    color: rgb(255 255 255 / 0.45);
+  }
+
+  .contact-form-v2 .form-input {
+    @apply rounded-xl;
+    border-color: rgb(255 255 255 / 0.1);
+    background-color: rgb(19 19 19);
+    color: rgb(240 237 232);
+  }
+
+  .contact-form-v2 .form-input::placeholder {
+    color: rgb(255 255 255 / 0.35);
+  }
+
+  .contact-form-v2 .form-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgb(201 165 90 / 0.15);
+  }
+
   .sr-only {
     @apply absolute m-[-1px] h-px w-px overflow-hidden border-0 p-0 whitespace-nowrap;
     clip: rect(0, 0, 0, 0);

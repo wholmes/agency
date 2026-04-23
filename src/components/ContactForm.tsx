@@ -28,9 +28,12 @@ function interpolateEmail(template: string, email: string): string {
 export default function ContactForm({
   config,
   contactEmail,
+  variant = "default",
 }: {
   config: ContactFormConfigParsed;
   contactEmail: string;
+  /** `"v2"` — dark glass styling for the public marketing contact page */
+  variant?: "default" | "v2";
 }) {
   const [formState, setFormState] = useState<FormState>("idle");
   const [formData, setFormData] = useState<FormData>({
@@ -97,7 +100,7 @@ export default function ContactForm({
   if (formState === "success") {
     return (
       <div
-        className="flex min-h-[400px] flex-col items-center justify-center gap-6 text-center"
+        className={`flex min-h-[400px] flex-col items-center justify-center gap-6 text-center ${variant === "v2" ? "text-white" : ""}`}
         role="alert"
         aria-live="polite"
       >
@@ -105,8 +108,12 @@ export default function ContactForm({
           <IconCheck size={28} />
         </div>
         <div>
-          <h2 className="font-display mb-3 text-2xl font-light tracking-tight">{success.title}</h2>
-          <p className="max-w-[300px] text-sm text-text-secondary">
+          <h2
+            className={`font-display mb-3 text-2xl font-light tracking-tight ${variant === "v2" ? "text-white" : ""}`}
+          >
+            {success.title}
+          </h2>
+          <p className={`max-w-[300px] text-sm ${variant === "v2" ? "text-white/55" : "text-text-secondary"}`}>
             {interpolateEmail(success.body, contactEmail)}
           </p>
         </div>
@@ -115,8 +122,17 @@ export default function ContactForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate aria-label="Contact form">
-      <h2 className="font-display mb-8 text-xl font-normal tracking-tight">{config.heading}</h2>
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      aria-label="Contact form"
+      className={variant === "v2" ? "contact-form-v2" : undefined}
+    >
+      <h2
+        className={`font-display mb-8 text-xl font-normal tracking-tight ${variant === "v2" ? "text-white" : ""}`}
+      >
+        {config.heading}
+      </h2>
 
       <div className="flex flex-col gap-5">
         <div className="form-row">
@@ -274,7 +290,7 @@ export default function ContactForm({
           </p>
         )}
 
-        <p className="text-center text-xs text-text-tertiary">{footerNote}</p>
+        <p className={`text-center text-xs ${variant === "v2" ? "text-white/35" : "text-text-tertiary"}`}>{footerNote}</p>
       </div>
     </form>
   );
