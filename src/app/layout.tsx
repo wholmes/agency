@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Sans, DM_Mono } from "next/font/google";
+import { Fraunces, DM_Mono, Yellowtail } from "next/font/google";
+import { GeistSans } from "geist/font";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import type { NavDropdownData } from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import CustomCursor from "@/components/CustomCursor";
 import AdminEditLink from "@/components/AdminEditLink";
+import SmoothScroll from "@/components/SmoothScroll";
+import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
+import ScopeEstimatorModal from "@/components/ScopeEstimatorModal";
 import { isAdminSession } from "@/lib/admin/session";
 import {
-  getFooterCopy,
   getIndustryPagesForList,
   getProjects,
+  getScopeEstimatorConfig,
   getSeoSettings,
   getServiceOfferings,
   getSiteChrome,
@@ -28,12 +30,12 @@ const fraunces = Fraunces({
   preload: true,
 });
 
-const dmSans = DM_Sans({
+
+const yellowtail = Yellowtail({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-dm-sans",
-  weight: ["300", "400", "500", "600"],
-  preload: true,
+  variable: "--font-yellowtail",
+  weight: "400",
 });
 
 const dmMono = DM_Mono({
@@ -42,6 +44,7 @@ const dmMono = DM_Mono({
   variable: "--font-dm-mono",
   weight: ["300", "400", "500"],
 });
+
 
 const SITE_URL = "https://brandmeetscode.com";
 
@@ -116,16 +119,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, footer, chrome, isAdmin, serviceOfferings, industries, allProjects, seo] =
+  const [settings, chrome, isAdmin, serviceOfferings, industries, allProjects, seo, estimatorData] =
     await Promise.all([
       getSiteSettings(),
-      getFooterCopy(),
       getSiteChrome(),
       isAdminSession(),
       getServiceOfferings(),
       getIndustryPagesForList(),
       getProjects(),
       getSeoSettings().catch(() => ({ googleAnalyticsId: "", googleTagManagerId: "" })),
+      getScopeEstimatorConfig(),
     ]);
 
   const dropdownData: NavDropdownData = {
@@ -141,7 +144,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${GeistSans.variable} ${dmMono.variable} ${yellowtail.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -171,15 +174,11 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-body">
+        <SmoothScroll />
         <CustomCursor />
         <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
         <main id="main-content">{children}</main>
-        <Footer
-          tagline={footer.tagline}
-          remoteBlurb={footer.remoteBlurb}
-          contactEmail={settings.contactEmail}
-          chrome={chrome}
-        />
+        <ScopeEstimatorModal data={estimatorData} />
         <AdminEditLink isAdmin={isAdmin} />
         <AnalyticsScripts
           gaId={seo.googleAnalyticsId || undefined}

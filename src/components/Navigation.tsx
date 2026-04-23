@@ -52,7 +52,7 @@ function truncate(s: string, max: number): string {
   return s.slice(0, max).trimEnd() + "…";
 }
 
-const DROPDOWN_HREFS = new Set(["/services", "/work", "/industries", "/about"]);
+const DROPDOWN_HREFS = new Set(["/services", "/work", "/industries"]);
 function hasDropdown(href: string): boolean {
   return DROPDOWN_HREFS.has(href);
 }
@@ -65,7 +65,7 @@ const STAGGER_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-tertiary">
+    <p className="font-body text-[11px] font-medium uppercase tracking-[0.2em] text-text-tertiary">
       {children}
     </p>
   );
@@ -114,15 +114,17 @@ function ServicesPanel({ data }: { data: NavService[] }) {
           >
             <Link
               href={s.href}
-              className="group block rounded-lg border border-border bg-bg px-4 py-4 no-underline transition-[border-color,background-color] duration-200 hover:border-accent-muted hover:bg-surface"
+              className="group relative block overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.03] px-4 py-4 no-underline transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.06]"
             >
-              <div className="mb-3 text-text-tertiary transition-colors duration-200 group-hover:text-accent">
+              {/* Gold left accent bar — slides in on hover */}
+              <span className="absolute left-0 top-3 bottom-3 w-[2px] origin-center scale-y-0 rounded-full bg-accent transition-transform duration-200 group-hover:scale-y-100" />
+              <div className="mb-3 text-white/30 transition-colors duration-200 group-hover:text-accent">
                 <ServiceIconGlyph iconKey={s.iconKey} size={16} />
               </div>
-              <p className="font-display mb-1.5 text-sm font-normal tracking-tight text-text-primary transition-colors duration-200 group-hover:text-accent">
+              <p className="font-body mb-1.5 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-hover:text-white">
                 {s.title}
               </p>
-              <p className="text-xs leading-relaxed text-text-tertiary">
+              <p className="text-xs leading-relaxed text-white/30">
                 {s.subtitle ?? truncate(s.descriptionHome, 72)}
               </p>
             </Link>
@@ -153,15 +155,16 @@ function WorkPanel({ data }: { data: NavProject[] }) {
             >
               <Link
                 href={`/work/${p.id}`}
-                className="group block rounded-lg border border-border bg-bg px-5 py-5 no-underline transition-[border-color,background-color] duration-200 hover:border-accent-muted hover:bg-surface"
+                className="group relative block overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.03] px-5 py-5 no-underline transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.06]"
               >
-                <p className="mb-1.5 text-[10px] font-medium uppercase tracking-widest text-text-tertiary">
+                <span className="absolute left-0 top-3 bottom-3 w-[2px] origin-center scale-y-0 rounded-full bg-accent transition-transform duration-200 group-hover:scale-y-100" />
+                <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-white/25">
                   {p.category}
                 </p>
-                <p className="font-display mb-3 text-base font-normal tracking-tight text-text-primary transition-colors duration-200 group-hover:text-accent">
+                <p className="font-body mb-3 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-hover:text-white">
                   {p.title}
                 </p>
-                <p className="text-xs font-medium text-accent">{p.result}</p>
+                <p className="font-mono text-[11px] text-accent/70">{p.result}</p>
               </Link>
             </motion.div>
           ))}
@@ -191,17 +194,18 @@ function IndustriesPanel({ data }: { data: NavIndustry[] }) {
             >
               <Link
                 href={`/industries/${ind.slug}`}
-                className="group flex items-start gap-4 rounded-lg border border-border bg-bg px-5 py-4 no-underline transition-[border-color,background-color] duration-200 hover:border-accent-muted hover:bg-surface"
+                className="group relative flex items-start gap-4 overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.03] px-5 py-4 no-underline transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.06]"
               >
+                <span className="absolute left-0 top-3 bottom-3 w-[2px] origin-center scale-y-0 rounded-full bg-accent transition-transform duration-200 group-hover:scale-y-100" />
                 <span
-                  className="mt-[5px] size-1.5 shrink-0 rounded-full bg-accent opacity-40 transition-opacity duration-200 group-hover:opacity-100"
+                  className="mt-[5px] size-1.5 shrink-0 rounded-full bg-accent opacity-30 transition-opacity duration-200 group-hover:opacity-80"
                   aria-hidden="true"
                 />
                 <div>
-                  <p className="font-display mb-0.5 text-sm font-normal text-text-primary transition-colors duration-200 group-hover:text-accent">
+                  <p className="font-body mb-0.5 text-sm font-medium text-white/80 transition-colors duration-200 group-hover:text-white">
                     {ind.listTitle}
                   </p>
-                  <p className="text-xs leading-relaxed text-text-tertiary">
+                  <p className="text-xs leading-relaxed text-white/30">
                     {truncate(ind.listBlurb, 72)}
                   </p>
                 </div>
@@ -214,63 +218,6 @@ function IndustriesPanel({ data }: { data: NavIndustry[] }) {
   );
 }
 
-const ABOUT_BELIEFS = [
-  "Brand strategy before pixels",
-  "Engineering that ships on time",
-  "Measurable outcomes — no vanity metrics",
-];
-
-function AboutPanel() {
-  return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_260px]">
-      <div>
-        <div className="mb-5">
-          <SectionLabel>About</SectionLabel>
-        </div>
-        <p className="font-display mb-6 max-w-[480px] text-2xl font-light leading-snug tracking-tight text-text-primary">
-          Where brand clarity meets{" "}
-          <em className="italic text-accent">engineering precision.</em>
-        </p>
-        <div className="flex flex-wrap gap-5">
-          <Link
-            href="/about"
-            className="flex items-center gap-1.5 text-sm text-text-secondary no-underline transition-colors duration-200 hover:text-text-primary"
-          >
-            Our story <IconArrowUpRight size={13} />
-          </Link>
-          <Link
-            href="/contact"
-            className="flex items-center gap-1.5 text-sm font-medium text-accent no-underline transition-colors duration-200 hover:text-text-primary"
-          >
-            Start a project <IconArrowUpRight size={13} />
-          </Link>
-        </div>
-      </div>
-      <div>
-        <div className="mb-4">
-          <SectionLabel>How we work</SectionLabel>
-        </div>
-        <ul className="flex flex-col gap-3">
-          {ABOUT_BELIEFS.map((belief, i) => (
-            <motion.li
-              key={belief}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.07 + 0.08, duration: 0.4, ease: STAGGER_EASE }}
-              className="flex items-center gap-3 text-sm text-text-secondary"
-            >
-              <span
-                className="inline-block size-1.5 shrink-0 rounded-full bg-accent/50"
-                aria-hidden="true"
-              />
-              {belief}
-            </motion.li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // NavLink
@@ -400,20 +347,24 @@ export default function Navigation({
       const y = window.scrollY;
       setScrolled(y > 40);
       if (y > lastY.current + 30) setActiveDropdown(null);
-      if (hideOnScroll) {
-        if (y < 80) {
-          setNavHidden(false);
-        } else if (y > lastY.current + 8) {
-          setNavHidden(true);
-        } else if (y < lastY.current - 8) {
-          setNavHidden(false);
-        }
+
+      // Always hide on scroll down, reveal on scroll up
+      if (y < 80) {
+        // Always show at top of page
+        setNavHidden(false);
+      } else if (y > lastY.current + 6) {
+        // Scrolling down — hide
+        setNavHidden(true);
+      } else if (y < lastY.current - 4) {
+        // Scrolling up — reveal
+        setNavHidden(false);
       }
+
       lastY.current = y;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [hideOnScroll]);
+  }, []);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -461,7 +412,7 @@ export default function Navigation({
         style={{
           transform: navHidden && !mobileOpen ? "translateY(-100%)" : "translateY(0)",
           transition:
-            "transform 380ms cubic-bezier(0.16, 1, 0.3, 1), background-color var(--duration-slow) ease-out, backdrop-filter var(--duration-slow) ease-out, border-color var(--duration-slow) ease-out",
+            "transform 500ms cubic-bezier(0.16, 1, 0.3, 1), background-color var(--duration-slow) ease-out, backdrop-filter var(--duration-slow) ease-out, border-color var(--duration-slow) ease-out",
         }}
         className={`fixed top-0 right-0 left-0 z-[100] ${
           isGlassy
@@ -470,7 +421,7 @@ export default function Navigation({
         }`}
       >
         {/* Main bar */}
-        <div className="container flex h-[var(--nav-height)] w-full items-center justify-between">
+        <div className="mx-auto flex h-[var(--nav-height)] w-full max-w-[1280px] items-center justify-between px-8 md:px-16">
           {/* Logo */}
           <Link
             href="/"
@@ -486,7 +437,7 @@ export default function Navigation({
                 </span>
               </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
-                Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
+                Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
               </span>
             </span>
 
@@ -497,7 +448,7 @@ export default function Navigation({
                   <span className="font-mono text-sm font-semibold leading-none">B</span>
                 </span>
                 <span className="font-display max-w-0 overflow-hidden pr-3 text-md font-normal tracking-tight whitespace-nowrap text-text-primary opacity-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-1 group-hover:max-w-[min(220px,42vw)] group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:max-w-[min(220px,42vw)] group-focus-within:translate-x-0 group-focus-within:opacity-100">
-                  Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
+                  Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
                 </span>
               </span>
             </span>
@@ -510,7 +461,7 @@ export default function Navigation({
                 </span>
               </span>
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
-                Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
+                Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
               </span>
             </span>
           </Link>
@@ -599,11 +550,23 @@ export default function Navigation({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ type: "spring", stiffness: 480, damping: 38 }}
-              className="absolute right-0 left-0 border-b border-border bg-[rgba(12,12,11,0.97)] shadow-lg backdrop-blur-xl backdrop-saturate-150"
+              className="absolute right-0 left-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl backdrop-saturate-150"
+              style={{
+                background: "rgba(13,13,13,0.98)",
+                backgroundImage: [
+                  `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E")`,
+                  `radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px)`,
+                  `repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.01) 3px, rgba(255,255,255,0.01) 4px)`,
+                  `linear-gradient(180deg, rgba(255,255,255,0.06) 0px, transparent 1px)`,
+                ].join(", "),
+                backgroundSize: "180px 180px, 24px 24px, 100% 100%, 100% 100%",
+                borderBottom: "1px solid transparent",
+                borderImage: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.1) 80%, transparent 100%) 1",
+              }}
               onMouseEnter={cancelClose}
               onMouseLeave={scheduleClose}
             >
-              <div className="container py-8">
+              <div className="mx-auto max-w-[1280px] px-8 py-8 md:px-16">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeDropdown}
@@ -621,7 +584,6 @@ export default function Navigation({
                     {activeDropdown === "/industries" && (
                       <IndustriesPanel data={dropdownData.industries ?? []} />
                     )}
-                    {activeDropdown === "/about" && <AboutPanel />}
                   </motion.div>
                 </AnimatePresence>
               </div>

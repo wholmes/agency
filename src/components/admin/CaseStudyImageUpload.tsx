@@ -12,6 +12,7 @@ interface ImageSlot {
   previewH: number;       /* preview box height (px) */
   maxW: number;           /* resize cap — width  */
   maxH: number;           /* resize cap — height */
+  quality?: number;       /* jpeg quality 0–1, defaults to 0.85 */
 }
 
 const SLOTS: ImageSlot[] = [
@@ -40,28 +41,30 @@ const SLOTS: ImageSlot[] = [
   {
     name: "heroImage",
     label: "Case study hero",
-    idealDims: "2200 × 1238 px",
-    displayCtx: "Detail page browser window · renders up to 1024 px wide · taller than 16:9 clips from bottom",
-    aspect: "16 : 9",
+    idealDims: "1600 px wide · any height",
+    displayCtx: "Detail page browser window · renders up to 1024 px wide · full-page screenshots scroll in the browser frame",
+    aspect: "any",
     previewW: 256,
     previewH: 144,
-    maxW: 2200,
-    maxH: 1238,
+    maxW: 1600,
+    maxH: 99999,
+    quality: 0.78,
   },
   {
     name: "mobileImage",
     label: "Mobile screenshot",
-    idealDims: "780 × 1688 px",
-    displayCtx: "Phone mockup on detail page · renders ~280 px wide · portrait, clips from bottom if taller than 9:19.5",
-    aspect: "9 : 19.5",
+    idealDims: "780 px wide · any height",
+    displayCtx: "Phone mockup on detail page · renders ~192 px wide · full-length screenshots scroll in the phone frame",
+    aspect: "any",
     previewW: 72,
     previewH: 156,
     maxW: 780,
-    maxH: 1688,
+    maxH: 99999,
+    quality: 0.78,
   },
 ];
 
-function processImage(file: File, maxW: number, maxH: number, quality = 0.88): Promise<string> {
+function processImage(file: File, maxW: number, maxH: number, quality = 0.85): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     img.onload = () => {
@@ -111,7 +114,7 @@ export default function CaseStudyImageUpload({ thumbImage = "", coverImage = "",
     if (!file.type.startsWith("image/")) { setSlot(slot.name, { error: "Please choose an image file." }); return; }
     setSlot(slot.name, { processing: true, error: "" });
     try {
-      const dataUrl = await processImage(file, slot.maxW, slot.maxH);
+      const dataUrl = await processImage(file, slot.maxW, slot.maxH, slot.quality);
       setSlot(slot.name, { url: dataUrl, processing: false });
     } catch (err) {
       setSlot(slot.name, { processing: false, error: err instanceof Error ? err.message : "Could not process image" });

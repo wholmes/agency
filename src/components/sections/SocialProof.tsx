@@ -32,7 +32,7 @@ export default function SocialProof({
           {stats.map((stat, i) => (
             <ScrollReveal key={stat.label} delay={i * 60}>
               <div className="flex flex-col gap-2 border-l border-accent/30 pl-5">
-                <div className="font-display text-base font-medium tracking-tight text-text-primary">
+                <div className="font-body text-base font-semibold tracking-tight text-text-primary">
                   {stat.value}
                 </div>
                 <div className="text-xs leading-relaxed text-text-tertiary">
@@ -41,38 +41,6 @@ export default function SocialProof({
               </div>
             </ScrollReveal>
           ))}
-        </div>
-      </div>
-
-      {/* ── Built with — tech strip ─────────────────────────────────────── */}
-      <div className="border-t border-border py-10 overflow-hidden">
-        <div className="container mb-6">
-          <span className="text-[10px] tracking-[0.2em] text-text-tertiary uppercase">Built with</span>
-        </div>
-
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-[linear-gradient(to_right,var(--color-surface),transparent)]" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-[linear-gradient(to_left,var(--color-surface),transparent)]" />
-
-          <div className="flex animate-[marquee_40s_linear_infinite] gap-0 will-change-transform">
-            {marqueeItems.map((client, i) => (
-              <div
-                key={`${client.name}-${i}`}
-                className="flex shrink-0 items-center gap-5 px-10"
-                aria-hidden={i >= clients.length}
-              >
-                <span className="size-[5px] shrink-0 rounded-full bg-accent opacity-40" aria-hidden="true" />
-                <div>
-                  <div className="font-display whitespace-nowrap text-sm font-light tracking-tight text-text-primary">
-                    {client.name}
-                  </div>
-                  <p className="mt-0.5 whitespace-nowrap text-[11px] text-text-tertiary">
-                    {client.context}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -107,6 +75,38 @@ export default function SocialProof({
             </div>
           </div>
         </ScrollReveal>
+      </div>
+
+      {/* ── Built with — tech strip ─────────────────────────────────────── */}
+      <div className="border-t border-border py-10 overflow-hidden">
+        <div className="container mb-6">
+          <span className="text-[10px] tracking-[0.2em] text-text-tertiary uppercase">Built with</span>
+        </div>
+
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-[linear-gradient(to_right,var(--color-surface),transparent)]" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-[linear-gradient(to_left,var(--color-surface),transparent)]" />
+
+          <div className="flex animate-[marquee_40s_linear_infinite] gap-0 will-change-transform">
+            {marqueeItems.map((client, i) => (
+              <div
+                key={`${client.name}-${i}`}
+                className="flex shrink-0 items-center gap-5 px-10"
+                aria-hidden={i >= clients.length}
+              >
+                <span className="size-[5px] shrink-0 rounded-full bg-accent opacity-40" aria-hidden="true" />
+                <div>
+                  <div className="font-body whitespace-nowrap text-sm font-medium tracking-tight text-text-primary">
+                    {client.name}
+                  </div>
+                  <p className="mt-0.5 whitespace-nowrap text-[11px] text-text-tertiary">
+                    {client.context}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
     </section>

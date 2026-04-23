@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ScrollReveal from "@/components/ScrollReveal";
-import CtaSection from "@/components/sections/CtaSection";
 import IndustryDetailHero from "@/components/sections/IndustryDetailHero";
-import { getCtaSectionCopy, getIndustryPage, getIndustrySlugs } from "@/lib/cms/queries";
+import { getIndustryPage, getIndustrySlugs } from "@/lib/cms/queries";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -35,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function IndustryDetailPage({ params }: Props) {
   const { slug } = await params;
-  const [detail, ctaCopy] = await Promise.all([getIndustryPage(slug), getCtaSectionCopy()]);
+  const detail = await getIndustryPage(slug);
   if (!detail) notFound();
 
   const showFocus = detail.focusBullets.length > 0;
@@ -99,7 +98,6 @@ export default async function IndustryDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <CtaSection copy={ctaCopy} />
     </>
   );
 }

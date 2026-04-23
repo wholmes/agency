@@ -41,7 +41,7 @@ export default function AboutHero({ content }: { content: AboutPageHero }) {
   return (
     <section className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]">
       <AboutInkCanvas />
-      <div className="container relative z-[1]">
+      <div className="relative z-[1] mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-16">
         <motion.p
           className="text-overline mb-5"
           initial="hidden"
@@ -60,7 +60,7 @@ export default function AboutHero({ content }: { content: AboutPageHero }) {
             custom={0}
             variants={clipVariant}
           >
-            {content.line1}
+            Disciplines that
           </motion.span>
           <motion.span
             className="block overflow-hidden pb-[0.04em]"
@@ -69,17 +69,8 @@ export default function AboutHero({ content }: { content: AboutPageHero }) {
             custom={0.14}
             variants={clipVariant}
           >
-            {content.line2}
-          </motion.span>
-          <motion.span
-            className="block overflow-hidden pb-[0.04em]"
-            initial="hidden"
-            animate="visible"
-            custom={0.28}
-            variants={clipVariant}
-          >
-            {content.line3BeforeEm}
-            <em className="italic-display text-accent">{content.line3Em}</em>
+            rarely{" "}
+            <em className="italic-display text-accent">meet</em>
           </motion.span>
         </h1>
 
@@ -87,7 +78,7 @@ export default function AboutHero({ content }: { content: AboutPageHero }) {
           className="text-body-lg max-w-[520px]"
           initial="hidden"
           animate="visible"
-          custom={0.56}
+          custom={0.42}
           variants={enterVariant}
         >
           {content.body}

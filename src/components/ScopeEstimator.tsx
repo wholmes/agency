@@ -92,16 +92,23 @@ export default function ScopeEstimator({ data }: { data: ScopeEstimatorData }) {
   const range = step === "result" ? calcRange(sel, data) : null;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface">
-      <div className="h-0.5 bg-border">
+    <div
+      className="overflow-hidden rounded-2xl border border-white/[0.08]"
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.06)",
+      }}
+    >
+      {/* Progress bar */}
+      <div className="h-px bg-white/[0.06]">
         <div
-          className="h-full bg-accent transition-[width] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
+          className="h-full bg-[#c9a55a] transition-[width] [transition-duration:400ms] [transition-timing-function:var(--ease-out)]"
           style={{ width: `${(stepIndex / (steps.length - 1)) * 100}%` }}
         />
       </div>
 
-      <div className="p-10">
-        <p className="mb-5 text-xs tracking-wider text-text-tertiary uppercase">
+      <div className="p-8 md:p-10">
+        <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/30">
           {formatStepLabel(data.stepTemplate, stepIndex + 1, steps.length)}
         </p>
 
@@ -135,7 +142,7 @@ export default function ScopeEstimator({ data }: { data: ScopeEstimatorData }) {
           {step === "integrations" && (
             <StepWrap key="integrations">
               <StepTitle>{st.integrations}</StepTitle>
-              <p className="mb-6 text-sm text-text-tertiary">{st.integrationsSub || data.integrationsHint}</p>
+              <p className="mb-6 text-[13px] text-white/35">{st.integrationsSub || data.integrationsHint}</p>
               <OptionGrid>
                 {data.integrations.map((i) => (
                   <OptionButton
@@ -180,17 +187,20 @@ export default function ScopeEstimator({ data }: { data: ScopeEstimatorData }) {
 
           {step === "result" && range && (
             <StepWrap key="result">
-              <p className="mb-4 text-xs font-semibold tracking-wider text-accent uppercase">{data.resultOverline}</p>
+              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-[#c9a55a]">{data.resultOverline}</p>
               <div className="mb-6">
-                <div className="font-display text-4xl leading-none font-light tracking-tight text-text-primary">
+                <div className="font-display text-[clamp(2.5rem,5vw,4rem)] font-light leading-none tracking-[-0.03em] text-white">
                   {fmt(range.low)}–{fmt(range.high)}
                 </div>
-                <p className="mt-2 text-sm text-text-secondary">
+                <p className="mt-2 text-[13px] text-white/40">
                   {range.weeks} · {st.estimateTagline}
                 </p>
               </div>
 
-              <div className="mb-8 rounded-md border border-accent-muted bg-accent-subtle p-5 text-sm leading-relaxed text-text-secondary">
+              <div
+                className="mb-8 rounded-xl border border-[#c9a55a]/20 p-5 text-[13px] leading-relaxed text-white/40"
+                style={{ background: "rgba(201,165,90,0.05)" }}
+              >
                 {data.resultDisclaimer}
               </div>
 
@@ -233,7 +243,7 @@ function StepWrap({ children }: { children: React.ReactNode }) {
 
 function StepTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="font-display mb-6 text-2xl font-light leading-snug tracking-tight">{children}</h3>
+    <h3 className="mb-6 font-display text-[clamp(1.5rem,3vw,2.25rem)] font-light leading-[0.95] tracking-[-0.025em] text-white">{children}</h3>
   );
 }
 
@@ -257,17 +267,29 @@ function OptionButton({
     <button
       type="button"
       onClick={onClick}
-      className={`option-btn flex cursor-pointer items-center gap-2 rounded-md border px-5 py-4 text-left text-sm font-body transition-all [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] ${
+      className="option-btn flex cursor-pointer items-center gap-2 rounded-xl border px-5 py-4 text-left font-body text-[13px] transition-all [transition-duration:200ms] [transition-timing-function:var(--ease-out)]"
+      style={
         selected
-          ? "border-accent bg-accent-subtle text-accent"
-          : "border-border bg-bg text-text-secondary"
-      }`}
+          ? {
+              borderColor: "rgba(201,165,90,0.5)",
+              background: "rgba(201,165,90,0.08)",
+              color: "#c9a55a",
+            }
+          : {
+              borderColor: "rgba(255,255,255,0.07)",
+              background: "rgba(255,255,255,0.03)",
+              color: "rgba(255,255,255,0.55)",
+            }
+      }
     >
       {multiSelect && (
         <span
-          className={`flex size-4 shrink-0 items-center justify-center rounded border transition-all [transition-duration:var(--duration-fast)] [transition-timing-function:var(--ease-out)] ${
-            selected ? "border-accent bg-accent text-bg" : "border-border bg-transparent"
-          }`}
+          className="flex size-4 shrink-0 items-center justify-center rounded border transition-all [transition-duration:150ms]"
+          style={
+            selected
+              ? { borderColor: "#c9a55a", background: "#c9a55a", color: "#0e0e0e" }
+              : { borderColor: "rgba(255,255,255,0.15)", background: "transparent" }
+          }
         >
           {selected && <IconCheck size={10} />}
         </span>

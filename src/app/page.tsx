@@ -1,27 +1,18 @@
 import type { Metadata } from "next";
-import Hero from "@/components/sections/Hero";
-import SocialProof from "@/components/sections/SocialProof";
-import ServicesSection from "@/components/sections/ServicesSection";
-import WorkPreview from "@/components/sections/WorkPreview";
-import AboutTeaser from "@/components/sections/AboutTeaser";
-import CtaSection from "@/components/sections/CtaSection";
-import ChapterProgress from "@/components/ChapterProgress";
+import V2Hero from "@/components/v2/V2Hero";
+import V2ServicesSection from "@/components/v2/V2ServicesSection";
+import V2ProjectsGrid from "@/components/v2/V2ProjectsGrid";
+import V2Footer from "@/components/v2/V2Footer";
 import {
-  getAboutHomeTeaser,
-  getAboutTeaserBeliefs,
-  getCtaSectionCopy,
-  getFeaturedTestimonial,
-  getHomeHero,
-  getProjects,
   getServiceOfferingsForHome,
   getServicesHomeSection,
-  getSocialClients,
-  getSocialStats,
-  getWorkPreviewSection,
+  getFooterCopy,
+  getSiteChrome,
+  getSiteSettings,
 } from "@/lib/cms/queries";
 
 export const metadata: Metadata = {
-  title: "BrandMeetsCode — Premium Web Development Agency",
+  title: "BrandMeetsCode — Premium Digital Studio",
   description:
     "BrandMeetsCode builds premium websites for B2B companies and SaaS founders. Brand strategy meets technical execution — Lighthouse ≥ 90 guaranteed.",
   alternates: {
@@ -29,64 +20,40 @@ export const metadata: Metadata = {
   },
 };
 
-const SECTION_IDS = ["section-proof", "section-services", "section-work", "section-about", "section-cta"];
-
 export default async function Home() {
-  const [
-    homeHero,
-    projects,
-    stats,
-    clients,
-    testimonial,
-    serviceOfferings,
-    servicesHome,
-    workPreviewSection,
-    aboutIntro,
-    beliefs,
-    ctaCopy,
-  ] = await Promise.all([
-    getHomeHero(),
-    getProjects(),
-    getSocialStats(),
-    getSocialClients(),
-    getFeaturedTestimonial(),
+  const [serviceOfferings, servicesHome, footer, chrome, settings] = await Promise.all([
     getServiceOfferingsForHome(),
     getServicesHomeSection(),
-    getWorkPreviewSection(),
-    getAboutHomeTeaser(),
-    getAboutTeaserBeliefs(),
-    getCtaSectionCopy(),
+    getFooterCopy(),
+    getSiteChrome(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
-      <ChapterProgress sectionIds={SECTION_IDS} />
-      <Hero content={homeHero} />
-      <div id="section-proof">
-        <SocialProof
-          stats={stats.map((s) => ({ value: s.value, label: s.label }))}
-          clients={clients.map((c) => ({ name: c.name, context: c.context }))}
-          testimonial={{
-            quote: testimonial.quote,
-            authorName: testimonial.authorName,
-            authorTitle: testimonial.authorTitle,
-            authorInitials: testimonial.authorInitials,
-            starCount: testimonial.starCount,
+      <div className="relative bg-[#0e0e0e]">
+        {/* Noise grain overlay */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[9999]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "repeat",
+            backgroundSize: "200px 200px",
+            opacity: 0.04,
+            mixBlendMode: "overlay",
           }}
         />
+        <V2Hero />
+        <V2ServicesSection offerings={serviceOfferings} homeSection={servicesHome} />
+        <V2ProjectsGrid />
       </div>
-      <div id="section-services">
-        <ServicesSection offerings={serviceOfferings} homeSection={servicesHome} />
-      </div>
-      <div id="section-work">
-        <WorkPreview projects={projects} header={workPreviewSection} />
-      </div>
-      <div id="section-about">
-        <AboutTeaser intro={aboutIntro} beliefs={beliefs} />
-      </div>
-      <div id="section-cta">
-        <CtaSection copy={ctaCopy} />
-      </div>
+      <V2Footer
+        tagline={footer.tagline}
+        remoteBlurb={footer.remoteBlurb}
+        contactEmail={settings.contactEmail}
+        chrome={chrome}
+      />
     </>
   );
 }

@@ -583,6 +583,15 @@ export default function TeamSection({ members: raw }: { members: TeamMember[] })
           >
             The best products sit at the edge of disciplines. So do the people who build them.
           </motion.p>
+          <motion.p
+            className="mt-3 max-w-md text-sm leading-relaxed text-text-tertiary"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.26 }}
+          >
+            We&rsquo;re a small, senior team. No juniors in client-facing work. Every project is handled by people who have done this many times before.
+          </motion.p>
         </div>
 
         {/* Display case */}

@@ -3,9 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IconArrowUpRight, IconCheck } from "@/components/icons";
 import ScrollReveal from "@/components/ScrollReveal";
-import CtaSection from "@/components/sections/CtaSection";
 import {
-  getCtaSectionCopy,
   getServiceDetailPage,
   getServiceDetailSlugs,
 } from "@/lib/cms/queries";
@@ -41,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ServiceDetailRoute({ params }: Props) {
   const { slug } = await params;
-  const [detail, ctaCopy] = await Promise.all([getServiceDetailPage(slug), getCtaSectionCopy()]);
+  const detail = await getServiceDetailPage(slug);
   if (!detail) notFound();
 
   const showWho = detail.whoForBullets.length > 0;
@@ -184,7 +182,6 @@ export default async function ServiceDetailRoute({ params }: Props) {
         </div>
       </section>
 
-      <CtaSection copy={ctaCopy} />
     </>
   );
 }

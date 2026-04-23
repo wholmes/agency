@@ -40,29 +40,17 @@ const clipVariant: Variants = {
   }),
 };
 
-export default function IndustriesHero({ hub }: { hub: IndustriesHub }) {
+export default function IndustriesHero({ hub, industries }: { hub: IndustriesHub; industries: { listTitle: string; slug: string }[] }) {
   return (
     <section
       aria-labelledby="industries-heading"
-      className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]"
+      className="relative flex min-h-[90dvh] flex-col justify-center overflow-hidden border-b border-white/[0.06] bg-[#0e0e0e] pt-[var(--nav-height)]"
     >
       <IndustriesOrbitCanvas />
 
-      {/* Subtle grid overlay */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(201,165,90,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(201,165,90,0.025)_1px,transparent_1px)] bg-size-[80px_80px]"
-      />
-
-      {/* Radial accent */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-[30%] left-1/2 -translate-x-1/2 size-[700px] rounded-full bg-[radial-gradient(circle,rgba(201,165,90,0.05)_0%,transparent_65%)]"
-      />
-
-      <div className="container relative z-[1]">
+      <div className="relative z-[1] w-full px-8 md:px-16">
         <motion.p
-          className="text-overline mb-6"
+          className="mb-5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50"
           initial="hidden"
           animate="visible"
           custom={0.08}
@@ -71,20 +59,20 @@ export default function IndustriesHero({ hub }: { hub: IndustriesHub }) {
           {hub.overline}
         </motion.p>
 
-        <h1 id="industries-heading" className="text-h1 mb-6 max-w-[640px]">
+        <h1 id="industries-heading" className="mb-6">
           <motion.span
-            className="block overflow-hidden pb-[0.04em]"
+            className="block overflow-hidden pb-[0.04em] font-display text-[clamp(3rem,6vw,6rem)] font-light leading-[0.93] tracking-[-0.03em] text-white"
             initial="hidden"
             animate="visible"
             custom={0}
             variants={clipVariant}
           >
-            {hub.headline}
+            Industries.
           </motion.span>
         </h1>
 
         <motion.p
-          className="text-body-lg max-w-[520px] text-text-secondary"
+          className="mb-10 max-w-[480px] text-[15px] leading-relaxed text-white/60"
           initial="hidden"
           animate="visible"
           custom={0.42}
@@ -92,27 +80,45 @@ export default function IndustriesHero({ hub }: { hub: IndustriesHub }) {
         >
           {hub.introBody}
         </motion.p>
-      </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.3, duration: 0.55 }}
-        className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
-        aria-hidden="true"
-      >
-        <span className="text-xs tracking-[0.15em] text-text-tertiary uppercase">
-          Scroll
-        </span>
-        <div className="relative h-10 w-px overflow-hidden bg-border">
-          <motion.div
-            animate={{ y: ["-100%", "100%"] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "linear", repeatDelay: 0.3 }}
-            className="absolute inset-0 bg-accent"
-          />
-        </div>
-      </motion.div>
+        {/* Industry pills */}
+        <motion.div
+          className="flex flex-wrap gap-2"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.7, ease: EASE_OUT }}
+        >
+          {industries.map((item, i) => (
+            <motion.a
+              key={item.slug}
+              href={`/industries/${item.slug}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.75 + i * 0.07, duration: 0.5, ease: EASE_OUT }}
+              className="inline-flex items-center gap-2 rounded-full border border-white/[0.1] px-4 py-1.5 font-mono text-[11px] tracking-[0.12em] text-white/40 no-underline"
+              style={{ background: "rgba(255,255,255,0.03)", transition: `color 0.3s, border-color 0.3s, background 0.3s` }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget;
+                el.style.color = "rgba(201,165,90,0.9)";
+                el.style.borderColor = "rgba(201,165,90,0.3)";
+                el.style.background = "rgba(201,165,90,0.06)";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget;
+                el.style.color = "rgba(255,255,255,0.4)";
+                el.style.borderColor = "rgba(255,255,255,0.1)";
+                el.style.background = "rgba(255,255,255,0.03)";
+              }}
+            >
+              <span
+                className="size-1.5 rounded-full"
+                style={{ background: "rgba(201,165,90,0.5)" }}
+              />
+              {item.listTitle}
+            </motion.a>
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }

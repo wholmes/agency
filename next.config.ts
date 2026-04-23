@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // Tree-shake framer-motion: only bundle the named exports actually imported.
     optimizePackageImports: ["framer-motion"],
+    serverActions: {
+      // Full-page screenshots as base64 can be several MB — raise the limit.
+      bodySizeLimit: "8mb",
+    },
   },
 
   // Dev-only: Next blocks cross-origin requests to dev internals unless the browser's host is allowed.

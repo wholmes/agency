@@ -49,7 +49,7 @@
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
 
-export type HeroFieldVariant = "home" | "services";
+export type HeroFieldVariant = "home" | "services" | "cta";
 
 type FieldConfig = {
   cols: number;
@@ -97,6 +97,22 @@ const CONFIG: Record<HeroFieldVariant, FieldConfig> = {
     sunPos: [5, 9, 4],
     boxBody: 0.92,
     boxTop: 0.94,
+  },
+  // cta: wireframe-only variant — same wave as home but rendered as edges
+  cta: {
+    cols: 16,
+    rows: 16,
+    gap: 1.08,
+    minH: 0.08,
+    maxH: 3.8,
+    bodyHex: 0x191714,
+    topSlabY: 0.03,
+    ambient: 0.28,
+    sunColor: 0xfff6e6,
+    sunIntensity: 1.5,
+    sunPos: [4, 10, 3],
+    boxBody: 0.93,
+    boxTop: 0.95,
   },
 };
 
@@ -210,6 +226,8 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     let topGeo: THREE.BoxGeometry | undefined;
     let topMat: THREE.MeshLambertMaterial | undefined;
     let resizeObserver: ResizeObserver | undefined;
+    // Extra cleanup registered by init() for variant-specific resources
+    let extraDispose: (() => void) | undefined;
 
     const dispose = () => {
       disposed = true;
@@ -222,6 +240,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       bodyMat?.dispose();
       topGeo?.dispose();
       topMat?.dispose();
+      extraDispose?.();
       renderer?.dispose();
     };
 
@@ -346,6 +365,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       const cfg = CONFIG[variant];
       const N = cfg.cols * cfg.rows;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const isWireframe = variant === "cta";
 
       try {
         renderer = new THREE.WebGLRenderer({
@@ -376,34 +396,133 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
       const GX = ((cfg.cols - 1) * cfg.gap) / 2;
       const GZ = ((cfg.rows - 1) * cfg.gap) / 2;
 
-      const ambient = new THREE.AmbientLight(0xffffff, cfg.ambient);
-      const sun = new THREE.DirectionalLight(cfg.sunColor, cfg.sunIntensity);
-      sun.position.set(...cfg.sunPos);
-      scene.add(ambient, sun);
-
-      bodyGeo = new THREE.BoxGeometry(cfg.boxBody, 1, cfg.boxBody);
-      bodyMat = new THREE.MeshLambertMaterial({ color: cfg.bodyHex });
-      const bodyMesh = new THREE.InstancedMesh(bodyGeo, bodyMat, N);
-      bodyMesh.frustumCulled = false;
-      scene.add(bodyMesh);
-
-      const topH = variant === "services" ? 0.055 : 0.06;
-      topGeo = new THREE.BoxGeometry(cfg.boxTop, topH, cfg.boxTop);
-      topMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-      const topMesh = new THREE.InstancedMesh(topGeo, topMat, N);
-      topMesh.frustumCulled = false;
-      const initGold = new THREE.Color(0xd4a760);
-      for (let i = 0; i < N; i++) topMesh.setColorAt(i, initGold);
-      topMesh.instanceColor!.needsUpdate = true;
-      scene.add(topMesh);
-
       const quat = new THREE.Quaternion();
       const pos = new THREE.Vector3();
       const scl = new THREE.Vector3();
       const mx = new THREE.Matrix4();
-      const topCol = new THREE.Color();
 
-      const { frustumH, frustumW } = computeFrustum(variant, cfg, initRenderW, H);
+      // ── Wireframe (cta) variant ───────────────────────────────────────────
+      // One LineSegments per bar — edges only, no fill, no lighting.
+      // We pre-build N dummy boxes and update their Y scale each frame.
+      let wireMeshes: THREE.LineSegments[] | undefined;
+      let wireMat: THREE.LineBasicMaterial | undefined;
+      let wireGeos: THREE.BufferGeometry[] | undefined;
+
+      if (isWireframe) {
+        wireMat = new THREE.LineBasicMaterial({
+          color: 0xc9a55a,
+          transparent: true,
+          opacity: 0.35,
+        });
+        wireMeshes = [];
+        wireGeos = [];
+        for (let i = 0; i < N; i++) {
+          const base = new THREE.BoxGeometry(cfg.boxBody, 1, cfg.boxBody);
+          const wGeo = new THREE.WireframeGeometry(base);
+          base.dispose();
+          const line = new THREE.LineSegments(wGeo, wireMat);
+          line.frustumCulled = false;
+          scene.add(line);
+          wireMeshes.push(line);
+          wireGeos.push(wGeo);
+        }
+      } else {
+        // ── Solid (home / services) variant ──────────────────────────────────
+        const ambient = new THREE.AmbientLight(0xffffff, cfg.ambient);
+        const sun = new THREE.DirectionalLight(cfg.sunColor, cfg.sunIntensity);
+        sun.position.set(...cfg.sunPos);
+        scene.add(ambient, sun);
+
+        bodyGeo = new THREE.BoxGeometry(cfg.boxBody, 1, cfg.boxBody);
+        bodyMat = new THREE.MeshLambertMaterial({ color: cfg.bodyHex });
+        const bodyMesh = new THREE.InstancedMesh(bodyGeo, bodyMat, N);
+        bodyMesh.frustumCulled = false;
+        scene.add(bodyMesh);
+
+        const topH = variant === "services" ? 0.055 : 0.06;
+        topGeo = new THREE.BoxGeometry(cfg.boxTop, topH, cfg.boxTop);
+        topMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const topMesh = new THREE.InstancedMesh(topGeo, topMat, N);
+        topMesh.frustumCulled = false;
+        const initGold = new THREE.Color(0xd4a760);
+        for (let i = 0; i < N; i++) topMesh.setColorAt(i, initGold);
+        topMesh.instanceColor!.needsUpdate = true;
+        scene.add(topMesh);
+
+        const topCol = new THREE.Color();
+
+        const { frustumH, frustumW } = computeFrustum(variant, cfg, initRenderW, H);
+        camera = new THREE.OrthographicCamera(
+          -frustumW * 0.76,
+          frustumW * 0.24,
+          frustumH / 2,
+          -frustumH / 2,
+          0.1,
+          500,
+        );
+        const lookX0 = portrait0 ? -3 : GX;
+        camera.position.set(lookX0 + 80, 80, GZ + 80);
+        camera.lookAt(lookX0, cfg.maxH * 0.25, GZ);
+
+        const t0 = performance.now();
+        let lastFrameTime = 0;
+        let frameCount = 0;
+        const heightFn = variant === "services" ? heightServices : heightHome;
+
+        const loop = (now: number) => {
+          if (disposed) return;
+          rafId = requestAnimationFrame(loop);
+          if (!tabVisible) return;
+          if (now - lastFrameTime < FRAME_MS) return;
+          lastFrameTime = now;
+
+          const t = reduced ? 0.5 : (now - t0 - accumulatedHiddenMs) * 0.001;
+          scroll.smooth += (scroll.pct - scroll.smooth) * 0.1;
+          const sp = Math.sqrt(scroll.smooth);
+
+          for (let row = 0; row < cfg.rows; row++) {
+            for (let col = 0; col < cfg.cols; col++) {
+              const idx = row * cfg.cols + col;
+              const wx = col * cfg.gap;
+              const wz = row * cfg.gap;
+              const h = heightFn(col, row, t, sp, cfg.cols, cfg.rows, cfg.minH, cfg.maxH);
+
+              pos.set(wx, h / 2, wz);
+              scl.set(1, h, 1);
+              mx.compose(pos, quat, scl);
+              bodyMesh.setMatrixAt(idx, mx);
+
+              pos.set(wx, h + cfg.topSlabY, wz);
+              scl.set(1, 1, 1);
+              mx.compose(pos, quat, scl);
+              topMesh.setMatrixAt(idx, mx);
+
+              applyTopGold(variant, h, cfg.minH, cfg.maxH, topCol);
+              topMesh.setColorAt(idx, topCol);
+            }
+          }
+
+          bodyMesh.instanceMatrix.needsUpdate = true;
+          topMesh.instanceMatrix.needsUpdate = true;
+          topMesh.instanceColor!.needsUpdate = true;
+
+          const renderStart = performance.now();
+          renderer!.render(scene, camera);
+          const renderMs = performance.now() - renderStart;
+
+          frameCount++;
+          if (frameCount <= 5 && renderMs > 60) {
+            cancelAnimationFrame(rafId);
+            rafId = 0;
+          }
+        };
+
+        rafId = requestAnimationFrame(loop);
+        return; // solid variant loop set up — exit init
+      }
+
+      // ── Wireframe loop ────────────────────────────────────────────────────
+      const { frustumH, frustumW } = computeFrustum("home", cfg, initRenderW, H);
       camera = new THREE.OrthographicCamera(
         -frustumW * 0.76,
         frustumW * 0.24,
@@ -412,30 +531,21 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         0.1,
         500,
       );
-      // On portrait mobile, look left of the grid so the right-aligned canvas
-      // shows empty space on the left and the grid's entry diagonal on the right.
-      const lookX0 = portrait0 ? -3 : GX;
-      camera.position.set(lookX0 + 80, 80, GZ + 80);
-      camera.lookAt(lookX0, cfg.maxH * 0.25, GZ);
+      camera.position.set(GX + 80, 80, GZ + 80);
+      camera.lookAt(GX, cfg.maxH * 0.25, GZ);
 
-      const t0 = performance.now();
-      let lastFrameTime = 0;
-      let frameCount = 0;
-      const heightFn = variant === "services" ? heightServices : heightHome;
+      const t0w = performance.now();
+      let lastFrameTimeW = 0;
+      let frameCountW = 0;
 
-      const loop = (now: number) => {
+      const loopWire = (now: number) => {
         if (disposed) return;
-        rafId = requestAnimationFrame(loop);
+        rafId = requestAnimationFrame(loopWire);
         if (!tabVisible) return;
+        if (now - lastFrameTimeW < FRAME_MS) return;
+        lastFrameTimeW = now;
 
-        // 30 fps cap
-        if (now - lastFrameTime < FRAME_MS) return;
-        lastFrameTime = now;
-
-        const t = reduced ? 0.5 : (now - t0 - accumulatedHiddenMs) * 0.001;
-        // Lerp smooth scroll toward the real value — fast enough to feel
-        // responsive during normal scrolling, but prevents the violent jump
-        // when returning to a tab that was scrolled while hidden.
+        const t = reduced ? 0.5 : (now - t0w - accumulatedHiddenMs) * 0.001;
         scroll.smooth += (scroll.pct - scroll.smooth) * 0.1;
         const sp = Math.sqrt(scroll.smooth);
 
@@ -444,43 +554,45 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
             const idx = row * cfg.cols + col;
             const wx = col * cfg.gap;
             const wz = row * cfg.gap;
-            const h = heightFn(col, row, t, sp, cfg.cols, cfg.rows, cfg.minH, cfg.maxH);
+            const h = heightHome(col, row, t, sp, cfg.cols, cfg.rows, cfg.minH, cfg.maxH);
+
+            // Taller bars = more opaque gold, shorter = dimmer white-ish
+            const k = (h - cfg.minH) / (cfg.maxH - cfg.minH);
+            const line = wireMeshes![idx];
+            const mat = line.material as THREE.LineBasicMaterial;
+            mat.opacity = 0.12 + k * 0.45;
+            // Shift hue: tall = gold, short = cool white
+            const r = 0.55 + k * 0.24;
+            const g = 0.47 + k * 0.18;
+            const b = 0.28 + (1 - k) * 0.22;
+            mat.color.setRGB(r, g, b);
 
             pos.set(wx, h / 2, wz);
             scl.set(1, h, 1);
             mx.compose(pos, quat, scl);
-            bodyMesh.setMatrixAt(idx, mx);
-
-            pos.set(wx, h + cfg.topSlabY, wz);
-            scl.set(1, 1, 1);
-            mx.compose(pos, quat, scl);
-            topMesh.setMatrixAt(idx, mx);
-
-            applyTopGold(variant, h, cfg.minH, cfg.maxH, topCol);
-            topMesh.setColorAt(idx, topCol);
+            line.matrix.copy(mx);
+            line.matrixAutoUpdate = false;
           }
         }
-
-        bodyMesh.instanceMatrix.needsUpdate = true;
-        topMesh.instanceMatrix.needsUpdate = true;
-        topMesh.instanceColor!.needsUpdate = true;
 
         const renderStart = performance.now();
         renderer!.render(scene, camera);
         const renderMs = performance.now() - renderStart;
 
-        frameCount++;
-        // Adaptive quality: if the first few frames are slow (software rendering /
-        // headless Chromium / very slow device), stop the loop and keep the current
-        // frame as a static background. Real GPUs render in <5 ms; SwiftShader
-        // typically takes 100–300 ms. This prevents runaway TBT on Lighthouse.
-        if (frameCount <= 5 && renderMs > 60) {
+        frameCountW++;
+        if (frameCountW <= 5 && renderMs > 60) {
           cancelAnimationFrame(rafId);
           rafId = 0;
         }
       };
 
-      rafId = requestAnimationFrame(loop);
+      rafId = requestAnimationFrame(loopWire);
+
+      // Register wireframe-specific cleanup
+      extraDispose = () => {
+        wireGeos?.forEach((g) => g.dispose());
+        wireMat?.dispose();
+      };
     };
 
     // Start immediately — adaptive quality bails out after first slow frame.

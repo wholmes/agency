@@ -101,28 +101,28 @@ const FRAG = /* glsl */ `
     vec3 col = bg;
 
     /* ── Ring A  (large, gentle tilt, long trail) ────────────────── */
-    float rA = ringGlow(p, 0.56, 0.19, 0.14,  0.0055);
-    float nA = orbitNode(p, 0.56, 0.19, 0.14, mod(t * 0.35, TAU), 1.6);
+    float rA = ringGlow(p, 0.42, 0.14, 0.14,  0.0055);
+    float nA = orbitNode(p, 0.42, 0.14, 0.14, mod(t * 0.35, TAU), 1.6);
     col += goldD * 0.30 * rA + gold  * 0.055 * nA;
 
     /* ── Ring B  (medium, 30° tilt, counter-rotating) ────────────── */
-    float rB = ringGlow(p, 0.42, 0.36, 1.18,  0.0060);
-    float nB = orbitNode(p, 0.42, 0.36, 1.18, mod(-t * 0.48, TAU), 1.2);
+    float rB = ringGlow(p, 0.32, 0.27, 1.18,  0.0060);
+    float nB = orbitNode(p, 0.32, 0.27, 1.18, mod(-t * 0.48, TAU), 1.2);
     col += goldD * 0.26 * rB + goldM * 0.065 * nB;
 
     /* ── Ring C  (large, steep tilt, fast) ──────────────────────── */
-    float rC = ringGlow(p, 0.69, 0.13, -0.52, 0.0048);
-    float nC = orbitNode(p, 0.69, 0.13, -0.52, mod(t * 0.68, TAU), 0.85);
+    float rC = ringGlow(p, 0.52, 0.10, -0.52, 0.0048);
+    float nC = orbitNode(p, 0.52, 0.10, -0.52, mod(t * 0.68, TAU), 0.85);
     col += goldD * 0.22 * rC + gold  * 0.050 * nC;
 
     /* ── Ring D  (small, perpendicular-ish, very slow) ───────────── */
-    float rD = ringGlow(p, 0.33, 0.29, -1.25, 0.0058);
-    float nD = orbitNode(p, 0.33, 0.29, -1.25, mod(-t * 0.22, TAU), 1.9);
+    float rD = ringGlow(p, 0.25, 0.22, -1.25, 0.0058);
+    float nD = orbitNode(p, 0.25, 0.22, -1.25, mod(-t * 0.22, TAU), 1.9);
     col += goldD * 0.28 * rD + goldM * 0.070 * nD;
 
     /* ── Ring E  (very large, shallow, slowest) ──────────────────── */
-    float rE = ringGlow(p, 0.82, 0.21, 0.78,  0.0042);
-    float nE = orbitNode(p, 0.82, 0.21, 0.78,  mod(t * 0.17, TAU), 2.2);
+    float rE = ringGlow(p, 0.62, 0.16, 0.78,  0.0042);
+    float nE = orbitNode(p, 0.62, 0.16, 0.78,  mod(t * 0.17, TAU), 2.2);
     col += goldD * 0.18 * rE + goldM * 0.045 * nE;
 
     /* ── Central core glow ───────────────────────────────────────── */

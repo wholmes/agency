@@ -7,7 +7,7 @@
 @theme {
   /* Fonts (Next.js `next/font` sets --font-fraunces, --font-dm-sans, --font-dm-mono on <html>) */
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-body: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-dm-mono), ui-monospace, monospace;
 
   /* Brand colors → utilities: bg-bg, text-accent, border-border, … */
@@ -238,7 +238,9 @@
   }
 
   .italic-display {
+    font-family: var(--font-fraunces), ui-serif, Georgia, serif;
     font-style: italic;
+    font-weight: 300;
     font-variation-settings: "SOFT" 60, "WONK" 0;
     transition: font-variation-settings 500ms var(--ease-out);
   }
@@ -267,7 +269,7 @@
   }
 
   .btn {
-    @apply relative inline-flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-sm px-6 py-4 font-body text-sm font-medium uppercase tracking-wide transition-[background-color,color,transform,box-shadow,border-color];
+    @apply relative inline-flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-full px-6 py-4 font-body text-sm font-medium uppercase tracking-wide transition-[background-color,color,transform,box-shadow,border-color];
     transition-duration: var(--duration-base);
     transition-timing-function: var(--ease-out);
   }

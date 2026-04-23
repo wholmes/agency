@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/projects";
-import { getCaseStudyUiLabels, getCtaSectionCopy } from "@/lib/cms/queries";
-import CtaSection from "@/components/sections/CtaSection";
+import { getCaseStudyUiLabels } from "@/lib/cms/queries";
 import CaseStudyContent from "./CaseStudyContent";
 
 interface Props {
@@ -24,9 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CaseStudyPage({ params }: Props) {
   const { id } = await params;
-  const [project, ctaCopy, labels] = await Promise.all([
+  const [project, labels] = await Promise.all([
     getProject(id),
-    getCtaSectionCopy(),
     getCaseStudyUiLabels(),
   ]);
   if (!project) notFound();
@@ -34,7 +32,6 @@ export default async function CaseStudyPage({ params }: Props) {
   return (
     <>
       <CaseStudyContent project={project} labels={labels} />
-      <CtaSection copy={ctaCopy} />
     </>
   );
 }

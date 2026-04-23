@@ -294,7 +294,7 @@ function HorizontalCard({
           <div className="h-px w-full bg-border" aria-hidden />
           <motion.h3
             style={{ x: titleX }}
-            className="font-display text-2xl font-light leading-tight tracking-tight text-text-primary"
+            className="font-body text-2xl font-semibold leading-tight tracking-tight text-text-primary"
           >
             {cap.title}
           </motion.h3>
@@ -428,7 +428,7 @@ function StaticCard({ cap }: { cap: Capability }) {
         <span className="font-mono text-[10px] tracking-[0.2em] text-text-tertiary">{cap.number}</span>
       </div>
       <div>
-        <h3 className="font-display mb-2 text-xl font-light tracking-tight text-text-primary">{cap.title}</h3>
+        <h3 className="font-body mb-2 text-xl font-semibold tracking-tight text-text-primary">{cap.title}</h3>
         <p className="text-sm leading-relaxed text-text-secondary">{cap.descriptor}</p>
       </div>
       {cap.showTags && cap.tags.length > 0 && (

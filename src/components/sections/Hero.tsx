@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion, useInView, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
 import MagneticButton from "../MagneticButton";
 import type { HomeHero } from "@prisma/client";
@@ -55,7 +55,11 @@ const clipVariant: Variants = {
 };
 
 export default function Hero({ content }: { content: HomeHero }) {
+  const sectionRef = useRef<HTMLElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+
+  // once: false so animation replays every time the hero scrolls back into view
+  const inView = useInView(sectionRef, { once: false, amount: 0.3 });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,6 +74,7 @@ export default function Hero({ content }: { content: HomeHero }) {
 
   return (
     <section
+      ref={sectionRef}
       aria-label="Hero"
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden bg-bg pt-[var(--nav-height)]"
     >
@@ -97,7 +102,7 @@ export default function Hero({ content }: { content: HomeHero }) {
           <motion.p
             className="text-overline mb-6"
             initial="hidden"
-            animate="visible"
+            animate={inView ? "visible" : "hidden"}
             custom={0.1}
             variants={enterVariant}
           >
@@ -108,7 +113,7 @@ export default function Hero({ content }: { content: HomeHero }) {
             <motion.span
               className="text-display block overflow-hidden pb-[0.28em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
-              animate="visible"
+              animate={inView ? "visible" : "hidden"}
               custom={0}
               variants={clipVariant}
             >
@@ -117,7 +122,7 @@ export default function Hero({ content }: { content: HomeHero }) {
             <motion.span
               className="text-display block overflow-hidden pb-[0.28em] max-md:mt-0 max-md:pl-8 max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:pl-[clamp(2rem,10vw,12rem)] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
-              animate="visible"
+              animate={inView ? "visible" : "hidden"}
               custom={0.12}
               variants={clipVariant}
             >
@@ -126,7 +131,7 @@ export default function Hero({ content }: { content: HomeHero }) {
             <motion.span
               className="text-display block overflow-hidden pb-[0.28em] max-md:leading-[0.94] max-md:tracking-[-0.02em] md:-mt-[20px] md:leading-[0.82] md:tracking-[-0.03em]"
               initial="hidden"
-              animate="visible"
+              animate={inView ? "visible" : "hidden"}
               custom={0.24}
               variants={clipVariant}
             >
@@ -137,7 +142,7 @@ export default function Hero({ content }: { content: HomeHero }) {
           <motion.p
             className="text-body-lg mb-8 max-w-[480px] max-md:leading-[1.85] max-md:text-text-primary/88"
             initial="hidden"
-            animate="visible"
+            animate={inView ? "visible" : "hidden"}
             custom={0.55}
             variants={enterVariant}
           >
@@ -147,7 +152,7 @@ export default function Hero({ content }: { content: HomeHero }) {
           <motion.div
             className="flex flex-wrap gap-4"
             initial="hidden"
-            animate="visible"
+            animate={inView ? "visible" : "hidden"}
             custom={0.7}
             variants={enterVariant}
           >
@@ -179,7 +184,7 @@ export default function Hero({ content }: { content: HomeHero }) {
 
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: inView ? 1 : 0 }}
         transition={{ delay: 1.4, duration: 0.6 }}
         className="absolute bottom-10 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2"
         aria-hidden="true"
