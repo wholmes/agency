@@ -800,8 +800,8 @@ async function main() {
       altRoutesHeading: "Prefer a different route?",
       emailCardTitle: "Email directly",
       calendarCardTitle: "Book a call",
-      calendarCardSubtitle: "30-minute discovery call, no obligation",
-      calendlyUrl: "https://calendly.com/brandmeetscode",
+      calendarCardSubtitle: "15-minute intro call, no obligation",
+      calendlyUrl: "https://calendly.com/wecreateyou/15min",
     },
   });
 
