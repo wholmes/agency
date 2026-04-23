@@ -36,6 +36,7 @@ const yellowtail = Yellowtail({
   display: "swap",
   variable: "--font-yellowtail",
   weight: "400",
+  preload: false,
 });
 
 const dmMono = DM_Mono({
@@ -43,6 +44,7 @@ const dmMono = DM_Mono({
   display: "swap",
   variable: "--font-dm-mono",
   weight: ["300", "400", "500"],
+  preload: false,
 });
 
 

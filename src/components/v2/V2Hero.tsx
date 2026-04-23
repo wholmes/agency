@@ -65,12 +65,12 @@ export default function V2Hero() {
           <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/45">BrandMeetsCode · Digital Studio</span>
         </motion.div>
 
-        {/* Big headline */}
+        {/* Big headline — rendered visible immediately for LCP, only y animates */}
         <div className="mb-8 overflow-hidden">
           <motion.h1
             className="font-display text-[clamp(3rem,7.5vw,7.5rem)] font-light leading-[0.93] tracking-[-0.03em] text-white"
-            initial={{ opacity: 0, y: "0.3em" }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: "0.3em" }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
           >
             <span className="block">The studio that makes</span>
