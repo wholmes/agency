@@ -76,10 +76,12 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               <ScrollReveal delay={80}>
-                <h1 className="mb-8 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-light leading-[0.95] tracking-[-0.03em] text-white">
-                  {copy.heroLineBeforeEm}
-                  <em className="font-display italic text-[#c9a55a]">{copy.heroEmphasis}</em>
-                  {copy.heroLineAfterEm}
+                <h1 className="mb-8 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-light leading-[1.02] tracking-[-0.03em] text-white">
+                  <span className="block">{copy.heroLineBeforeEm.trimEnd()}</span>
+                  <span className="block">
+                    <em className="font-display italic text-[#c9a55a]">{copy.heroEmphasis}</em>
+                    {copy.heroLineAfterEm}
+                  </span>
                 </h1>
               </ScrollReveal>
 

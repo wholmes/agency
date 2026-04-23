@@ -786,9 +786,9 @@ async function main() {
       metaDescription:
         "Tell us about your project. We respond within one business day with a clear sense of fit, timeline, and what working together would look like.",
       overline: "Contact",
-      heroLineBeforeEm: "Let's talk about ",
-      heroEmphasis: "your project",
-      heroLineAfterEm: "",
+      heroLineBeforeEm: "Let's talk about",
+      heroEmphasis: "your",
+      heroLineAfterEm: " project",
       introParagraph:
         "Tell us what you're building, what problem you're solving, and what you've tried before. We respond within one business day.",
       whatHappensHeading: "What happens next",

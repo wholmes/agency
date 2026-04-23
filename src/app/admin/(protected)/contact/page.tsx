@@ -40,15 +40,15 @@ export default async function AdminContactPage() {
             <input name="overline" required defaultValue={copy.overline} className="form-input" />
           </div>
           <div className="form-field">
-            <label className="form-label">Hero line (before emphasis)</label>
+            <label className="form-label">Hero line 1 (first line, before break)</label>
             <input name="heroLineBeforeEm" required defaultValue={copy.heroLineBeforeEm} className="form-input" />
           </div>
           <div className="form-field">
-            <label className="form-label">Hero emphasis</label>
+            <label className="form-label">Hero emphasis (gold italic, start of line 2)</label>
             <input name="heroEmphasis" required defaultValue={copy.heroEmphasis} className="form-input" />
           </div>
           <div className="form-field">
-            <label className="form-label">Hero line (after emphasis)</label>
+            <label className="form-label">Hero line 2 (after emphasis, e.g. leading space + text)</label>
             <input name="heroLineAfterEm" required defaultValue={copy.heroLineAfterEm} className="form-input" />
           </div>
           <div className="form-field">

@@ -125,11 +125,17 @@ export default function ContactForm({
     <form
       onSubmit={handleSubmit}
       noValidate
-      aria-label="Contact form"
+      aria-labelledby="contact-form-heading"
       className={variant === "v2" ? "contact-form-v2" : undefined}
     >
+      {/* v2: hero already carries the headline — keep CMS heading for screen readers only */}
       <h2
-        className={`font-display mb-8 text-xl font-normal tracking-tight ${variant === "v2" ? "text-white" : ""}`}
+        id="contact-form-heading"
+        className={
+          variant === "v2"
+            ? "sr-only"
+            : "font-display mb-8 text-xl font-normal tracking-tight"
+        }
       >
         {config.heading}
       </h2>
