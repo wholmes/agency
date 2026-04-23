@@ -99,9 +99,13 @@
   }
 
   html {
-    @apply text-base scroll-smooth antialiased;
+    /* Mobile Safari: horizontal drag / “empty” strip often needs clipping on html, not only body */
+    @apply overflow-x-hidden text-base scroll-smooth antialiased;
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: 100%;
+    max-width: 100%;
+    /* Reduce horizontal rubber-band that feels like sideways “empty” space */
+    overscroll-behavior-x: none;
   }
 
   body {
@@ -111,6 +115,8 @@
     font-size: var(--text-base);
     line-height: 1.7;
     cursor: auto;
+    max-width: 100%;
+    overscroll-behavior-x: none;
   }
 
   /* Custom cursor replaces the default only on fine pointers; touch / coarse keeps system cursor */
@@ -118,6 +124,13 @@
     body {
       cursor: none;
     }
+  }
+
+  /* Route content — stops wide flex/grid descendants from widening the scroll width */
+  #main-content {
+    overflow-x: hidden;
+    max-width: 100%;
+    min-width: 0;
   }
 
   img,

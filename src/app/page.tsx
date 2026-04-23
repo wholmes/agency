@@ -49,7 +49,7 @@ export default async function Home() {
 
   return (
     <>
-      <div className="relative bg-[#0e0e0e]">
+      <div className="relative overflow-x-hidden bg-[#0e0e0e]">
         {/* Noise grain overlay */}
         <div
           aria-hidden="true"

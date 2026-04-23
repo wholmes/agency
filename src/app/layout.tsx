@@ -128,7 +128,10 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${GeistSans.variable} ${dmMono.variable} ${yellowtail.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${GeistSans.variable} ${dmMono.variable} ${yellowtail.variable} overflow-x-hidden`}
+    >
       <head>
         <meta name="theme-color" content="#0C0C0B" />
         <link rel="canonical" href="https://brandmeetscode.com" />
@@ -155,17 +158,22 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="font-body">
-        <SmoothScroll />
-        <CustomCursor />
-        <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
-        <main id="main-content">{children}</main>
-        <ScopeEstimatorModalDynamic data={estimatorData} />
-        <AdminEditLinkServer />
-        <AnalyticsScripts
-          gaId={seo.googleAnalyticsId || undefined}
-          gtmId={seo.googleTagManagerId || undefined}
-        />
+      <body className="font-body overflow-x-hidden">
+        {/* Clips any wide descendants (nav chrome, transformed motion, etc.) site-wide */}
+        <div className="relative min-h-dvh w-full min-w-0 overflow-x-hidden">
+          <SmoothScroll />
+          <CustomCursor />
+          <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
+          <main id="main-content" className="min-w-0">
+            {children}
+          </main>
+          <ScopeEstimatorModalDynamic data={estimatorData} />
+          <AdminEditLinkServer />
+          <AnalyticsScripts
+            gaId={seo.googleAnalyticsId || undefined}
+            gtmId={seo.googleTagManagerId || undefined}
+          />
+        </div>
       </body>
     </html>
   );
