@@ -4,12 +4,11 @@ import { GeistSans } from "geist/font";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import type { NavDropdownData } from "@/components/Navigation";
-import AdminEditLink from "@/components/AdminEditLink";
+import AdminEditLinkServer from "@/components/AdminEditLinkServer";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import ScopeEstimatorModal from "@/components/ScopeEstimatorModal";
-import { isAdminSession } from "@/lib/admin/session";
 import {
   getIndustryPagesForList,
   getProjects,
@@ -121,11 +120,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, chrome, isAdmin, serviceOfferings, industries, allProjects, seo, estimatorData] =
+  const [settings, chrome, serviceOfferings, industries, allProjects, seo, estimatorData] =
     await Promise.all([
       getSiteSettings(),
       getSiteChrome(),
-      isAdminSession(),
       getServiceOfferings(),
       getIndustryPagesForList(),
       getProjects(),
@@ -179,7 +177,7 @@ export default async function RootLayout({
         <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
         <main id="main-content">{children}</main>
         <ScopeEstimatorModal data={estimatorData} />
-        <AdminEditLink isAdmin={isAdmin} />
+        <AdminEditLinkServer />
         <AnalyticsScripts
           gaId={seo.googleAnalyticsId || undefined}
           gtmId={seo.googleTagManagerId || undefined}

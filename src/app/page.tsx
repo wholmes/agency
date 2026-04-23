@@ -11,6 +11,8 @@ import {
   getSiteSettings,
 } from "@/lib/cms/queries";
 
+export const revalidate = 300; // re-cache every 5 minutes
+
 export const metadata: Metadata = {
   title: "BrandMeetsCode — Premium Digital Studio",
   description:
