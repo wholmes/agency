@@ -9,15 +9,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import ScopeEstimatorModal from "@/components/ScopeEstimatorModal";
-import {
-  getIndustryPagesForList,
-  getProjects,
-  getScopeEstimatorConfig,
-  getSeoSettings,
-  getServiceOfferings,
-  getSiteChrome,
-  getSiteSettings,
-} from "@/lib/cms/queries";
+import { getRootLayoutData, getSeoSettings } from "@/lib/cms/queries";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -120,21 +112,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [settings, chrome, serviceOfferings, industries, allProjects, seo, estimatorData] =
-    await Promise.all([
-      getSiteSettings(),
-      getSiteChrome(),
-      getServiceOfferings(),
-      getIndustryPagesForList(),
-      getProjects(),
-      getSeoSettings().catch(() => ({ googleAnalyticsId: "", googleTagManagerId: "" })),
-      getScopeEstimatorConfig(),
-    ]);
+  const { settings, chrome, serviceOfferings, industries, navProjects, seo, estimatorData } =
+    await getRootLayoutData();
 
   const dropdownData: NavDropdownData = {
     services: serviceOfferings,
     industries,
-    recentProjects: allProjects,
+    recentProjects: navProjects,
   };
 
   const availability = {

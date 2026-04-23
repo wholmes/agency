@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import type { Project } from "@/lib/projects";
 import { prisma } from "@/lib/prisma";
@@ -231,6 +232,58 @@ export const getProjects = cache(async (): Promise<Project[]> => {
   });
   return rows.map(projectRowToProject);
 });
+
+/** Nav Work dropdown only — omits hero/cover/thumb Base64 blobs (can be MB each). */
+export type NavProjectMinimal = {
+  id: string;
+  title: string;
+  category: string;
+  result: string;
+};
+
+export const getProjectsForNav = cache(async (): Promise<NavProjectMinimal[]> => {
+  return prisma.project.findMany({
+    where: { published: true },
+    orderBy: { sortOrder: "asc" },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      result: true,
+    },
+  });
+});
+
+const LAYOUT_REVALIDATE_SEC = 300;
+
+export const getRootLayoutData = unstable_cache(
+  async () => {
+    const [settings, chrome, serviceOfferings, industries, navProjects, seo, estimatorData] =
+      await Promise.all([
+        getSiteSettings(),
+        getSiteChrome(),
+        getServiceOfferings(),
+        getIndustryPagesForList(),
+        getProjectsForNav(),
+        getSeoSettings().catch(() => ({
+          googleAnalyticsId: "",
+          googleTagManagerId: "",
+        })),
+        getScopeEstimatorConfig(),
+      ]);
+    return {
+      settings,
+      chrome,
+      serviceOfferings,
+      industries,
+      navProjects,
+      seo,
+      estimatorData,
+    };
+  },
+  ["root-layout-bundle-v1"],
+  { revalidate: LAYOUT_REVALIDATE_SEC, tags: ["layout-bundle"] },
+);
 
 /** Admin-only: returns all projects regardless of published state */
 export const getAllProjectsForAdmin = cache(async () => {
