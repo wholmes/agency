@@ -134,7 +134,7 @@ export default async function RootLayout({
   const dropdownData: NavDropdownData = {
     services: serviceOfferings,
     industries,
-    recentProjects: allProjects.slice(0, 3),
+    recentProjects: allProjects,
   };
 
   const availability = {

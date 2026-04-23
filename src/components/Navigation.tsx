@@ -139,13 +139,13 @@ function WorkPanel({ data }: { data: NavProject[] }) {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <SectionLabel>Recent work</SectionLabel>
+        <SectionLabel>Work</SectionLabel>
         <PanelLink href="/work" label="All projects" />
       </div>
       {data.length === 0 ? (
         <p className="text-sm text-text-tertiary">No projects yet.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {data.map((p, i) => (
             <motion.div
               key={p.id}
@@ -155,16 +155,21 @@ function WorkPanel({ data }: { data: NavProject[] }) {
             >
               <Link
                 href={`/work/${p.id}`}
-                className="group relative block overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.03] px-5 py-5 no-underline transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.06]"
+                className="group relative flex items-start gap-4 overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.03] px-4 py-3.5 no-underline transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.06]"
               >
                 <span className="absolute left-0 top-3 bottom-3 w-[2px] origin-center scale-y-0 rounded-full bg-accent transition-transform duration-200 group-hover:scale-y-100" />
-                <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-white/25">
-                  {p.category}
-                </p>
-                <p className="font-body mb-3 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-hover:text-white">
-                  {p.title}
-                </p>
-                <p className="font-mono text-[11px] text-accent/70">{p.result}</p>
+                <span
+                  className="mt-[5px] size-1.5 shrink-0 rounded-full bg-accent opacity-30 transition-opacity duration-200 group-hover:opacity-80"
+                  aria-hidden="true"
+                />
+                <div>
+                  <p className="font-body mb-1 text-sm font-medium tracking-tight text-white/80 transition-colors duration-200 group-hover:text-white">
+                    {p.title}
+                  </p>
+                  {p.result && (
+                    <p className="text-xs leading-relaxed text-white/30">{p.result}</p>
+                  )}
+                </div>
               </Link>
             </motion.div>
           ))}
