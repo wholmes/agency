@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
-import { motion, type Variants } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 import type { ServicesPageHero as ServicesPageHeroModel } from "@prisma/client";
 
 const HeroFieldCanvas = dynamic(() => import("../HeroFieldCanvas"), {
@@ -31,25 +31,18 @@ const enterVariant: Variants = {
 };
 
 export default function ServicesPageHero({ content }: { content: ServicesPageHeroModel }) {
-  const lineRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    // Capture scroll position at mount so revisits don't inherit stale offset
-    const baseline = window.scrollY;
-    const el = lineRef.current;
-    if (el) el.style.transform = `translateY(0px)`;
-
-    const handleScroll = () => {
-      if (el) {
-        el.style.transform = `translateY(${(window.scrollY - baseline) * 0.35}px)`;
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Relative to the section itself — immune to absolute scroll position on revisit
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const lineY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="services-page-heading"
       className="relative flex min-h-[110dvh] flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
     >
@@ -100,8 +93,8 @@ export default function ServicesPageHero({ content }: { content: ServicesPageHer
         </div>
       </div>
 
-      <div
-        ref={lineRef}
+      <motion.div
+        style={{ y: lineY }}
         aria-hidden="true"
         className="pointer-events-none absolute right-0 bottom-16 h-px w-[45vw] bg-[linear-gradient(to_right,transparent,var(--color-border),transparent)]"
       />

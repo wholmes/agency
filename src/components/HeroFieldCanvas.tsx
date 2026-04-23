@@ -128,7 +128,7 @@ function heightHome(
 ): number {
   const x = col - cols / 2;
   const z = row - rows / 2;
-  const spd = 0.65 + scrollPct * 0.9;
+  const spd = 0.65 + scrollPct * 0.2;
   const v =
     0.5 +
     0.22 * Math.sin(x * 0.65 + t * spd * 0.32) +
@@ -156,7 +156,7 @@ function heightServices(
   const x = col - cx;
   const z = row - cz;
   const r = Math.sqrt(x * x + z * z);
-  const spd = 0.72 + scrollPct * 0.88;
+  const spd = 0.72 + scrollPct * 0.2;
   const v =
     0.48 +
     0.24 * Math.sin(r * 0.55 - t * spd * 0.95) +
@@ -250,8 +250,14 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     //            when returning from a hidden tab that was scrolled while away.
     const scroll = { pct: 0, smooth: 0 };
     const onScroll = () => {
-      const heroH = canvas.parentElement?.offsetHeight ?? window.innerHeight;
-      scroll.pct = Math.min(1, window.scrollY / Math.max(1, heroH));
+      const parent = canvas.parentElement;
+      const heroH = parent?.offsetHeight ?? window.innerHeight;
+      // Use element-relative offset: how far the top of the hero is above the viewport
+      const scrolledPast = parent
+        ? -(parent.getBoundingClientRect().top)
+        : window.scrollY;
+      // Divide by 2× hero height so the animation only completes halfway through the scroll, feeling slower
+      scroll.pct = Math.min(1, Math.max(0, scrolledPast / Math.max(1, heroH * 2)));
     };
 
     let W = window.innerWidth;
@@ -341,7 +347,10 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
+    // Sync both pct and smooth immediately so there's no lerp jump on mount
+    // or on Next.js client-side navigation revisits where scroll is already non-zero.
     onScroll();
+    scroll.smooth = scroll.pct;
 
     const parentEl = canvas.parentElement;
     if (parentEl && typeof ResizeObserver !== "undefined") {
@@ -477,7 +486,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
           lastFrameTime = now;
 
           const t = reduced ? 0.5 : (now - t0 - accumulatedHiddenMs) * 0.001;
-          scroll.smooth += (scroll.pct - scroll.smooth) * 0.1;
+          scroll.smooth += (scroll.pct - scroll.smooth) * 0.06;
           const sp = Math.sqrt(scroll.smooth);
 
           for (let row = 0; row < cfg.rows; row++) {
@@ -546,7 +555,7 @@ export default function HeroFieldCanvas({ variant }: { variant: HeroFieldVariant
         lastFrameTimeW = now;
 
         const t = reduced ? 0.5 : (now - t0w - accumulatedHiddenMs) * 0.001;
-        scroll.smooth += (scroll.pct - scroll.smooth) * 0.1;
+        scroll.smooth += (scroll.pct - scroll.smooth) * 0.06;
         const sp = Math.sqrt(scroll.smooth);
 
         for (let row = 0; row < cfg.rows; row++) {

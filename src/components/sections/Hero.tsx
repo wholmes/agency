@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion, useInView, type Variants } from "framer-motion";
+import { motion, useInView, useScroll, useTransform, type Variants } from "framer-motion";
 import { IconArrowRight, IconArrowUpRight } from "../icons";
 import MagneticButton from "../MagneticButton";
 import type { HomeHero } from "@prisma/client";
@@ -56,24 +56,16 @@ const clipVariant: Variants = {
 
 export default function Hero({ content }: { content: HomeHero }) {
   const sectionRef = useRef<HTMLElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
 
   // once: false so animation replays every time the hero scrolls back into view
   const inView = useInView(sectionRef, { once: false, amount: 0.3 });
 
-  useEffect(() => {
-    const baseline = window.scrollY;
-    const el = lineRef.current;
-    if (el) el.style.transform = `translateY(0px)`;
-
-    const handleScroll = () => {
-      if (el) {
-        el.style.transform = `translateY(${(window.scrollY - baseline) * 0.4}px)`;
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Relative to the section — immune to absolute scroll position on revisit
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const lineY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
 
   return (
     <section
@@ -179,8 +171,8 @@ export default function Hero({ content }: { content: HomeHero }) {
         </div>
       </div>
 
-      <div
-        ref={lineRef}
+      <motion.div
+        style={{ y: lineY }}
         aria-hidden="true"
         className="pointer-events-none absolute right-0 bottom-16 h-px w-[45vw] bg-[linear-gradient(to_right,transparent,var(--color-border),transparent)]"
       />

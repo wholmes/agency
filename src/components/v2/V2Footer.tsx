@@ -148,8 +148,8 @@ export default function V2Footer({
                 {col.title}
               </p>
               <ul className="flex flex-col gap-3">
-                {col.links.map((link) => (
-                  <li key={`${col.title}:${link.href}`}>
+                {col.links.map((link, i) => (
+                  <li key={`${col.title}:${link.href}:${i}`}>
                     <Link
                       href={link.href}
                       className="text-[13px] text-white/40 no-underline hover:text-white/80"
