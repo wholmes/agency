@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useInView, useScroll, useTransform, useMotionValue, useAnimation, type Variants } from "framer-motion";
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import type { Project } from "@/lib/projects";
 import type { CaseStudyUiLabels } from "@prisma/client";
 import ExpandableText from "@/components/ExpandableText";
@@ -124,6 +124,14 @@ function HeroImageBlock({ project }: { project: Project }) {
   // "released" → done, page scrolls freely until frame fully leaves + re-enters
   const hijackState = useRef<"idle" | "active" | "released">("idle");
   const overscrollBuffer = useRef(0);
+
+  // Reset to top synchronously before paint — prevents stale position on mount
+  useLayoutEffect(() => {
+    y.set(0);
+    hijackState.current = "idle";
+    overscrollBuffer.current = 0;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const block = ref.current;
@@ -280,8 +288,8 @@ function HeroImageBlock({ project }: { project: Project }) {
                 </div>
                 <div className="w-[52px] shrink-0" />
               </div>
-              <div ref={viewportRef} className="aspect-[16/9] overflow-hidden select-none">
-                <motion.div style={{ y }} animate={controls} className="will-change-transform">
+              <div ref={viewportRef} className="aspect-[16/9] overflow-hidden select-none flex flex-col justify-start items-stretch">
+                <motion.div style={{ y }} animate={controls} className="will-change-transform flex-shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     ref={imgRef}
@@ -289,9 +297,7 @@ function HeroImageBlock({ project }: { project: Project }) {
                     alt={`${project.title} website`}
                     className="block h-auto w-full"
                     onLoad={() => {
-                      // Clamp y to new travel bounds after image loads
-                      const t = maxTravel();
-                      if (y.get() < t) y.set(t);
+                      y.set(0);
                     }}
                   />
                 </motion.div>
