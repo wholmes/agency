@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import type Lenis from "lenis";
+import { registerLenis } from "@/lib/lenis-instance";
 
 /**
  * Lenis smooth scroll — loaded after idle so it does not compete with
@@ -12,7 +14,7 @@ export default function SmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let cancelled = false;
-    let lenisInstance: { raf: (time: number) => void; destroy: () => void } | null = null;
+    let lenisInstance: Lenis | null = null;
     let rafId = 0;
 
     async function boot() {
@@ -23,6 +25,7 @@ export default function SmoothScroll() {
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       });
+      registerLenis(lenisInstance);
 
       function raf(time: number) {
         if (!lenisInstance || cancelled) return;
@@ -47,6 +50,7 @@ export default function SmoothScroll() {
       if (idleCbId !== undefined) cancelIdleCallback(idleCbId);
       if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
       cancelAnimationFrame(rafId);
+      registerLenis(null);
       lenisInstance?.destroy();
       lenisInstance = null;
     };

@@ -6,6 +6,7 @@ import Navigation from "@/components/Navigation";
 import type { NavDropdownData } from "@/components/Navigation";
 import AdminEditLinkServer from "@/components/AdminEditLinkServer";
 import SmoothScroll from "@/components/SmoothScroll";
+import ScrollToTopOnNavigate from "@/components/ScrollToTopOnNavigate";
 import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import ScopeEstimatorModalDynamic from "@/components/ScopeEstimatorModalDynamic";
@@ -162,6 +163,7 @@ export default async function RootLayout({
         {/* Clips any wide descendants (nav chrome, transformed motion, etc.) site-wide */}
         <div className="relative min-h-dvh w-full min-w-0 overflow-x-hidden">
           <SmoothScroll />
+          <ScrollToTopOnNavigate />
           <CustomCursor />
           <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
           <main id="main-content" className="min-w-0">
