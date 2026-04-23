@@ -251,6 +251,7 @@ const PROJECTS = [
     year: "2024",
     href: "/work/sable",
     featured: false,
+    internal: true,
     accent: "#E88B6B",
     Ghost: GhostIntently,
   },
@@ -267,8 +268,7 @@ function FeaturedCard({ project }: { project: typeof PROJECTS[0] }) {
     >
       <Link
         href={project.href}
-        target="_blank"
-        rel="noopener noreferrer"
+        {...(!project.internal && { target: "_blank", rel: "noopener noreferrer" })}
         className="group relative flex h-full min-h-[480px] flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0e0e0e] p-10 no-underline transition-all duration-500 hover:border-white/[0.14]"
       >
         {/* Ghost watermark */}
@@ -329,8 +329,7 @@ function SmallCard({ project, index }: { project: typeof PROJECTS[0]; index: num
     >
       <Link
         href={project.href}
-        target="_blank"
-        rel="noopener noreferrer"
+        {...(!project.internal && { target: "_blank", rel: "noopener noreferrer" })}
         className="group relative flex h-full min-h-[220px] flex-col justify-between overflow-hidden rounded-xl border border-white/[0.07] bg-[#0e0e0e] p-7 no-underline transition-all duration-500 hover:border-white/[0.14]"
       >
         {/* Ghost */}

@@ -60,7 +60,7 @@ function iso(ox: number, oy: number, r: number, l: number, u: number): [number, 
 function IsoDiscovery() {
   const ox = 80; const oy = 72;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={6} D={5} H={1} topFill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} />
       <IsoBox ox={ox} oy={oy} W={2} D={5} H={3} topFill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.45)" strokeWidth={1.1} />
       <IsoBox ox={ox + 8.66*2} oy={oy + 5} W={2} D={5} H={4} topFill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.45)" strokeWidth={1.1} />
@@ -74,7 +74,7 @@ function IsoDiscovery() {
 function IsoWireframeStep() {
   const ox = 78; const oy = 78;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={7} D={1} H={5} topFill="rgba(255,255,255,0.05)" rightFill="rgba(255,255,255,0.02)" leftFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.55)" strokeWidth={1.3} />
       {[1,2,3].map((u) => {
         const [x1,y1] = iso(ox,oy,0.3,1,u);
@@ -91,7 +91,7 @@ function IsoWireframeStep() {
 function IsoBuildShip() {
   const ox = 80; const oy = 75;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={6} D={4} H={2} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.45)" strokeWidth={1.2} />
       {(() => { const [bx,by]=iso(ox,oy,0,0,2); return (
         <IsoBox ox={bx} oy={by} W={3} D={4} H={2} topFill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.5)" strokeWidth={1.1} />
@@ -175,7 +175,7 @@ function WebProcessSection() {
 function IsoBrandAudit() {
   const ox = 80; const oy = 80;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       {[0,1,2,3].map((i) => {
         const [bx,by] = iso(ox,oy, i*0.3, i*0.3, i*0.8);
         const isTop = i === 3;
@@ -200,7 +200,7 @@ function IsoBrandAudit() {
 function IsoPositioningMap() {
   const ox = 80; const oy = 80;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={3} D={3} H={0.5} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" strokeWidth={1.1} />
       <IsoBox ox={iso(ox,oy,3,0,0)[0]} oy={iso(ox,oy,3,0,0)[1]} W={3} D={3} H={0.5} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" strokeWidth={1.1} />
       <IsoBox ox={iso(ox,oy,0,3,0)[0]} oy={iso(ox,oy,0,3,0)[1]} W={3} D={3} H={0.5} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" strokeWidth={1.1} />
@@ -225,7 +225,7 @@ function IsoPositioningMap() {
 function IsoVoiceMessaging() {
   const ox = 80; const oy = 78;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={6} D={2} H={0.8} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" strokeWidth={1.0} />
       {(() => { const [bx,by]=iso(ox,oy,-0.5,0,1.2); return (
         <IsoBox ox={bx} oy={by} W={6} D={2} H={0.8} topFill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.45)" strokeWidth={1.1} />
@@ -306,7 +306,7 @@ function BrandProcessSection() {
 function IsoFunnelLocal() {
   const ox = 80; const oy = 68;
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       {([
         { W:6, D:4, H:1.2, gold:false },
         { W:5, D:3.5, H:1.2, gold:false },
@@ -334,7 +334,7 @@ function IsoBarChart() {
   const ox = 80; const oy = 80;
   const bars = [1.5, 2.5, 3.5, 5, 4];
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       <IsoBox ox={ox} oy={oy} W={bars.length*1.6} D={3} H={0.4} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.3)" strokeWidth={1.0} />
       {bars.map((h, i) => {
         const isGold = h === Math.max(...bars);
@@ -364,7 +364,7 @@ function IsoHeatmapLocal() {
     [0.1,0.15,0.3,0.4],
   ];
   return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none">
+    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" aria-hidden="true">
       {opacities.map((row, ri) =>
         row.map((o, ci) => {
           const [bx,by] = iso(ox, oy, ci*1.5, ri*1.5, 0);
@@ -443,86 +443,6 @@ function AnalyticsProcessSection() {
   );
 }
 
-// ─── Per-slug isometric icons ───────────────────────────────────────────────
-
-function IsoWebDesign() {
-  const ox = 80; const oy = 82;
-  return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" overflow="visible">
-      {/* Monitor base */}
-      <IsoBox ox={ox} oy={oy} W={7} D={1} H={5} topFill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.5)" strokeWidth={1.3} />
-      {/* Screen content lines */}
-      {[1,2,3].map((u) => {
-        const x1 = ox + 0.3*8.66 - 1*8.66; const y1 = oy + 0.3*5 + 1*5 - u*10;
-        const x2 = ox + 6.7*8.66 - 1*8.66; const y2 = oy + 6.7*5 + 1*5 - u*10;
-        return <line key={u} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.1)" strokeWidth="0.8" />;
-      })}
-      {/* Gold highlight bar */}
-      {(() => { const x1=ox+1*8.66-1*8.66; const y1=oy+1*5+1*5-4*10; const x2=ox+4*8.66-1*8.66; const y2=oy+4*5+1*5-4*10; return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(201,165,90,0.7)" strokeWidth="1.2" />; })()}
-      {/* Stand */}
-      <IsoBox ox={ox+8.66*3} oy={oy+5*3} W={1} D={1} H={1} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.3)" strokeWidth={0.9} />
-      {/* Gold accent cube top-right */}
-      <IsoBox ox={ox+8.66*5.5} oy={oy-18} W={1.5} D={1.5} H={1.5} goldTop stroke="rgba(201,165,90,0.9)" strokeWidth={1.1} />
-    </svg>
-  );
-}
-
-function IsoBrandStrategy() {
-  const ox = 78; const oy = 84;
-  return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" overflow="visible">
-      {/* Wide platform */}
-      <IsoBox ox={ox} oy={oy} W={8} D={5} H={1} topFill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.35)" strokeWidth={1.1} />
-      {/* Rising bars — brand pillars */}
-      <IsoBox ox={ox} oy={oy} W={2} D={5} H={3} stroke="rgba(255,255,255,0.4)" strokeWidth={1.1} />
-      <IsoBox ox={ox+8.66*2.5} oy={oy+5*2.5} W={2} D={5} H={5} topFill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.45)" strokeWidth={1.1} />
-      <IsoBox ox={ox+8.66*5} oy={oy+5*5} W={2} D={5} H={8} goldTop stroke="rgba(201,165,90,0.8)" strokeWidth={1.2} />
-      {/* Small accent block */}
-      <IsoBox ox={ox+8.66*6.5} oy={oy+5*5-80+8} W={1} D={1} H={1} goldTop stroke="rgba(201,165,90,1)" strokeWidth={1} />
-    </svg>
-  );
-}
-
-function IsoAnalytics() {
-  const ox = 80; const oy = 80;
-  return (
-    <svg width="160" height="134" viewBox="0 0 160 134" fill="none" overflow="visible">
-      {/* Concentric platform rings */}
-      <IsoBox ox={ox} oy={oy} W={7} D={5} H={1} topFill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.3)" strokeWidth={1.0} />
-      {(() => { const bx=ox+8.66*1; const by=oy+5*1; return (
-        <IsoBox ox={bx} oy={by} W={5} D={4} H={1} topFill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.4)" strokeWidth={1.1} />
-      );})()} 
-      {(() => { const bx=ox+8.66*2; const by=oy+5*2; return (
-        <IsoBox ox={bx} oy={by} W={3} D={3} H={1} topFill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} />
-      );})()} 
-      {/* Gold needle/spike */}
-      {(() => { const bx=ox+8.66*3; const by=oy+5*1.5; return (
-        <IsoBox ox={bx} oy={by} W={1} D={2} H={4} goldTop stroke="rgba(201,165,90,0.85)" strokeWidth={1.3} />
-      );})()} 
-      {/* Score label */}
-      {(() => { const tx=ox+8.66*2.5-8.66*2.5; const ty=oy+5*2.5+5*2.5-2*10; return (
-        <text x={tx+10} y={ty+12} textAnchor="middle" fontSize="8" fontWeight="300" fill="rgba(255,255,255,0.6)" fontFamily="monospace">98</text>
-      );})()} 
-    </svg>
-  );
-}
-
-// ─── Generic inclusion icon (fallback) ─────────────────────────────────────
-
-function IsoGeneric({ index }: { index: number }) {
-  const ox = 80; const oy = 80;
-  const H = 2 + (index % 3) * 1.5;
-  const isGold = index % 4 === 3;
-  return (
-    <svg width="120" height="100" viewBox="0 0 120 100" fill="none" overflow="visible">
-      <IsoBox ox={ox-20} oy={oy} W={5} D={3} H={H}
-        goldTop={isGold}
-        stroke={isGold ? "rgba(201,165,90,0.8)" : "rgba(255,255,255,0.45)"}
-        strokeWidth={1.2}
-      />
-    </svg>
-  );
-}
 
 
 // ─── Section label row (matches v2 process style) ──────────────────────────
@@ -729,7 +649,7 @@ export default function ServiceDetailClient({
               >
                 <Link
                   href={primaryCtaHref}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#c9a55a] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#0e0e0e] transition-all duration-300 hover:bg-[#d4b36a] hover:shadow-[0_8px_32px_rgba(201,165,90,0.25)]"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#c9a55a] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#0e0e0e] transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_8px_32px_rgba(201,165,90,0.25)]"
                 >
                   {primaryCtaLabel}
                   <IconArrowUpRight size={13} />

@@ -5,7 +5,6 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import KanbanPanel from "./panels/KanbanPanel";
 import BlueprintPanel from "./panels/BlueprintPanel";
-import ArcadePanel from "./panels/ArcadePanel";
 import BrandStrategyPanel from "./panels/BrandStrategyPanel";
 import IntentlyPanel from "./panels/IntentlyPanel";
 import type { ServiceOffering as ServiceOfferingModel } from "@prisma/client";

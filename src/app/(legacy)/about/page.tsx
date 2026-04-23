@@ -22,12 +22,14 @@ export const metadata: Metadata = {
     url: "https://brandmeetscode.com/about",
     siteName: "BrandMeetsCode",
     type: "website",
+    images: [{ url: "https://brandmeetscode.com/opengraph-image", width: 1200, height: 630, alt: "About — BrandMeetsCode" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "About — BrandMeetsCode",
     description:
       "The story of BrandMeetsCode — a web development agency built at the intersection of brand strategy and technical execution. Disciplines that rarely meet.",
+    images: ["https://brandmeetscode.com/opengraph-image"],
   },
 };
 

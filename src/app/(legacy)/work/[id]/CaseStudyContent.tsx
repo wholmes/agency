@@ -533,8 +533,8 @@ export default function CaseStudyContent({
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-[#c9a55a]/40 px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#c9a55a] no-underline"
-              style={{ background: "rgba(201,165,90,0.06)", transition: "background 0.3s, border-color 0.3s" }}
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a55a]/40 px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#c9a55a] no-underline transition-all duration-300 hover:border-[#c9a55a]/70 hover:bg-[rgba(201,165,90,0.12)] hover:shadow-[0_0_20px_rgba(201,165,90,0.15)]"
+              style={{ background: "rgba(201,165,90,0.06)" }}
             >
               {labels.similarProjectCtaLabel}
               <svg width="12" height="12" viewBox="0 0 13 13" fill="none">

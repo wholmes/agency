@@ -99,7 +99,7 @@ export default function IndustryDetailHero({
 
         <Link
           href={ctaHref}
-          className="inline-flex items-center gap-2 rounded-full bg-[#c9a55a] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#0e0e0e] transition-all duration-300 hover:bg-[#d4b36a] hover:shadow-[0_8px_32px_rgba(201,165,90,0.25)]"
+          className="inline-flex items-center gap-2 rounded-full bg-[#c9a55a] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#0e0e0e] transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_8px_32px_rgba(201,165,90,0.25)]"
         >
           {ctaLabel}
           <IconArrowUpRight size={13} />

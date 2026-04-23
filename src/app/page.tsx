@@ -25,12 +25,14 @@ export const metadata: Metadata = {
     url: "https://brandmeetscode.com",
     siteName: "BrandMeetsCode",
     type: "website",
+    images: [{ url: "https://brandmeetscode.com/opengraph-image", width: 1200, height: 630, alt: "BrandMeetsCode — Premium Digital Studio" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "BrandMeetsCode — Premium Digital Studio",
     description:
       "BrandMeetsCode builds premium websites for B2B companies and SaaS founders. Brand strategy meets technical execution — Lighthouse ≥ 90 guaranteed.",
+    images: ["https://brandmeetscode.com/opengraph-image"],
   },
 };
 
