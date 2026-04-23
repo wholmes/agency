@@ -148,8 +148,6 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${GeistSans.variable} ${dmMono.variable} ${yellowtail.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <meta name="theme-color" content="#0C0C0B" />
         <link rel="canonical" href="https://brandmeetscode.com" />
         <script
