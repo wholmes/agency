@@ -34,9 +34,14 @@ export default function ServicesPageHero({ content }: { content: ServicesPageHer
   const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Capture scroll position at mount so revisits don't inherit stale offset
+    const baseline = window.scrollY;
+    const el = lineRef.current;
+    if (el) el.style.transform = `translateY(0px)`;
+
     const handleScroll = () => {
-      if (lineRef.current) {
-        lineRef.current.style.transform = `translateY(${window.scrollY * 0.35}px)`;
+      if (el) {
+        el.style.transform = `translateY(${(window.scrollY - baseline) * 0.35}px)`;
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });

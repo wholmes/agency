@@ -62,10 +62,13 @@ export default function Hero({ content }: { content: HomeHero }) {
   const inView = useInView(sectionRef, { once: false, amount: 0.3 });
 
   useEffect(() => {
+    const baseline = window.scrollY;
+    const el = lineRef.current;
+    if (el) el.style.transform = `translateY(0px)`;
+
     const handleScroll = () => {
-      if (lineRef.current) {
-        const y = window.scrollY * 0.4;
-        lineRef.current.style.transform = `translateY(${y}px)`;
+      if (el) {
+        el.style.transform = `translateY(${(window.scrollY - baseline) * 0.4}px)`;
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });

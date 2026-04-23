@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ScrollReveal from "@/components/ScrollReveal";
 
 interface Paragraph {
-  id: string;
+  id: string | number;
   body: string;
 }
 
