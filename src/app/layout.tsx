@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { Fraunces, DM_Mono, Yellowtail } from "next/font/google";
 import { GeistSans } from "geist/font";
 import "./globals.css";
@@ -9,10 +8,7 @@ import AdminEditLinkServer from "@/components/AdminEditLinkServer";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
-
-const ScopeEstimatorModal = dynamic(() => import("@/components/ScopeEstimatorModal"), {
-  ssr: false,
-});
+import ScopeEstimatorModalDynamic from "@/components/ScopeEstimatorModalDynamic";
 import { getRootLayoutData, getSeoSettings } from "@/lib/cms/queries";
 
 const fraunces = Fraunces({
@@ -164,7 +160,7 @@ export default async function RootLayout({
         <CustomCursor />
         <Navigation availability={availability} chrome={chrome} dropdownData={dropdownData} hideOnScroll={settings.navHideOnScroll} />
         <main id="main-content">{children}</main>
-        <ScopeEstimatorModal data={estimatorData} />
+        <ScopeEstimatorModalDynamic data={estimatorData} />
         <AdminEditLinkServer />
         <AnalyticsScripts
           gaId={seo.googleAnalyticsId || undefined}
