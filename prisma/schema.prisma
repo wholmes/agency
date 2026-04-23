@@ -1,17 +1,13 @@
-// BrandMeetsCode — content database (PostgreSQL via Vercel / Prisma Postgres)
+// BrandMeetsCode — PostgreSQL (Neon/Vercel)
 //
-// Env vars required:
-//   DATABASE_URL        — postgresql://... (direct URL for local dev and migrations)
+// Env vars (both required — Prisma validates both at CLI startup):
+//   POSTGRES_PRISMA_URL — pooled `postgresql://…` (PgBouncer / Neon pooler). App runtime queries.
+//   DATABASE_URL        — direct `postgresql://…` for migrations (`directUrl`) and tooling.
 //
-// When using Prisma Postgres Accelerate in production, add:
-//   DATABASE_URL        — prisma+postgres://... (Accelerate URL, used at runtime)
-//   DIRECT_DATABASE_URL — postgresql://...      (direct URL, used for migrations & seeding)
-// and restore the `directUrl` line below + withAccelerate() in src/lib/prisma.ts.
+// Local dev: if you only have one URL, duplicate it — set POSTGRES_PRISMA_URL to the same value as
+// DATABASE_URL. Production: copy both from Vercel (`vercel env pull`) or Neon dashboard.
 //
-// To provision: vercel integration add prisma  OR  npx prisma init --db
-// Then pull:    vercel env pull .env.local
-// Then migrate: npx prisma migrate dev --name init
-// Then seed:    npx prisma db seed
+// When using Prisma Accelerate instead, switch docs in src/lib/prisma.ts and adjust URLs accordingly.
 
 generator client {
   provider = "prisma-client-js"
