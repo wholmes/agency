@@ -174,7 +174,7 @@ function CaseStudy({ project, isAdmin, index }: { project: Project; isAdmin?: bo
 
             <div className="flex items-center gap-4">
               <span className="inline-flex items-center gap-2 font-body text-[13px] font-medium text-white/60 transition-colors group-hover:text-white">
-                Read case study
+                View project
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                   <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>

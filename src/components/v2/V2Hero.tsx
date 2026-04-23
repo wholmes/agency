@@ -49,12 +49,11 @@ export default function V2Hero() {
 
         {/* Overline */}
         <motion.div
-          className="mb-10 flex items-center gap-4"
+          className="mb-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <span className="inline-flex size-6 items-center justify-center rounded-full border border-[#c9a55a]/40 font-mono text-[11px] font-semibold text-[#c9a55a]">B</span>
           <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/45">BrandMeetsCode · Digital Studio</span>
         </motion.div>
 

@@ -138,7 +138,7 @@ function FeaturedCard({ project }: { project: typeof PROJECTS[0] }) {
             className="inline-flex items-center gap-2 font-mono text-[11px] transition-all duration-300"
             style={{ color: project.accent, opacity: 0.6 }}
           >
-            View case study
+            View project
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -192,7 +192,7 @@ function SmallCard({ project, index }: { project: typeof PROJECTS[0]; index: num
             className="font-mono text-[10px] opacity-40 transition-all duration-300 group-hover:opacity-80"
             style={{ color: project.accent }}
           >
-            View case study →
+            View project →
           </span>
         </div>
       </Link>
@@ -228,7 +228,7 @@ export default function V2ProjectsGrid() {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <Link href="/work" className="font-mono text-[11px] text-white/25 no-underline transition-colors hover:text-white/60">
-                All case studies →
+                All selected work →
               </Link>
             </motion.div>
           </div>

@@ -459,7 +459,7 @@ export default function CaseStudyContent({
           {/* Section overline */}
           <InViewMotion>
             <div className="mb-10 flex items-center gap-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/30">Case study</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/30">Selected Work</p>
               <div className="h-px flex-1 bg-white/[0.05]" />
             </div>
           </InViewMotion>

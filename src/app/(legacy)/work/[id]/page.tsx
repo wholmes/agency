@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const project = await getProject(id);
   if (!project) return {};
   return {
-    title: `${project.title} — Case Study`,
+    title: `${project.title} — Selected Work`,
     description: `How BrandMeetsCode helped ${project.title}: ${project.result}. ${project.resultDetail}`,
     alternates: { canonical: `https://brandmeetscode.com/work/${id}` },
   };

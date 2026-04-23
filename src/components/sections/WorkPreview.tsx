@@ -111,8 +111,8 @@ function CardContent({ project }: { project: Project }) {
       href={`/work/${project.id}`}
       className="project-row block no-underline"
       style={{ "--project-accent": project.accent } as React.CSSProperties}
-      aria-label={`Case study: ${project.title}`}
-      data-cursor-label="Case Study"
+      aria-label={`Selected work: ${project.title}`}
+      data-cursor-label="View Work"
     >
       <article className="project-article grid grid-cols-1 gap-6 rounded-xl border border-[#e0d8cc] bg-[#1a1714] p-8 shadow-[0_4px_32px_rgba(0,0,0,0.15)] transition-[transform,box-shadow,border-color] [transition-duration:var(--duration-base)] [transition-timing-function:var(--ease-out)] md:grid-cols-[1fr_1.2fr] md:items-center">
         {project.thumbImage ? (
