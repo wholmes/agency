@@ -20,9 +20,9 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` and set at minimum:
+Edit `.env` (and optionally `.env.local` after `vercel env pull`) and set at minimum:
 
-- `DATABASE_URL` — see [Database URL](#database-url) below.
+- `DATABASE_URL` and `POSTGRES_PRISMA_URL` — see [Database URLs](#database-urls-neon--prisma) below.
 - `ADMIN_PASSWORD` — at least **8 characters** (required to sign in at `/admin`).
 
 Create the database, apply migrations, seed content, and run the dev server:
@@ -43,6 +43,8 @@ npm run db:migrate
 npx prisma generate   # also runs via postinstall / build
 ```
 
+For **production-like databases** (e.g. Neon after deploy), apply pending migrations with **`npm run db:deploy`** — not raw `npx prisma migrate deploy` unless your shell already loads the same env files (see [Database URLs](#database-urls-neon--prisma)).
+
 `npm run build` runs `prisma generate` and then `next build`. `postinstall` runs `prisma generate` so the client exists after `npm install`.
 
 ---
@@ -51,29 +53,44 @@ npx prisma generate   # also runs via postinstall / build
 
 | Variable | Required | Purpose |
 | -------- | -------- | ------- |
-| `DATABASE_URL` | Yes | Prisma connection string. |
+| `POSTGRES_PRISMA_URL` | Yes | **Pooled** Postgres URL (e.g. Neon with `-pooler` in the host). Used as Prisma’s primary `url` for app queries. |
+| `DATABASE_URL` | Yes | **Direct** Postgres URL (Neon: host **without** `-pooler`). Used as `directUrl` for migrations (`migrate deploy`, `migrate resolve`) and tooling; avoids flaky advisory locks when talking only to the pooler. |
 | `ADMIN_PASSWORD` | Yes for admin | Password for `/admin` (minimum 8 characters). |
 | `ADMIN_SESSION_SECRET` | No | Secret used to sign the admin session cookie. If omitted, `ADMIN_PASSWORD` is used (fine for local dev; use a separate long secret in production). |
 | `RESEND_API_KEY` | For contact email | Send contact form notifications via Resend; see `/admin/email` for "from" and notify addresses stored in the DB. |
 | `CONTACT_TO_EMAIL`, `CONTACT_FROM_DOMAIN` | Optional | Overrides for delivery / sender domain if not using DB-only email settings. |
 
-### Database URL
+### Database URLs (Neon + Prisma)
 
-The schema uses **PostgreSQL** (`provider = "postgresql"` in `prisma/schema.prisma`).
+The schema uses **PostgreSQL** with **two** env vars (`prisma/schema.prisma`):
 
-**Local example:**
+| Env var | Role |
+| ------- | ---- |
+| `POSTGRES_PRISMA_URL` | Pooled connection (Neon: turn **connection pooling ON** in the connect dialog — hostname contains `-pooler`). |
+| `DATABASE_URL` | Direct connection (Neon: turn **connection pooling OFF** — hostname does **not** contain `-pooler`). |
+
+Prisma Migrate and `migrate resolve` use **`DATABASE_URL`** (`directUrl`). If `DATABASE_URL` accidentally uses the pooler host, you may see **P1002** (advisory lock timeout). Local dev can duplicate the same string into both vars if you use a single non-Neon database; with Neon, use both URLs from the dashboard.
+
+**Pull from Vercel** (recommended once the project is linked):
+
+```bash
+vercel env pull .env.local
+```
+
+The Prisma CLI only auto-loads **`.env`**, not `.env.local`. This repo’s **`npm run db:*`** scripts load **`.env` then `.env.local`** via `dotenv-cli`, so prefer:
+
+- `npm run db:migrate` — development (`migrate dev`)
+- `npm run db:deploy` — apply migrations (`migrate deploy`)
+- `npm run db:resolve-applied -- <migration_folder_name>` — mark a migration applied when the DB already matches (drift recovery)
+
+**Local example (single Postgres, no pooler):**
 
 ```env
 DATABASE_URL="postgresql://USER@localhost:5432/agency_local"
+POSTGRES_PRISMA_URL="postgresql://USER@localhost:5432/agency_local"
 ```
 
-**Production (Neon, Supabase, Railway, Vercel Postgres, etc.):**
-
-```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
-```
-
-Use the connection string from your provider. For production deploys, run `npx prisma migrate deploy` (not `migrate dev`). JSON-heavy fields are stored as strings in Postgres the same way as in development.
+Copy `.env.example` as a starting point. JSON-heavy fields are stored as strings in Postgres the same way as in development.
 
 In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`ADMIN_SESSION_SECRET`**.
 
@@ -182,7 +199,9 @@ Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strate
 | `npm run build` | `prisma generate` + production build. |
 | `npm run start` | Production server (after `build`). |
 | `npm run lint` | ESLint. |
-| `npm run db:migrate` | `prisma migrate dev` (development migrations). |
+| `npm run db:migrate` | `prisma migrate dev` (loads `.env` + `.env.local`). |
+| `npm run db:deploy` | `prisma migrate deploy` (loads `.env` + `.env.local`). |
+| `npm run db:resolve-applied` | `prisma migrate resolve --applied` — pass migration name after `--`. |
 | `npm run db:seed` | Run `prisma/seed.ts`. |
 | `npm run db:studio` | Prisma Studio (table browser). |
 
@@ -256,6 +275,19 @@ rm -rf .next              # clear Turbopack cache
 npm run db:seed           # only if you want to refresh seed data (destructive)
 ```
 
+### Migrations on Neon (`relation already exists`, P3018 / P3009 / P1002)
+
+- **`42P07` / “relation … already exists”** — The table is already in the database (e.g. after `db push` or manual SQL), but `_prisma_migrations` does not list that migration. If the live schema matches the migration SQL, record it without re-running SQL:
+
+  ```bash
+  npm run db:resolve-applied -- <migration_folder_name>
+  npm run db:deploy
+  ```
+
+- **P3009** (“failed migrations”) — Same idea after you confirm the DB matches: `npm run db:resolve-applied -- <name>`, then `npm run db:deploy`.
+
+- **P1002** (advisory lock timeout) — Usually **`DATABASE_URL` points at the pooler**. Set **`DATABASE_URL`** to Neon’s **direct** connection string (no `-pooler` in the host); keep **`POSTGRES_PRISMA_URL`** pooled. Retry when no other client holds a migration lock.
+
 ---
 
 ## Project layout
@@ -302,8 +334,8 @@ If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after t
 
 ## Deploying
 
-1. Set **`DATABASE_URL`** (and **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI).
-2. Run **`npx prisma migrate deploy`** in CI or your release step (not `migrate dev`).
+1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI.
+2. Run migrations in CI or the release step: **`npx prisma migrate deploy`** with env vars injected (Vercel build usually has them), or locally **`npm run db:deploy`** which loads `.env` / `.env.local`. Do **not** use `migrate dev` against production.
 3. Run **`npm run build`** then **`npm run start`**, or use your host's Next.js preset.
 
 Prisma `generate` is part of `npm run build`. Use HTTPS in production so admin cookies stay secure (`secure` flag is enabled when `NODE_ENV === "production"`).

@@ -2,10 +2,15 @@
 //
 // Env vars (both required — Prisma validates both at CLI startup):
 //   POSTGRES_PRISMA_URL — pooled `postgresql://…` (PgBouncer / Neon pooler). App runtime queries.
-//   DATABASE_URL        — direct `postgresql://…` for migrations (`directUrl`) and tooling.
+//   DATABASE_URL        — **direct** Neon host (no `-pooler` in hostname). Used as `directUrl` for
+//                         migrate/studio resolve — if this points at the pooler, P1002 advisory locks
+//                         and flaky migrate are common.
 //
 // Local dev: if you only have one URL, duplicate it — set POSTGRES_PRISMA_URL to the same value as
-// DATABASE_URL. Production: copy both from Vercel (`vercel env pull`) or Neon dashboard.
+// DATABASE_URL. Production: copy both from Vercel (`vercel env pull .env.local`) or Neon dashboard.
+//
+// Prisma CLI reads `.env` only by default — use `npm run db:migrate`, `npm run db:deploy`, etc., which
+// load `.env` then `.env.local` so `vercel env pull` output is picked up.
 //
 // When using Prisma Accelerate instead, switch docs in src/lib/prisma.ts and adjust URLs accordingly.
 
