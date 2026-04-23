@@ -148,7 +148,7 @@ export default function V2FigSection() {
                 key={fig.num}
                 initial={{ opacity: 0, y: 32 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
+                viewport={{ once: true, amount: 0 }}
                 transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
               >
                 {/* Fig label */}

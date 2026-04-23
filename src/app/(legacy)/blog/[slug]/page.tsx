@@ -42,8 +42,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url,
+      siteName: "BrandMeetsCode",
+      locale: "en_US",
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt?.toISOString(),
       authors: post.author ? [post.author] : undefined,
       tags: post.tags,
       images: post.coverImage
@@ -231,33 +234,45 @@ export default async function BlogPostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: post.title,
-            description: post.metaDescription || post.excerpt,
-            url: articleUrl,
-            datePublished: post.publishedAt?.toISOString(),
-            dateModified: post.updatedAt?.toISOString(),
-            author: post.author
-              ? {
-                  "@type": "Person",
-                  name: post.author,
-                  jobTitle: post.authorTitle || undefined,
-                }
-              : {
-                  "@type": "Organization",
-                  name: "BrandMeetsCode",
-                  url: SITE_URL,
-                },
-            publisher: {
-              "@type": "Organization",
-              name: "BrandMeetsCode",
-              url: SITE_URL,
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: post.title,
+              description: post.metaDescription || post.excerpt,
+              url: articleUrl,
+              datePublished: post.publishedAt?.toISOString(),
+              dateModified: post.updatedAt?.toISOString(),
+              author: post.author
+                ? {
+                    "@type": "Person",
+                    name: post.author,
+                    jobTitle: post.authorTitle || undefined,
+                  }
+                : {
+                    "@type": "Organization",
+                    name: "BrandMeetsCode",
+                    url: SITE_URL,
+                  },
+              publisher: {
+                "@type": "Organization",
+                name: "BrandMeetsCode",
+                url: SITE_URL,
+              },
+              image: post.coverImage || undefined,
+              keywords: post.tags.join(", ") || undefined,
+              mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
             },
-            image: post.coverImage || undefined,
-            keywords: post.tags.join(", ") || undefined,
-          }),
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+                { "@type": "ListItem", position: 2, name: "Journal", item: `${SITE_URL}/blog` },
+                { "@type": "ListItem", position: 3, name: post.title, item: articleUrl },
+              ],
+            },
+          ]),
         }}
       />
     </>

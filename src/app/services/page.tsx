@@ -19,9 +19,23 @@ import {
 export const metadata: Metadata = {
   title: "Services — Web Design, Development, Brand Strategy & Analytics",
   description:
-    "BrandMeetsCode offers premium web design, development, brand strategy, and analytics integration for B2B companies and SaaS founders.",
+    "Premium web design & development, brand strategy, and analytics integration for B2B companies and SaaS founders. See what's included.",
   alternates: {
     canonical: "https://brandmeetscode.com/services",
+  },
+  openGraph: {
+    title: "Services — BrandMeetsCode",
+    description:
+      "Premium web design & development, brand strategy, and analytics integration for B2B companies and SaaS founders. See what's included.",
+    url: "https://brandmeetscode.com/services",
+    siteName: "BrandMeetsCode",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Services — BrandMeetsCode",
+    description:
+      "Premium web design & development, brand strategy, and analytics integration for B2B companies and SaaS founders. See what's included.",
   },
 };
 

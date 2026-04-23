@@ -17,7 +17,6 @@ export default async function ServiceDetailLayout({ children }: { children: Reac
         contactEmail={settings.contactEmail}
         chrome={chrome}
         canvasVariant="cta"
-        bridgeFromLight
       />
     </>
   );

@@ -423,7 +423,7 @@ function TimelineRow({ index }: { index: number }) {
                 key={heading}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
+                viewport={{ once: true, amount: 0 }}
                 transition={{ duration: 0.6, delay: si * 0.1, ease: EASE }}
                 className="relative flex items-start gap-5"
               >

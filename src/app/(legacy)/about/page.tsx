@@ -13,8 +13,22 @@ import {
 export const metadata: Metadata = {
   title: "About — The BrandMeetsCode Story",
   description:
-    "The story of BrandMeetsCode — a Chicago-based web development agency built at the intersection of brand strategy and technical execution.",
+    "The story of BrandMeetsCode — a web development agency built at the intersection of brand strategy and technical execution. Disciplines that rarely meet.",
   alternates: { canonical: "https://brandmeetscode.com/about" },
+  openGraph: {
+    title: "About — BrandMeetsCode",
+    description:
+      "The story of BrandMeetsCode — a web development agency built at the intersection of brand strategy and technical execution. Disciplines that rarely meet.",
+    url: "https://brandmeetscode.com/about",
+    siteName: "BrandMeetsCode",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About — BrandMeetsCode",
+    description:
+      "The story of BrandMeetsCode — a web development agency built at the intersection of brand strategy and technical execution. Disciplines that rarely meet.",
+  },
 };
 
 export default async function AboutPage() {

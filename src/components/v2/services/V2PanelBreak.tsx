@@ -21,7 +21,7 @@ export default function V2PanelBreak() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.1 }}
+        viewport={{ once: true, amount: 0 }}
         transition={{ duration: 0.9, ease: EASE }}
         className="relative mx-8 md:mx-16"
       >
@@ -56,7 +56,7 @@ export default function V2PanelBreak() {
             className="pointer-events-none absolute bottom-[-24px] right-[3%] hidden w-[44%] overflow-hidden rounded-xl border border-white/[0.1] md:block"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0 }}
             transition={{ duration: 1.1, delay: 0.3, ease: EASE }}
           >
             <div

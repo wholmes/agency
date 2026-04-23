@@ -19,6 +19,18 @@ export async function generateMetadata(): Promise<Metadata> {
     title: hub.metaTitle,
     description: hub.metaDescription,
     alternates: { canonical: "https://brandmeetscode.com/industries" },
+    openGraph: {
+      title: hub.metaTitle,
+      description: hub.metaDescription,
+      url: "https://brandmeetscode.com/industries",
+      siteName: "BrandMeetsCode",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: hub.metaTitle,
+      description: hub.metaDescription,
+    },
   };
 }
 

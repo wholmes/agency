@@ -14,10 +14,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const project = await getProject(id);
   if (!project) return {};
+  const url = `https://brandmeetscode.com/work/${id}`;
+  const description = `How BrandMeetsCode helped ${project.title}${project.result ? `: ${project.result}` : ""}.${project.resultDetail ? ` ${project.resultDetail}` : ""}`;
+  const ogImages = project.heroImage
+    ? [{ url: project.heroImage, width: 1200, height: 630, alt: project.title }]
+    : undefined;
   return {
-    title: `${project.title} — Selected Work`,
-    description: `How BrandMeetsCode helped ${project.title}: ${project.result}. ${project.resultDetail}`,
-    alternates: { canonical: `https://brandmeetscode.com/work/${id}` },
+    title: `${project.title} — Selected Work | BrandMeetsCode`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${project.title} — BrandMeetsCode`,
+      description,
+      url,
+      siteName: "BrandMeetsCode",
+      type: "website",
+      ...(ogImages && { images: ogImages }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title} — BrandMeetsCode`,
+      description,
+      ...(ogImages && { images: [project.heroImage!] }),
+    },
   };
 }
 

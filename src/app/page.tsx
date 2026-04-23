@@ -18,6 +18,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://brandmeetscode.com",
   },
+  openGraph: {
+    title: "BrandMeetsCode — Premium Digital Studio",
+    description:
+      "BrandMeetsCode builds premium websites for B2B companies and SaaS founders. Brand strategy meets technical execution — Lighthouse ≥ 90 guaranteed.",
+    url: "https://brandmeetscode.com",
+    siteName: "BrandMeetsCode",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BrandMeetsCode — Premium Digital Studio",
+    description:
+      "BrandMeetsCode builds premium websites for B2B companies and SaaS founders. Brand strategy meets technical execution — Lighthouse ≥ 90 guaranteed.",
+  },
 };
 
 export default async function Home() {

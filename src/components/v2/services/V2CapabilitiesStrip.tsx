@@ -29,7 +29,7 @@ export default function V2CapabilitiesStrip({ capabilities }: { capabilities: Ca
       aria-label="Capabilities"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
       className="border-y border-white/[0.07]"
       style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%)" }}
@@ -42,12 +42,15 @@ export default function V2CapabilitiesStrip({ capabilities }: { capabilities: Ca
           <p className="font-mono text-[10px] text-white/40">{capabilities.length} disciplines</p>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        {/* Grid — col count adapts to item count so there's never an orphan row */}
+        <div className={`grid grid-cols-2 sm:grid-cols-3 ${capabilities.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
           {capabilities.map((cap, i) => {
             const color    = LED_COLORS[i % LED_COLORS.length];
             const duration = LED_DURATIONS[i % LED_DURATIONS.length];
             const delay    = LED_DELAYS[i % LED_DELAYS.length];
+            const cols     = capabilities.length === 5 ? 5 : 4;
+            const isLastInRow = (i + 1) % cols === 0;
+            const isLast      = i === capabilities.length - 1;
 
             return (
               <motion.div
@@ -56,7 +59,7 @@ export default function V2CapabilitiesStrip({ capabilities }: { capabilities: Ca
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.03, ease: EASE }}
-                className="group border-r border-b border-white/[0.05] px-6 py-8 last:border-r-0 [&:nth-child(2n)]:border-r-0 sm:[&:nth-child(2n)]:border-r sm:[&:nth-child(3n)]:border-r-0 lg:[&:nth-child(3n)]:border-r lg:[&:nth-child(4n)]:border-r-0"
+                className={`group border-b border-white/[0.05] px-6 py-8 ${isLastInRow || isLast ? "" : "border-r border-white/[0.05]"}`}
               >
                 {/* Synth LED dot */}
                 <div

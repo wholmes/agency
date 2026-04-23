@@ -5,16 +5,23 @@ import BlogThemeToggle from "@/components/blog/BlogThemeToggle";
 import BlogListingClient from "./BlogListingClient";
 
 export const metadata: Metadata = {
-  title: "Journal",
+  title: "Journal — BrandMeetsCode",
   description:
     "Perspectives on brand strategy, web development, and building digital products that last. Insights from the BrandMeetsCode team.",
   alternates: { canonical: "https://brandmeetscode.com/blog" },
   openGraph: {
     title: "Journal — BrandMeetsCode",
     description:
-      "Perspectives on brand strategy, web development, and building digital products that last.",
+      "Perspectives on brand strategy, web development, and building digital products that last. Insights from the BrandMeetsCode team.",
     url: "https://brandmeetscode.com/blog",
+    siteName: "BrandMeetsCode",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Journal — BrandMeetsCode",
+    description:
+      "Perspectives on brand strategy, web development, and building digital products that last. Insights from the BrandMeetsCode team.",
   },
 };
 
@@ -86,6 +93,36 @@ export default async function BlogPage() {
           ← Back to main site
         </Link>
       </div>
+
+      {/* ── JSON-LD ───────────────────────────────────────────────────────── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "Blog",
+              name: "BrandMeetsCode Journal",
+              description:
+                "Perspectives on brand strategy, web development, and building digital products that last.",
+              url: "https://brandmeetscode.com/blog",
+              publisher: {
+                "@type": "Organization",
+                name: "BrandMeetsCode",
+                url: "https://brandmeetscode.com",
+              },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://brandmeetscode.com" },
+                { "@type": "ListItem", position: 2, name: "Journal", item: "https://brandmeetscode.com/blog" },
+              ],
+            },
+          ]),
+        }}
+      />
     </>
   );
 }

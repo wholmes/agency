@@ -43,7 +43,7 @@ function StatStrip() {
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
       className="border-y border-white/[0.07]"
       style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.005) 100%)" }}
@@ -119,7 +119,7 @@ function ServiceRow({
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0 }}
           transition={{ duration: 0.7, ease: EASE }}
         >
           {index === 0 && (
@@ -147,7 +147,7 @@ function ServiceRow({
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
         >
           <p className="mb-8 max-w-[440px] text-[clamp(1rem,1.2vw,1.125rem)] leading-relaxed text-white/70">
@@ -187,7 +187,7 @@ function ServiceRow({
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: true, amount: 0 }}
         transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
         className="relative mx-8 overflow-hidden rounded-t-2xl border border-b-0 border-white/[0.07] shadow-[0_-16px_60px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.05)] md:mx-16"
       >
@@ -211,7 +211,7 @@ function ServiceRow({
             style={{ right: overlayRight, y: panel2Y, boxShadow: "0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)" }}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0 }}
             transition={{ duration: 1.1, delay: 0.4, ease: EASE }}
           >
             <div

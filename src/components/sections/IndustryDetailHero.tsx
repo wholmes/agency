@@ -68,32 +68,41 @@ export default function IndustryDetailHero({
   return (
     <section
       aria-labelledby="industry-heading"
-      className="relative flex min-h-dvh flex-col justify-center overflow-hidden border-b border-border pt-[var(--nav-height)]"
+      className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
+      style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
       <HeroCanvas />
 
       {/* ── Content ───────────────────────────────────────────────────── */}
-      <div className="container relative z-[1]">
+      <div className="relative z-[1] mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-16">
         <Link
           href="/industries"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-text-tertiary no-underline transition-colors hover:text-accent"
+          className="mb-10 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/35 no-underline transition-colors hover:text-[#c9a55a]"
         >
           ← Industries
         </Link>
 
-        <p className="text-overline mb-5">{heroOverline}</p>
+        <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.25em] text-[#c9a55a]/80">
+          {heroOverline}
+        </p>
 
-        <h1 id="industry-heading" className="text-h1 mb-6 max-w-[640px]">
+        <h1
+          id="industry-heading"
+          className="mb-6 max-w-[680px] font-display text-[clamp(2.4rem,5vw,4rem)] font-light leading-[1.08] tracking-[-0.03em] text-white"
+        >
           {heroTitle}
         </h1>
 
-        <p className="text-body-lg mb-10 max-w-[560px] text-text-secondary">
+        <p className="mb-10 max-w-[520px] font-body text-[17px] leading-relaxed text-white/50">
           {heroBody}
         </p>
 
-        <Link href={ctaHref} className="btn btn-primary">
+        <Link
+          href={ctaHref}
+          className="inline-flex items-center gap-2 rounded-full bg-[#c9a55a] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.15em] text-[#0e0e0e] transition-all duration-300 hover:bg-[#d4b36a] hover:shadow-[0_8px_32px_rgba(201,165,90,0.25)]"
+        >
           {ctaLabel}
-          <IconArrowUpRight size={16} />
+          <IconArrowUpRight size={13} />
         </Link>
       </div>
 
@@ -102,13 +111,13 @@ export default function IndustryDetailHero({
         className="absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
         aria-hidden="true"
       >
-        <span className="text-xs tracking-[0.15em] text-text-tertiary uppercase">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/25">
           Scroll
         </span>
-        <div className="relative h-10 w-px overflow-hidden bg-border">
+        <div className="relative h-10 w-px overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
           <div
-            className="absolute inset-0 bg-accent"
-            style={{ animation: "scrollLine 1.4s linear infinite" }}
+            className="absolute inset-0"
+            style={{ background: "#c9a55a", animation: "scrollLine 1.4s linear infinite" }}
           />
         </div>
       </div>

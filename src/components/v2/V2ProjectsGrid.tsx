@@ -5,6 +5,199 @@ import { motion } from "framer-motion";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+// ── Isometric helpers (same as V2ProcessSection) ─────────────────────────────
+const S = 10; // unit → px scale
+function iso(ox: number, oy: number, r: number, l: number, h: number): [number, number] {
+  return [ox + (r - l) * S * 0.866, oy + (r + l) * S * 0.5 - h * S];
+}
+interface BoxProps {
+  ox: number; oy: number; W: number; D: number; H: number;
+  stroke?: string; strokeWidth?: number;
+  topFill?: string; leftFill?: string; rightFill?: string;
+}
+function IsoBox({ ox, oy, W, D, H, stroke = "rgba(255,255,255,0.18)", strokeWidth = 0.8, topFill = "none", leftFill = "rgba(255,255,255,0.03)", rightFill = "rgba(255,255,255,0.02)" }: BoxProps) {
+  const [tl] = [iso(ox,oy,0,0,H)]; const [tr] = [iso(ox,oy,W,0,H)];
+  const [tm] = [iso(ox,oy,W,D,H)]; const [tbl] = [iso(ox,oy,0,D,H)];
+  const [bl] = [iso(ox,oy,0,0,0)]; const [br] = [iso(ox,oy,W,0,0)];
+  const [bm] = [iso(ox,oy,W,D,0)]; const [bbl] = [iso(ox,oy,0,D,0)];
+  const top   = `${tl[0]},${tl[1]} ${tr[0]},${tr[1]} ${tm[0]},${tm[1]} ${tbl[0]},${tbl[1]}`;
+  const left  = `${tl[0]},${tl[1]} ${tbl[0]},${tbl[1]} ${bbl[0]},${bbl[1]} ${bl[0]},${bl[1]}`;
+  const right = `${tr[0]},${tr[1]} ${tm[0]},${tm[1]} ${bm[0]},${bm[1]} ${br[0]},${br[1]}`;
+  return (<g>
+    <polygon points={top}   fill={topFill}   stroke={stroke} strokeWidth={strokeWidth} />
+    <polygon points={left}  fill={leftFill}  stroke={stroke} strokeWidth={strokeWidth} />
+    <polygon points={right} fill={rightFill} stroke={stroke} strokeWidth={strokeWidth} />
+  </g>);
+}
+
+// ── Ghost isometric icons ─────────────────────────────────────────────────────
+
+// DataLayer Tracker — stacked analytics layer slabs (large, for featured card)
+function GhostDataLayer() {
+  const ox = 160; const oy = 180;
+  const layers = [
+    { dr: 0, dl: 0, dh: 0,   W: 10, D: 6 },
+    { dr: -0.4, dl: -0.4, dh: 2.2, W: 9,  D: 5.4 },
+    { dr: -0.8, dl: -0.8, dh: 4.4, W: 8,  D: 4.8 },
+  ];
+  return (
+    <svg width="320" height="280" viewBox="0 0 320 280" fill="none" aria-hidden="true" overflow="visible">
+      <g opacity="0.55">
+        {layers.map((l, i) => {
+          const [bx, by] = iso(ox, oy, l.dr, l.dl, l.dh);
+          const isTop = i === layers.length - 1;
+          return (
+            <IsoBox key={i} ox={bx} oy={by} W={l.W} D={l.D} H={0.7}
+              stroke={isTop ? "rgba(201,165,90,0.35)" : "rgba(255,255,255,0.14)"}
+              strokeWidth={isTop ? 0.9 : 0.7}
+              topFill={isTop ? "rgba(201,165,90,0.04)" : "rgba(255,255,255,0.02)"}
+              leftFill="rgba(255,255,255,0.015)"
+              rightFill="rgba(255,255,255,0.01)"
+            />
+          );
+        })}
+        {/* Gold accent line across top slab */}
+        {(() => {
+          const [x1,y1] = iso(ox,oy,-0.8+1,-0.8+0.5,4.4+0.7+0.1);
+          const [x2,y2] = iso(ox,oy,-0.8+5,-0.8+0.5,4.4+0.7+0.1);
+          return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(201,165,90,0.3)" strokeWidth="0.8" strokeLinecap="round" />;
+        })()}
+      </g>
+    </svg>
+  );
+}
+
+// Blueprint Toolkit — iso blueprint grid platform with 3 rising columns
+function GhostBlueprint() {
+  const ox = 80; const oy = 75;
+  const cols = [1.4, 2.4, 3.0];
+  return (
+    <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true" overflow="visible">
+      <g opacity="0.5">
+        {/* Base platform */}
+        <IsoBox ox={ox} oy={oy} W={5} D={3.5} H={0.4}
+          stroke="rgba(255,255,255,0.14)" strokeWidth={0.7}
+          topFill="rgba(255,255,255,0.02)" />
+        {/* 3 columns */}
+        {cols.map((h, i) => {
+          const [bx,by] = iso(ox, oy, i*1.4+0.5, 1, 0.4);
+          const isGold = i === cols.length - 1;
+          return (
+            <IsoBox key={i} ox={bx} oy={by} W={0.9} D={1.5} H={h}
+              stroke={isGold ? "rgba(96,165,250,0.4)" : "rgba(255,255,255,0.14)"}
+              strokeWidth={isGold ? 0.9 : 0.7}
+              topFill={isGold ? "rgba(96,165,250,0.06)" : "rgba(255,255,255,0.02)"}
+              leftFill="rgba(255,255,255,0.01)"
+              rightFill="rgba(255,255,255,0.01)"
+            />
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
+// 10 Speed Arcade — iso game controller shape: 2 stacked slabs + 2 side bumpers
+function GhostArcade() {
+  const ox = 62; const oy = 72;
+  return (
+    <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true" overflow="visible">
+      <g opacity="0.5">
+        {/* Main body */}
+        <IsoBox ox={ox} oy={oy} W={5} D={3} H={1.2}
+          stroke="rgba(255,255,255,0.16)" strokeWidth={0.8}
+          topFill="rgba(255,255,255,0.02)" />
+        {/* Left grip */}
+        {(() => { const [bx,by]=iso(ox,oy,-0.6,0.8,0); return (
+          <IsoBox ox={bx} oy={by} W={1.4} D={1.4} H={2.2}
+            stroke="rgba(255,255,255,0.12)" strokeWidth={0.7}
+            topFill="rgba(255,255,255,0.015)" />
+        );})()} 
+        {/* Right grip */}
+        {(() => { const [bx,by]=iso(ox,oy,4.2,0.8,0); return (
+          <IsoBox ox={bx} oy={by} W={1.4} D={1.4} H={2.2}
+            stroke="rgba(74,222,128,0.35)" strokeWidth={0.8}
+            topFill="rgba(74,222,128,0.04)" />
+        );})()} 
+        {/* D-pad cross — two thin slabs */}
+        {(() => { const [bx,by]=iso(ox,oy,0.8,1,1.2); return (
+          <IsoBox ox={bx} oy={by} W={1.6} D={0.5} H={0.25}
+            stroke="rgba(255,255,255,0.2)" strokeWidth={0.7}
+            topFill="rgba(255,255,255,0.04)" />
+        );})()} 
+        {(() => { const [bx,by]=iso(ox,oy,1.15,0.6,1.2); return (
+          <IsoBox ox={bx} oy={by} W={0.5} D={1.6} H={0.25}
+            stroke="rgba(255,255,255,0.2)" strokeWidth={0.7}
+            topFill="rgba(255,255,255,0.04)" />
+        );})()} 
+      </g>
+    </svg>
+  );
+}
+
+// Intently — iso signal funnel: wide base slab narrowing to tall tower
+function GhostIntently() {
+  const ox = 62; const oy = 72;
+  return (
+    <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true" overflow="visible">
+      <g opacity="0.5">
+        {/* Wide base tier */}
+        <IsoBox ox={ox} oy={oy} W={5.5} D={3.5} H={0.5}
+          stroke="rgba(255,255,255,0.14)" strokeWidth={0.7}
+          topFill="rgba(255,255,255,0.015)" />
+        {/* Mid tier — centred, narrower */}
+        {(() => { const [bx,by]=iso(ox,oy,1,0.8,0.5); return (
+          <IsoBox ox={bx} oy={by} W={3.5} D={1.9} H={0.5}
+            stroke="rgba(255,255,255,0.14)" strokeWidth={0.7}
+            topFill="rgba(255,255,255,0.015)" />
+        );})()} 
+        {/* Top tower — signal spike, accent coloured */}
+        {(() => { const [bx,by]=iso(ox,oy,2,1.3,1); return (
+          <IsoBox ox={bx} oy={by} W={1.5} D={0.9} H={2.2}
+            stroke="rgba(232,139,107,0.45)" strokeWidth={0.9}
+            topFill="rgba(232,139,107,0.06)"
+            leftFill="rgba(232,139,107,0.02)"
+            rightFill="rgba(232,139,107,0.015)" />
+        );})()} 
+      </g>
+    </svg>
+  );
+}
+
+// ArtExhib — iso gallery room: floor platform + 3 wall-hung frame slabs
+function GhostGallery() {
+  const ox = 55; const oy = 76;
+  return (
+    <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true" overflow="visible">
+      <g opacity="0.5">
+        {/* Floor platform */}
+        <IsoBox ox={ox} oy={oy} W={6} D={4} H={0.3}
+          stroke="rgba(255,255,255,0.12)" strokeWidth={0.7}
+          topFill="rgba(255,255,255,0.015)" />
+        {/* Back wall frame 1 */}
+        {(() => { const [bx,by]=iso(ox,oy,0.6,0.3,0.3); return (
+          <IsoBox ox={bx} oy={by} W={1.6} D={0.2} H={2.4}
+            stroke="rgba(248,113,113,0.4)" strokeWidth={0.85}
+            topFill="rgba(248,113,113,0.04)"
+            rightFill="rgba(248,113,113,0.03)" />
+        );})()} 
+        {/* Back wall frame 2 */}
+        {(() => { const [bx,by]=iso(ox,oy,2.8,0.3,0.3); return (
+          <IsoBox ox={bx} oy={by} W={1.6} D={0.2} H={2.4}
+            stroke="rgba(255,255,255,0.16)" strokeWidth={0.75}
+            topFill="rgba(255,255,255,0.02)" />
+        );})()} 
+        {/* Smaller side frame */}
+        {(() => { const [bx,by]=iso(ox,oy,0.3,1.6,0.3); return (
+          <IsoBox ox={bx} oy={by} W={0.2} D={2} H={1.8}
+            stroke="rgba(255,255,255,0.14)" strokeWidth={0.7}
+            topFill="rgba(255,255,255,0.015)" />
+        );})()} 
+      </g>
+    </svg>
+  );
+}
+
 const PROJECTS = [
   {
     slug: "datalayer-tracker",
@@ -15,15 +208,7 @@ const PROJECTS = [
     href: "https://datalayer-tracker.com",
     featured: true,
     accent: "#c9a55a",
-    Ghost: () => (
-      <svg width="320" height="280" viewBox="0 0 320 280" fill="none" aria-hidden="true">
-        <polygon points="160,30 280,95 160,160 40,95" stroke="white" strokeWidth="1.2" fill="none" opacity="0.07"/>
-        <polygon points="160,60 280,125 160,190 40,125" stroke="white" strokeWidth="1" fill="none" opacity="0.05"/>
-        <polygon points="160,90 280,155 160,220 40,155" stroke="white" strokeWidth="0.8" fill="none" opacity="0.03"/>
-        <line x1="160" y1="30" x2="160" y2="220" stroke="white" strokeWidth="0.6" opacity="0.03"/>
-        <line x1="40" y1="95" x2="280" y2="95" stroke="rgba(201,165,90,0.15)" strokeWidth="0.8"/>
-      </svg>
-    ),
+    Ghost: GhostDataLayer,
   },
   {
     slug: "blueprint-toolkit",
@@ -34,15 +219,7 @@ const PROJECTS = [
     href: "https://blueprint-toolkit.com",
     featured: false,
     accent: "#60a5fa",
-    Ghost: () => (
-      <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true">
-        <rect x="20" y="20" width="120" height="90" rx="4" stroke="white" strokeWidth="1" fill="none" opacity="0.07"/>
-        <line x1="20" y1="42" x2="140" y2="42" stroke="white" strokeWidth="0.7" opacity="0.05"/>
-        <rect x="32" y="54" width="60" height="5" rx="2" fill="white" opacity="0.05"/>
-        <rect x="32" y="66" width="90" height="5" rx="2" fill="white" opacity="0.04"/>
-        <rect x="32" y="78" width="45" height="5" rx="2" fill="white" opacity="0.03"/>
-      </svg>
-    ),
+    Ghost: GhostBlueprint,
   },
   {
     slug: "arcade",
@@ -53,13 +230,7 @@ const PROJECTS = [
     href: "https://wholmes.github.io/arcade/",
     featured: false,
     accent: "#4ade80",
-    Ghost: () => (
-      <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true">
-        <circle cx="80" cy="65" r="50" stroke="white" strokeWidth="1" fill="none" opacity="0.06"/>
-        <circle cx="80" cy="65" r="30" stroke="white" strokeWidth="0.8" fill="none" opacity="0.04"/>
-        <polygon points="68,52 68,80 98,66" stroke="white" strokeWidth="1" fill="none" opacity="0.07"/>
-      </svg>
-    ),
+    Ghost: GhostArcade,
   },
   {
     slug: "artexhib",
@@ -70,19 +241,18 @@ const PROJECTS = [
     href: "https://artexhib.com",
     featured: false,
     accent: "#f87171",
-    Ghost: () => (
-      <svg width="160" height="130" viewBox="0 0 160 130" fill="none" aria-hidden="true">
-        <rect x="15" y="15" width="130" height="100" stroke="white" strokeWidth="0.8" fill="none" opacity="0.05"/>
-        <line x1="15" y1="15" x2="45" y2="15" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="15" y1="15" x2="15" y2="45" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="145" y1="15" x2="115" y2="15" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="145" y1="15" x2="145" y2="45" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="15" y1="115" x2="45" y2="115" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="15" y1="115" x2="15" y2="85" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="145" y1="115" x2="115" y2="115" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-        <line x1="145" y1="115" x2="145" y2="85" stroke="white" strokeWidth="2.5" opacity="0.09"/>
-      </svg>
-    ),
+    Ghost: GhostGallery,
+  },
+  {
+    slug: "sable",
+    title: "Intently",
+    summary: "Behavioral analytics SaaS capturing 35% more signal than client-side tracking alone.",
+    tag: "Analytics · SaaS",
+    year: "2024",
+    href: "/work/sable",
+    featured: false,
+    accent: "#E88B6B",
+    Ghost: GhostIntently,
   },
 ];
 
@@ -91,7 +261,7 @@ function FeaturedCard({ project }: { project: typeof PROJECTS[0] }) {
     <motion.div
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
       className="md:row-span-2"
     >
@@ -154,7 +324,7 @@ function SmallCard({ project, index }: { project: typeof PROJECTS[0]; index: num
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.65, delay: index * 0.08, ease: EASE }}
     >
       <Link
