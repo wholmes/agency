@@ -2,8 +2,12 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import StudioDashboardPanel from "@/components/v2/panels/StudioDashboardPanel";
-import AnalyticsPanel from "@/components/v2/panels/AnalyticsPanel";
+import dynamic from "next/dynamic";
+
+const PanelSkeleton = () => <div className="h-full w-full bg-[#131313]" />;
+
+const StudioDashboardPanel = dynamic(() => import("@/components/v2/panels/StudioDashboardPanel"), { ssr: false, loading: () => <PanelSkeleton /> });
+const AnalyticsPanel       = dynamic(() => import("@/components/v2/panels/AnalyticsPanel"),       { ssr: false, loading: () => <PanelSkeleton /> });
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 

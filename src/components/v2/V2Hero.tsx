@@ -2,9 +2,17 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
-import StudioDashboardPanel from "./panels/StudioDashboardPanel";
-import BlueprintPanel from "./panels/BlueprintPanel";
+
+const StudioDashboardPanel = dynamic(() => import("./panels/StudioDashboardPanel"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-[#131313]" />,
+});
+const BlueprintPanel = dynamic(() => import("./panels/BlueprintPanel"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-[#131313]" />,
+});
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 

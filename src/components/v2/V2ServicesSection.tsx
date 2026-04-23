@@ -3,19 +3,23 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import KanbanPanel from "./panels/KanbanPanel";
-import BlueprintPanel from "./panels/BlueprintPanel";
-import BrandStrategyPanel from "./panels/BrandStrategyPanel";
-import IntentlyPanel from "./panels/IntentlyPanel";
+import dynamic from "next/dynamic";
 import type { ServiceOffering as ServiceOfferingModel } from "@prisma/client";
 import type { ServicesHomeSection } from "@prisma/client";
 import { parseOutcomeList } from "@/lib/service-icons";
 import { appendUtmToUrl, utmFromFooterLinkDb } from "@/lib/utm";
 import { ProcessRow } from "@/components/v2/V2ProcessSection";
-import DesignTokenPanel from "@/components/v2/panels/DesignTokenPanel";
-import TerminalPanel from "@/components/v2/panels/TerminalPanel";
-import MessagingPanel from "@/components/v2/panels/MessagingPanel";
-import AnalyticsPanel from "@/components/v2/panels/AnalyticsPanel";
+
+const PanelSkeleton = () => <div className="h-full w-full min-h-[320px] bg-[#131313] rounded-xl" />;
+
+const KanbanPanel        = dynamic(() => import("./panels/KanbanPanel"),        { ssr: false, loading: () => <PanelSkeleton /> });
+const BlueprintPanel     = dynamic(() => import("./panels/BlueprintPanel"),     { ssr: false, loading: () => <PanelSkeleton /> });
+const BrandStrategyPanel = dynamic(() => import("./panels/BrandStrategyPanel"), { ssr: false, loading: () => <PanelSkeleton /> });
+const IntentlyPanel      = dynamic(() => import("./panels/IntentlyPanel"),      { ssr: false, loading: () => <PanelSkeleton /> });
+const DesignTokenPanel   = dynamic(() => import("@/components/v2/panels/DesignTokenPanel"), { ssr: false, loading: () => <PanelSkeleton /> });
+const TerminalPanel      = dynamic(() => import("@/components/v2/panels/TerminalPanel"),    { ssr: false, loading: () => <PanelSkeleton /> });
+const MessagingPanel     = dynamic(() => import("@/components/v2/panels/MessagingPanel"),   { ssr: false, loading: () => <PanelSkeleton /> });
+const AnalyticsPanel     = dynamic(() => import("@/components/v2/panels/AnalyticsPanel"),   { ssr: false, loading: () => <PanelSkeleton /> });
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 

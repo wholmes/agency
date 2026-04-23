@@ -2,16 +2,20 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { IconArrowUpRight } from "@/components/icons";
-import StudioDashboardPanel from "@/components/v2/panels/StudioDashboardPanel";
-import BrandStrategyPanel from "@/components/v2/panels/BrandStrategyPanel";
-import MessagingPanel from "@/components/v2/panels/MessagingPanel";
-import AnalyticsPanel from "@/components/v2/panels/AnalyticsPanel";
-import TagManagerPanel from "@/components/v2/panels/TagManagerPanel";
 import V2CapabilitiesStrip from "@/components/v2/services/V2CapabilitiesStrip";
-import KanbanPanel from "@/components/v2/panels/KanbanPanel";
-import BlueprintPanel from "@/components/v2/panels/BlueprintPanel";
 import type { Capability } from "@prisma/client";
+
+const PanelSkeleton = () => <div className="h-full w-full min-h-[420px] bg-[#131313]" />;
+
+const StudioDashboardPanel = dynamic(() => import("@/components/v2/panels/StudioDashboardPanel"), { ssr: false, loading: () => <PanelSkeleton /> });
+const BrandStrategyPanel   = dynamic(() => import("@/components/v2/panels/BrandStrategyPanel"),   { ssr: false, loading: () => <PanelSkeleton /> });
+const MessagingPanel       = dynamic(() => import("@/components/v2/panels/MessagingPanel"),       { ssr: false, loading: () => <PanelSkeleton /> });
+const AnalyticsPanel       = dynamic(() => import("@/components/v2/panels/AnalyticsPanel"),       { ssr: false, loading: () => <PanelSkeleton /> });
+const TagManagerPanel      = dynamic(() => import("@/components/v2/panels/TagManagerPanel"),      { ssr: false, loading: () => <PanelSkeleton /> });
+const KanbanPanel          = dynamic(() => import("@/components/v2/panels/KanbanPanel"),          { ssr: false, loading: () => <PanelSkeleton /> });
+const BlueprintPanel       = dynamic(() => import("@/components/v2/panels/BlueprintPanel"),       { ssr: false, loading: () => <PanelSkeleton /> });
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
