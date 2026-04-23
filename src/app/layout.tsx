@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { Fraunces, DM_Mono, Yellowtail } from "next/font/google";
 import { GeistSans } from "geist/font";
 import "./globals.css";
@@ -8,7 +9,10 @@ import AdminEditLinkServer from "@/components/AdminEditLinkServer";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
-import ScopeEstimatorModal from "@/components/ScopeEstimatorModal";
+
+const ScopeEstimatorModal = dynamic(() => import("@/components/ScopeEstimatorModal"), {
+  ssr: false,
+});
 import { getRootLayoutData, getSeoSettings } from "@/lib/cms/queries";
 
 const fraunces = Fraunces({

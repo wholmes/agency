@@ -1,26 +1,54 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
 
+/**
+ * Lenis smooth scroll — loaded after idle so it does not compete with
+ * first paint / main-thread metrics (Lighthouse TBT, Script Evaluation).
+ */
 export default function SmoothScroll() {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    let cancelled = false;
+    let lenisInstance: { raf: (time: number) => void; destroy: () => void } | null = null;
+    let rafId = 0;
+
+    async function boot() {
+      const { default: Lenis } = await import("lenis");
+      if (cancelled) return;
+      lenisInstance = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+
+      function raf(time: number) {
+        if (!lenisInstance || cancelled) return;
+        lenisInstance.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+
+      rafId = requestAnimationFrame(raf);
     }
 
-    const id = requestAnimationFrame(raf);
+    let idleCbId: ReturnType<typeof requestIdleCallback> | undefined;
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+
+    if (typeof requestIdleCallback === "function") {
+      idleCbId = requestIdleCallback(() => void boot(), { timeout: 2500 });
+    } else {
+      timeoutHandle = setTimeout(() => void boot(), 400);
+    }
 
     return () => {
-      cancelAnimationFrame(id);
-      lenis.destroy();
+      cancelled = true;
+      if (idleCbId !== undefined) cancelIdleCallback(idleCbId);
+      if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+      cancelAnimationFrame(rafId);
+      lenisInstance?.destroy();
+      lenisInstance = null;
     };
   }, []);
 
