@@ -386,7 +386,7 @@ export default function V2ProjectsGrid() {
             >
               <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-white/25">Work</p>
               <h2 className="font-display text-[clamp(3rem,6vw,5.5rem)] font-light leading-[0.95] tracking-[-0.03em] text-white">
-                Proud.
+                Work.
               </h2>
             </motion.div>
             <motion.div
