@@ -131,7 +131,7 @@ export default function ArticleHeroClient({ post }: Props) {
             <img
               src={post.coverImage}
               alt={post.title}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-top"
               priority-loading="true"
             />
           </div>

@@ -194,7 +194,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <img
                           src={rp.coverImage}
                           alt={rp.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center">

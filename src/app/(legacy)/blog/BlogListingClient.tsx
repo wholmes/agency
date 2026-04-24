@@ -48,7 +48,7 @@ export default function BlogListingClient({ featured, rest }: Props) {
                     <img
                       src={featured.coverImage}
                       alt={featured.title}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                      className="h-full w-full object-cover object-top transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                     />
                   </div>
                 ) : (
@@ -185,7 +185,7 @@ function PostCard({ post }: { post: BlogPostData }) {
             <img
               src={post.coverImage}
               alt={post.title}
-              className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+              className="h-full w-full object-cover object-top transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
             />
           ) : (
             <div className="flex h-full items-center justify-center">
