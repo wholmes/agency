@@ -71,7 +71,22 @@ export default function IndustryDetailHero({
       className="relative flex min-h-dvh flex-col justify-center overflow-hidden pt-[var(--nav-height)]"
       style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
     >
-      <HeroCanvas />
+      {/* Canvas — on mobile shift right and mask so copy stays legible */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      >
+        <div
+          className="absolute inset-0 md:[transform:none]"
+          style={{
+            transform: "translateX(30%) translateY(-10%)",
+            maskImage: "radial-gradient(ellipse 85% 90% at 38% 52%, black 0%, black 25%, rgba(0,0,0,0.4) 55%, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(ellipse 85% 90% at 38% 52%, black 0%, black 25%, rgba(0,0,0,0.4) 55%, transparent 75%)",
+          }}
+        >
+          <HeroCanvas />
+        </div>
+      </div>
 
       {/* ── Content ───────────────────────────────────────────────────── */}
       <div className="relative z-[1] mx-auto w-full max-w-[1280px] px-6 md:px-10 lg:px-16">
