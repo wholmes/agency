@@ -48,7 +48,8 @@ export default function WorkPreview({
           </ScrollReveal>
         </div>
 
-        <div ref={containerRef} className="flex flex-col gap-6">
+        {/* `relative`: useScroll(target) requires a non-static positioned element */}
+        <div ref={containerRef} className="relative flex flex-col gap-6">
           {projects.map((project, i) => (
             <StackCard
               key={project.id}

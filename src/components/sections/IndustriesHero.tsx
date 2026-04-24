@@ -44,11 +44,26 @@ export default function IndustriesHero({ hub, industries }: { hub: IndustriesHub
   return (
     <section
       aria-labelledby="industries-heading"
-      className="relative flex min-h-[90dvh] flex-col justify-center overflow-hidden border-b border-white/[0.06] bg-[#0e0e0e] pt-[var(--nav-height)]"
+      className="relative flex min-h-[75dvh] flex-col justify-center overflow-hidden border-b border-white/[0.06] bg-[#0e0e0e] pt-[var(--nav-height)] md:min-h-[90dvh] md:justify-center"
     >
-      <IndustriesOrbitCanvas />
+      {/* Orbit canvas — shifted right so the ring centre sits in the right half of the hero,
+          then masked so it fades before reaching the copy on the left */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      >
+        <div
+          className="absolute inset-0 [transform:translateX(35%)_translateY(-25%)] md:[transform:none]"
+          style={{
+            maskImage: "radial-gradient(ellipse 80% 90% at 40% 50%, black 0%, black 30%, rgba(0,0,0,0.4) 60%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 40% 50%, black 0%, black 30%, rgba(0,0,0,0.4) 60%, transparent 80%)",
+          }}
+        >
+          <IndustriesOrbitCanvas />
+        </div>
+      </div>
 
-      <div className="relative z-[1] w-full px-8 md:px-16">
+      <div className="relative z-[1] w-full px-8 pt-[20vh] md:px-16 md:pt-0">
         <motion.p
           className="mb-5 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50"
           initial="hidden"
@@ -61,13 +76,14 @@ export default function IndustriesHero({ hub, industries }: { hub: IndustriesHub
 
         <h1 id="industries-heading" className="mb-6">
           <motion.span
-            className="block overflow-hidden pb-[0.04em] font-display text-[clamp(3rem,6vw,6rem)] font-light leading-[0.93] tracking-[-0.03em] text-white"
+            className="block overflow-hidden pb-[0.04em] font-display text-[clamp(2.5rem,5.5vw,6rem)] font-light leading-[0.93] tracking-[-0.03em] text-white"
             initial="hidden"
             animate="visible"
             custom={0}
             variants={clipVariant}
           >
-            Industries.
+            Your industry.<br />
+            <em className="not-italic" style={{ color: "#c9a55a" }}>Our obsession.</em>
           </motion.span>
         </h1>
 

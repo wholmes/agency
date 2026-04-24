@@ -289,33 +289,29 @@ function NavLink({
 // ---------------------------------------------------------------------------
 
 function HamburgerIcon({ open }: { open: boolean }) {
+  const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <motion.path
-        d="M3 8h18"
-        animate={open ? { d: "M6 6l12 12" } : { d: "M3 8h18" }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <motion.path
-        animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-        transition={{ duration: 0.2 }}
-        d="M3 12h12"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        className="origin-left"
-      />
-      <motion.path
-        d="M3 16h18"
-        animate={open ? { d: "M18 6L6 18" } : { d: "M3 16h18" }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      {/* Crossfade instead of morphing `d` — Motion 12 + HMR can emit d="undefined" on path tween */}
+      <motion.g
+        initial={false}
+        animate={{ opacity: open ? 0 : 1 }}
+        transition={{ duration: 0.2, ease }}
+        style={{ pointerEvents: "none" }}
+      >
+        <path d="M3 8h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M3 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M3 16h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </motion.g>
+      <motion.g
+        initial={false}
+        animate={{ opacity: open ? 1 : 0 }}
+        transition={{ duration: 0.22, ease }}
+        style={{ pointerEvents: "none" }}
+      >
+        <path d="M6 6l12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M18 6L6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </motion.g>
     </svg>
   );
 }
@@ -384,6 +380,11 @@ export default function Navigation({
     return () => {
       document.body.style.overflow = "";
     };
+  }, [mobileOpen]);
+
+  /* Ballpark estimator FAB hides while this overlay is open (see ScopeEstimatorModal). */
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent<boolean>("bmc-mobile-nav-open", { detail: mobileOpen }));
   }, [mobileOpen]);
 
   useEffect(() => {

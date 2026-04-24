@@ -11,8 +11,24 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export default function ScopeEstimatorModal({ data }: { data: ScopeEstimatorData }) {
   const [open, setOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  /** After intro window, FAB transitions stop using the 1.5s entrance delay. */
+  const [fabIntroDone, setFabIntroDone] = useState(false);
 
   const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setMobileNavOpen(Boolean((e as CustomEvent<boolean>).detail));
+    };
+    window.addEventListener("bmc-mobile-nav-open", handler as EventListener);
+    return () => window.removeEventListener("bmc-mobile-nav-open", handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setFabIntroDone(true), 1600);
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -36,9 +52,16 @@ export default function ScopeEstimatorModal({ data }: { data: ScopeEstimatorData
         onClick={() => setOpen(true)}
         aria-label="Open project cost estimator"
         initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.5, ease: EASE }}
-        className="group fixed bottom-6 left-6 z-[900] flex items-center gap-2.5 rounded-full border border-white/[0.12] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/50 backdrop-blur-md transition-all duration-300 hover:border-[#c9a55a]/40 hover:text-[#c9a55a]"
+        animate={{
+          opacity: mobileNavOpen ? 0 : 1,
+          y: mobileNavOpen ? 16 : 0,
+        }}
+        transition={{
+          duration: mobileNavOpen ? 0.22 : 0.6,
+          delay: fabIntroDone || mobileNavOpen ? 0 : 1.5,
+          ease: EASE,
+        }}
+        className={`group fixed bottom-6 left-6 z-[900] flex items-center gap-2.5 rounded-full border border-white/[0.12] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/50 backdrop-blur-md transition-all duration-300 hover:border-[#c9a55a]/40 hover:text-[#c9a55a] ${mobileNavOpen ? "pointer-events-none" : ""}`}
         style={{ background: "rgba(14,14,14,0.85)" }}
       >
         {/* Pulsing dot */}

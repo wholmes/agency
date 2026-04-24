@@ -68,15 +68,29 @@ export default function V2Hero() {
         {/* Big headline — rendered visible immediately for LCP, only y animates */}
         <div className="mb-8 overflow-hidden">
           <motion.h1
-            className="font-display text-[clamp(3rem,7.5vw,7.5rem)] font-light leading-[0.93] tracking-[-0.03em] text-white"
+            className="font-display text-[clamp(3rem,7.5vw,7.5rem)] font-light leading-[0.93] tracking-[-0.03em] text-white max-md:leading-[1.02]"
             initial={{ y: "0.3em" }}
             animate={{ y: 0 }}
             transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
           >
-            <span className="block">The studio that makes</span>
-            <span className="block">
-              <span style={{ color: "#c9a55a" }}>brand meet </span>
-              <em className="font-display italic" style={{ color: "rgba(255,255,255,0.9)" }}>code.</em>
+            {/* Mobile: avoid “The studio that” / “makes” orphan wrap — lock line breaks */}
+            <span className="md:hidden">
+              <span className="block">The studio that</span>
+              <span className="mt-1 block">
+                makes{" "}
+                <span style={{ color: "#c9a55a" }}>brand meet </span>
+                <em className="font-display italic" style={{ color: "rgba(255,255,255,0.9)" }}>
+                  code.
+                </em>
+              </span>
+            </span>
+            {/* md+: original two-line rhythm */}
+            <span className="hidden md:block">
+              <span className="block">The studio that makes</span>
+              <span className="block">
+                <span style={{ color: "#c9a55a" }}>brand meet </span>
+                <em className="font-display italic" style={{ color: "rgba(255,255,255,0.9)" }}>code.</em>
+              </span>
             </span>
           </motion.h1>
         </div>
@@ -96,14 +110,14 @@ export default function V2Hero() {
           </motion.div>
 
           <motion.div
-            className="flex flex-col gap-4 md:items-end"
+            className="flex flex-col items-start gap-4 md:items-end"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.65, ease: EASE }}
           >
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2.5 rounded-full bg-[#c9a55a] px-7 py-3.5 font-body text-sm font-semibold text-[#080808] no-underline transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_0_24px_rgba(201,165,90,0.3)]"
+              className="inline-flex w-fit items-center gap-2.5 rounded-full bg-[#c9a55a] px-7 py-3.5 font-body text-sm font-semibold text-[#080808] no-underline transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_0_24px_rgba(201,165,90,0.3)]"
             >
               Start a project
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">

@@ -102,6 +102,7 @@ export default function CapabilitiesScroll({ capabilities: rawCaps = [] }: { cap
     <section
       ref={containerRef}
       aria-label="Capabilities"
+      className="relative"
       style={{ height: reduce ? "auto" : `calc(100vh + ${scrollDist}px)` }}
     >
       {reduce ? (

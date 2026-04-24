@@ -49,7 +49,8 @@ export default function V2ServicesHero({ content }: { content: ServicesPageHero 
 
       {/* Copy */}
       <div className="relative z-10 mx-auto max-w-[1280px] px-8 md:px-16">
-        <div className="max-w-[55%]">
+        {/* Full-width copy on mobile; 55% cap only on md+ where art sits beside copy */}
+        <div className="max-w-full md:max-w-[55%]">
         <motion.div
           className="mb-8 flex items-center gap-4"
           initial={{ opacity: 0 }}

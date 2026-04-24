@@ -145,13 +145,13 @@ export default function Hero({ content }: { content: HomeHero }) {
           </motion.p>
 
           <motion.div
-            className="flex flex-wrap gap-4"
+            className="flex w-fit flex-wrap items-center gap-4"
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
             custom={0.7}
             variants={enterVariant}
           >
-            <MagneticButton>
+            <MagneticButton className="self-start">
               <Link
                 href={appendUtmToUrl(content.primaryCtaHref, utmFromPrimaryDb(content))}
                 className="btn btn-primary"
@@ -161,7 +161,7 @@ export default function Hero({ content }: { content: HomeHero }) {
                 <IconArrowUpRight size={16} />
               </Link>
             </MagneticButton>
-            <MagneticButton>
+            <MagneticButton className="self-start">
               <Link href={appendUtmToUrl(content.secondaryCtaHref, utmFromSecondaryDb(content))} className="btn btn-secondary">
                 {content.secondaryCtaLabel}
                 <IconArrowRight size={16} />
