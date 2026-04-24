@@ -83,13 +83,13 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "BrandMeetsCode",
       title: seo.siteTitle,
       description: seo.metaDescription,
-      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: seo.siteTitle }],
+      images: [{ url: "/og-image.png", width: 1024, height: 539, alt: seo.siteTitle }],
     },
     twitter: {
       card: "summary_large_image",
       title: seo.siteTitle,
       description: seo.metaDescription,
-      images: ["/og-image.jpg"],
+      images: ["/og-image.png"],
     },
     robots: seo.noIndex
       ? { index: false, follow: false }
