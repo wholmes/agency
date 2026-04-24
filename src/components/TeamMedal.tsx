@@ -265,7 +265,7 @@ function MedalGroup({ topText, bottomText }: { topText?: string; bottomText?: st
   }), []);
   const [fontReady, setFontReady] = useState(false);
   useEffect(() => {
-    const yf = new FontFace("Yellowtail", "url(https://fonts.gstatic.com/s/yellowtail/v22/OZpGg_pnoDtINPfRIlLotlzNitn7lw.woff2)");
+    const yf = new FontFace("Yellowtail", "url(https://fonts.gstatic.com/s/yellowtail/v25/OZpGg_pnoDtINPfRIlLotlw.ttf)");
     yf.load().then((f) => { document.fonts.add(f); setFontReady(true); }).catch(() => setFontReady(true));
   }, []);
   const faceTexture = useMemo(
