@@ -1,28 +1,109 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Capability } from "@prisma/client";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-// Synth LED palette — gold, teal, violet, rose, cyan, lime, amber, coral
 const LED_COLORS = [
-  "#c9a55a", // gold
-  "#4fd1c5", // teal
-  "#a78bfa", // violet
-  "#f472b6", // rose
-  "#38bdf8", // cyan
-  "#a3e635", // lime
-  "#fb923c", // amber
-  "#f87171", // coral
+  "#c9a55a", "#4fd1c5", "#a78bfa", "#f472b6",
+  "#38bdf8", "#a3e635", "#fb923c", "#f87171",
 ];
-
-// Each dot gets a unique blink speed and offset so they feel independent
 const LED_DURATIONS = [1.1, 1.7, 2.3, 0.9, 1.5, 2.8, 1.3, 2.0];
 const LED_DELAYS    = [0.0, 0.4, 1.1, 0.7, 0.2, 1.5, 0.9, 0.3];
 
+// Hardcoded tab grouping by capability title
+const TABS = [
+  {
+    id: "build",
+    label: "Build",
+    titles: [
+      "SaaS Applications",
+      "Custom Content Management",
+      "WordPress & Drupal",
+      "Ecommerce",
+      "Gaming & Interactive",
+    ],
+  },
+  {
+    id: "analytics",
+    label: "Analytics & Data",
+    titles: [
+      "Data & Analytics",
+      "GA4 & GTM",
+      "Attribution Modelling",
+      "Custom Dashboards",
+      "Funnel & Event Tracking",
+      "Growth Reporting",
+    ],
+  },
+  {
+    id: "marketing",
+    label: "Marketing",
+    titles: ["GMP Consulting"],
+  },
+];
+
+function CapGrid({ caps }: { caps: (Capability & { colorIdx: number })[] }) {
+  const cols = caps.length <= 3 ? caps.length : 4;
+
+  return (
+    <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${cols === 4 ? "4" : cols === 3 ? "3" : cols === 2 ? "2" : "1"}`}>
+      {caps.map((cap, i) => {
+        const color    = LED_COLORS[cap.colorIdx % LED_COLORS.length];
+        const duration = LED_DURATIONS[cap.colorIdx % LED_DURATIONS.length];
+        const delay    = LED_DELAYS[cap.colorIdx % LED_DELAYS.length];
+        const isLastInRow = (i + 1) % cols === 0;
+        const isLast      = i === caps.length - 1;
+
+        return (
+          <div
+            key={cap.id}
+            className={`group border-b border-white/[0.05] px-6 py-8 ${isLastInRow || isLast ? "" : "border-r border-white/[0.05]"}`}
+          >
+            <div
+              className="mb-3 size-1.5 rounded-full"
+              style={{
+                backgroundColor: color,
+                boxShadow: `0 0 4px 1px ${color}`,
+                animation: `ledPulse ${duration}s ease-in-out ${delay}s infinite`,
+              }}
+            />
+            <p className="mb-1 font-body text-[13px] font-medium text-white/70 transition-colors duration-200 group-hover:text-white/95">
+              {cap.title}
+            </p>
+            {cap.descriptor && (
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+                {cap.descriptor}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function V2CapabilitiesStrip({ capabilities }: { capabilities: Capability[] }) {
+  const [activeTab, setActiveTab] = useState("build");
+
   if (!capabilities.length) return null;
+
+  // Map each cap to its global index for stable LED colours
+  const capsByTitle = Object.fromEntries(
+    capabilities.map((cap, i) => [cap.title, { ...cap, colorIdx: i }])
+  );
+
+  // Build tab data — filter to caps that actually exist in CMS
+  const tabs = TABS.map((tab) => ({
+    ...tab,
+    caps: tab.titles
+      .map((t) => capsByTitle[t])
+      .filter(Boolean) as (Capability & { colorIdx: number })[],
+  })).filter((tab) => tab.caps.length > 0);
+
+  const activeTabData = tabs.find((t) => t.id === activeTab) ?? tabs[0];
 
   return (
     <motion.section
@@ -36,57 +117,59 @@ export default function V2CapabilitiesStrip({ capabilities }: { capabilities: Ca
     >
       <div className="mx-auto max-w-[1280px] px-8 md:px-16">
 
-        {/* Header row */}
-        <div className="flex items-center justify-between border-b border-white/[0.05] py-4">
+        {/* Header + tabs row */}
+        <div className="flex flex-col gap-4 border-b border-white/[0.05] py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/45">Capabilities</p>
-          <p className="font-mono text-[10px] text-white/40">{capabilities.length} disciplines</p>
+
+          {/* Tab buttons */}
+          <div className="flex items-center gap-1">
+            {tabs.map((tab) => {
+              const isActive = tab.id === activeTab;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className="relative px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors duration-200"
+                  style={{ color: isActive ? "#c9a55a" : "rgba(255,255,255,0.35)" }}
+                >
+                  {tab.label}
+                  {/* Active gold underline */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="tab-underline"
+                      className="absolute bottom-0 left-0 right-0 h-px"
+                      style={{ background: "#c9a55a" }}
+                      transition={{ duration: 0.25, ease: EASE }}
+                    />
+                  )}
+                  {/* Count badge */}
+                  <span
+                    className="ml-1.5 font-mono text-[9px]"
+                    style={{ color: isActive ? "rgba(201,165,90,0.6)" : "rgba(255,255,255,0.2)" }}
+                  >
+                    {tab.caps.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Grid — col count adapts to item count so there's never an orphan row */}
-        <div className={`grid grid-cols-2 sm:grid-cols-3 ${capabilities.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
-          {capabilities.map((cap, i) => {
-            const color    = LED_COLORS[i % LED_COLORS.length];
-            const duration = LED_DURATIONS[i % LED_DURATIONS.length];
-            const delay    = LED_DELAYS[i % LED_DELAYS.length];
-            const cols     = capabilities.length === 5 ? 5 : 4;
-            const isLastInRow = (i + 1) % cols === 0;
-            const isLast      = i === capabilities.length - 1;
-
-            return (
-              <motion.div
-                key={cap.id}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.03, ease: EASE }}
-                className={`group border-b border-white/[0.05] px-6 py-8 ${isLastInRow || isLast ? "" : "border-r border-white/[0.05]"}`}
-              >
-                {/* Synth LED dot */}
-                <div
-                  className="mb-3 size-1.5 rounded-full"
-                  style={{
-                    backgroundColor: color,
-                    boxShadow: `0 0 4px 1px ${color}`,
-                    animation: `ledPulse ${duration}s ease-in-out ${delay}s infinite`,
-                  }}
-                />
-
-                <p className="mb-1 font-body text-[13px] font-medium text-white/70 transition-colors duration-200 group-hover:text-white/95">
-                  {cap.title}
-                </p>
-                {cap.descriptor && (
-                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
-                    {cap.descriptor}
-                  </p>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
+        {/* Tab content — fade transition */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25, ease: EASE }}
+          >
+            <CapGrid caps={activeTabData.caps} />
+          </motion.div>
+        </AnimatePresence>
 
       </div>
 
-      {/* Keyframe — injected once via a style tag */}
       <style>{`
         @keyframes ledPulse {
           0%, 100% { opacity: 0.25; transform: scale(1); }
