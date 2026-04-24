@@ -6,7 +6,7 @@
  * Mouse hover tilts/turns the medal to show its 3D depth.
  */
 
-import { useRef, useMemo, useEffect, Suspense } from "react";
+import { useRef, useMemo, useEffect, useState, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -158,18 +158,40 @@ function createTeamMedalTexture(
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Engraved "BMC" — pre-rotate 90° + horizontal flip to cancel the cylinder cap UV's rotation+mirror
+  // Engraved "B/C" — "B" and "C" in Georgia, "/" in Yellowtail to match the nav logo
   ctx.translate(cx, cy);
   ctx.rotate(-Math.PI / 2);
-  ctx.font = `bold 92px Georgia, serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "rgba(0,0,0,0.95)";
-  ctx.fillText("BMC", 3, 4);
-  ctx.fillStyle = "rgba(242,218,114,0.25)";
-  ctx.fillText("BMC", -2, -2);
-  ctx.fillStyle = "rgba(201,165,90,0.85)";
-  ctx.fillText("BMC", 0, 0);
+
+  const drawBC = (offsetX: number, offsetY: number, fillStyle: string) => {
+    ctx.fillStyle = fillStyle;
+    // Draw each part separately so we can use different fonts
+    const bFont   = `bold 86px Georgia, serif`;
+    const slashFont = `400 110px Yellowtail, cursive`;
+    const cFont   = `bold 86px Georgia, serif`;
+    // Measure to position manually
+    ctx.font = bFont;
+    const bW = ctx.measureText("B").width;
+    ctx.font = slashFont;
+    const sW = ctx.measureText("/").width;
+    ctx.font = cFont;
+    const cW = ctx.measureText("C").width;
+    const total = bW + sW * 0.7 + cW;
+    let x = -total / 2 + offsetX;
+    ctx.font = bFont;
+    ctx.fillText("B", x + bW / 2, offsetY);
+    x += bW;
+    ctx.font = slashFont;
+    ctx.fillText("/", x + sW * 0.35, offsetY + 4);
+    x += sW * 0.7;
+    ctx.font = cFont;
+    ctx.fillText("C", x + cW / 2, offsetY);
+  };
+
+  drawBC(3, 4, "rgba(0,0,0,0.95)");
+  drawBC(-2, -2, "rgba(242,218,114,0.25)");
+  drawBC(0, 0, "rgba(201,165,90,0.85)");
   ctx.restore();
 
   drawArcText(ctx, topText, cx, cy, 332, 90, true, 24, "rgba(201,165,90,0.80)");
@@ -241,7 +263,16 @@ function MedalGroup({ topText, bottomText }: { topText?: string; bottomText?: st
   const barMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: new THREE.Color("#c0a050"), metalness: 0.92, roughness: 0.22,
   }), []);
-  const faceTexture   = useMemo(() => createTeamMedalTexture(topText, bottomText), [topText, bottomText]);
+  const [fontReady, setFontReady] = useState(false);
+  useEffect(() => {
+    const yf = new FontFace("Yellowtail", "url(https://fonts.gstatic.com/s/yellowtail/v22/OZpGg_pnoDtINPfRIlLotlzNitn7lw.woff2)");
+    yf.load().then((f) => { document.fonts.add(f); setFontReady(true); }).catch(() => setFontReady(true));
+  }, []);
+  const faceTexture = useMemo(
+    () => createTeamMedalTexture(topText, bottomText),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [topText, bottomText, fontReady],
+  );
   const ribbonTexture = useMemo(() => createRibbonTexture(), []);
   const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: new THREE.Color("#c9a55a"), metalness: 0.95, roughness: 0.16, envMapIntensity: 1.6,
