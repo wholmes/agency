@@ -46,3 +46,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+Screenshot*.png
+brandmeetscode-og.*
+
+Screenshot*.png
+brandmeetscode-og.*
