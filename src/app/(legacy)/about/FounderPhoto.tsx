@@ -62,7 +62,7 @@ export default function FounderPhoto() {
         className="absolute bottom-4 left-4 right-4 z-20 rounded-xl px-4 py-3"
         style={{ background: "rgba(14,14,14,0.75)", backdropFilter: "blur(12px)", border: "1px solid rgba(201,165,90,0.12)" }}
       >
-        <p className="font-mono text-[10px] text-[#c9a55a]/70">CEO · Chief Creator · Full-Stack Designer</p>
+        <p className="font-mono text-[10px] text-[#c9a55a]/70">Founder · Designer · Developer</p>
       </div>
     </div>
   );

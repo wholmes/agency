@@ -134,6 +134,14 @@ export async function updateProject(id: string, formData: FormData) {
   } catch {
     servicesJson = "[]";
   }
+  const screenshotsRaw = String(formData.get("screenshots") ?? "[]");
+  let screenshotsJson: string;
+  try {
+    const arr = JSON.parse(screenshotsRaw) as unknown;
+    screenshotsJson = JSON.stringify(Array.isArray(arr) ? arr : []);
+  } catch {
+    screenshotsJson = "[]";
+  }
   await prisma.project.update({
     where: { id },
     data: {
@@ -151,10 +159,11 @@ export async function updateProject(id: string, formData: FormData) {
       services: servicesJson,
       sortOrder: Number(formData.get("sortOrder") ?? 0),
       published: formData.get("published") === "on",
-      thumbImage:  String(formData.get("thumbImage")  ?? ""),
-      coverImage:  String(formData.get("coverImage")  ?? ""),
-      heroImage:   String(formData.get("heroImage")   ?? ""),
-      mobileImage: String(formData.get("mobileImage") ?? ""),
+      thumbImage:   String(formData.get("thumbImage")   ?? ""),
+      coverImage:   String(formData.get("coverImage")   ?? ""),
+      heroImage:    String(formData.get("heroImage")    ?? ""),
+      mobileImage:  String(formData.get("mobileImage")  ?? ""),
+      screenshots:  screenshotsJson,
     },
   });
   revalidatePath("/work");

@@ -21,6 +21,8 @@ export interface Project {
   heroImage: string;
   /** Phone mockup on detail page — 9:19.5 portrait */
   mobileImage: string;
+  /** Ordered gallery screenshots for the case study detail page */
+  screenshots: { url: string; caption?: string }[];
 }
 
 export { getProject, getProjects } from "@/lib/cms/queries";

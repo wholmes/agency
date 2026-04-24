@@ -4,20 +4,11 @@ import Link from "next/link";
 import { motion, useInView, type Variants } from "framer-motion";
 import { useRef } from "react";
 import type { Project } from "@/lib/projects";
+import { PROJECT_LIVE_URLS } from "@/lib/project-live-urls";
 import type { WorkPageHero } from "@prisma/client";
 import ExpandableText from "@/components/ExpandableText";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-const LIVE_URLS: Record<string, string> = {
-  "10-speed":           "https://10speedgames.com",
-  "arclight":           "https://artexhib.com",
-  "attribution-rx":     "https://attributionrx.com",
-  "meridian":           "https://blueprint-toolkit.com",
-  "sable":              "https://getintently.io",
-  "datalayer-tracker":  "https://datalayer-tracker.com",
-  "fidget-studio":      "https://fidget.studio",
-};
 
 const cardVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
@@ -189,9 +180,9 @@ function CaseStudy({ project, isAdmin, index }: { project: Project; isAdmin?: bo
                   <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
-              {LIVE_URLS[project.id] && (
+              {PROJECT_LIVE_URLS[project.id] && (
                 <a
-                  href={LIVE_URLS[project.id]}
+                  href={PROJECT_LIVE_URLS[project.id]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-full border border-[#c9a55a]/25 bg-[#c9a55a]/[0.06] px-3 py-1 font-mono text-[10px] text-[#c9a55a]/70 no-underline transition-colors hover:border-[#c9a55a]/50 hover:text-[#c9a55a]"

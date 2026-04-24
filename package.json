@@ -12,7 +12,8 @@
     "db:migrate": "dotenv -e .env -e .env.local -- prisma migrate dev",
     "db:deploy": "dotenv -e .env -e .env.local -- prisma migrate deploy",
     "db:resolve-applied": "dotenv -e .env -e .env.local -- prisma migrate resolve --applied",
-    "db:studio": "dotenv -e .env -e .env.local -- prisma studio"
+    "db:studio": "dotenv -e .env -e .env.local -- prisma studio",
+    "screenshot:one": "dotenv -e .env -e .env.local -- tsx scripts/screenshot-one.mts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

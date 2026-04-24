@@ -5,6 +5,7 @@ import AdminToggle from "@/components/admin/AdminToggle";
 import CaseStudyImageUpload from "@/components/admin/CaseStudyImageUpload";
 import { IconExternalLink } from "@/components/icons";
 import { prisma } from "@/lib/prisma";
+import { PROJECT_LIVE_URLS } from "@/lib/project-live-urls";
 import { updateProject } from "../../mutations";
 
 interface Props {
@@ -173,6 +174,8 @@ export default async function AdminProjectEditPage({ params }: Props) {
             coverImage={p.coverImage}
             heroImage={p.heroImage}
             mobileImage={p.mobileImage}
+            screenshots={p.screenshots}
+            defaultCaptureUrl={PROJECT_LIVE_URLS[p.id] ?? ""}
           />
         </div>
 

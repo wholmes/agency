@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useInView, useScroll, useTransform, useMotionValue, useAnimation, type Variants } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useMotionValueEvent,
+  useAnimation,
+  type Variants,
+} from "framer-motion";
 import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import type { Project } from "@/lib/projects";
 import type { CaseStudyUiLabels } from "@prisma/client";
 import ExpandableText from "@/components/ExpandableText";
+import ScreenshotGallery from "./ScreenshotGallery";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -61,6 +71,9 @@ function InViewMotion({
 }
 
 
+const PHONE_FRAME_W = 192;
+const PHONE_SCREEN_H = 340;
+
 function HeroImageBlock({ project }: { project: Project }) {
   const ref = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -74,22 +87,79 @@ function HeroImageBlock({ project }: { project: Project }) {
   const controls = useAnimation();
   const phoneImgRef = useRef<HTMLImageElement>(null);
 
-  // Phone scroll: mirrors the desktop y but scaled to the phone image's travel range
-  const phoneScrollY = useTransform(y, (val) => {
-    const vp = viewportRef.current;       // desktop viewport
+  /** Latest scroll travel (negative or 0); updated on load/resize so phone pan can fall back when desktop hero does not scroll. */
+  const scrollMetrics = useRef({ desktopTravel: 0, phoneTravel: 0 });
+  /** When desktop hero does not scroll, map *changes* in page scroll into phone pan so the first paint stays aligned to the top of the image (manual uploads), not mid-scroll. */
+  const phoneScrollBaselineRef = useRef<number | null>(null);
+
+  const phoneScrollY = useMotionValue(0);
+
+  const recomputeScrollMetrics = useCallback(() => {
+    const vp = viewportRef.current;
     const desktopImg = imgRef.current;
     const phoneImg = phoneImgRef.current;
-    if (!vp || !desktopImg || !phoneImg || desktopImg.naturalWidth === 0 || phoneImg.naturalWidth === 0) return 0;
-    const PHONE_W = 192;
-    const PHONE_SCREEN_H = 340;
-    const phoneRenderedH = phoneImg.naturalHeight * (PHONE_W / phoneImg.naturalWidth);
-    const phoneTravel = Math.min(0, -(phoneRenderedH - PHONE_SCREEN_H));
-    const desktopTravel = Math.min(0, -(desktopImg.naturalHeight * (vp.clientWidth / desktopImg.naturalWidth) - vp.clientHeight));
-    if (desktopTravel === 0) return 0;
-    // Map desktop progress (0→1) to phone travel
-    const progress = val / desktopTravel;
-    return progress * phoneTravel;
-  });
+    if (!vp || !desktopImg || desktopImg.naturalWidth === 0) {
+      scrollMetrics.current = { desktopTravel: 0, phoneTravel: 0 };
+      return;
+    }
+    const desktopRendered = desktopImg.naturalHeight * (vp.clientWidth / desktopImg.naturalWidth);
+    const desktopTravel = Math.min(0, -(desktopRendered - vp.clientHeight));
+
+    let phoneTravel = 0;
+    if (phoneImg && phoneImg.naturalWidth > 0) {
+      const phoneRenderedH = phoneImg.naturalHeight * (PHONE_FRAME_W / phoneImg.naturalWidth);
+      phoneTravel = Math.min(0, -(phoneRenderedH - PHONE_SCREEN_H));
+    }
+    scrollMetrics.current = { desktopTravel, phoneTravel };
+  }, []);
+
+  const syncPhoneScroll = useCallback(() => {
+    const { desktopTravel, phoneTravel } = scrollMetrics.current;
+    if (phoneTravel === 0) {
+      phoneScrollY.set(0);
+      return;
+    }
+    // Desktop image fits the 16:9 frame — wheel hijack never moves `y`; map page scroll into phone pan.
+    if (Math.abs(desktopTravel) < 2) {
+      const raw = Math.min(1, Math.max(0, scrollYProgress.get()));
+      if (phoneScrollBaselineRef.current === null) {
+        phoneScrollBaselineRef.current = raw;
+      }
+      const p = Math.min(1, Math.max(0, raw - phoneScrollBaselineRef.current));
+      phoneScrollY.set(p * phoneTravel);
+      return;
+    }
+    phoneScrollBaselineRef.current = null;
+    const progress = Math.min(1, Math.max(0, y.get() / desktopTravel));
+    phoneScrollY.set(progress * phoneTravel);
+  }, [phoneScrollY, scrollYProgress, y]);
+
+  useMotionValueEvent(y, "change", syncPhoneScroll);
+  useMotionValueEvent(scrollYProgress, "change", syncPhoneScroll);
+
+  // scrollYProgress does not always emit on native document scroll; keep phone in sync while hero is on screen.
+  useEffect(() => {
+    if (!project.mobileImage) return;
+    const onScroll = () => {
+      syncPhoneScroll();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [project.mobileImage, syncPhoneScroll]);
+
+  useLayoutEffect(() => {
+    phoneScrollBaselineRef.current = null;
+    const vp = viewportRef.current;
+    const bump = () => {
+      recomputeScrollMetrics();
+      syncPhoneScroll();
+    };
+    bump();
+    if (!vp || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(bump);
+    ro.observe(vp);
+    return () => ro.disconnect();
+  }, [project.heroImage, project.mobileImage, recomputeScrollMetrics, syncPhoneScroll]);
 
   // True max upward travel in px (negative number).
   // rendered image height = naturalHeight × (displayWidth / naturalWidth)
@@ -298,6 +368,8 @@ function HeroImageBlock({ project }: { project: Project }) {
                     className="block h-auto w-full"
                     onLoad={() => {
                       y.set(0);
+                      recomputeScrollMetrics();
+                      syncPhoneScroll();
                     }}
                   />
                 </motion.div>
@@ -314,7 +386,7 @@ function HeroImageBlock({ project }: { project: Project }) {
                   className="relative rounded-[32px] border-[6px]"
                   style={{
                     borderColor: "#1c1c1e",
-                    width: 192,
+                    width: PHONE_FRAME_W,
                     boxShadow: `0 32px 60px -8px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)`,
                   }}
                 >
@@ -323,10 +395,20 @@ function HeroImageBlock({ project }: { project: Project }) {
                     <div className="h-[14px] w-[60px] rounded-full bg-black" />
                   </div>
                   {/* Scrollable image viewport — fixed height = phone screen */}
-                  <div className="overflow-hidden" style={{ height: 340 }}>
+                  <div className="overflow-hidden" style={{ height: PHONE_SCREEN_H }}>
                     <motion.div style={{ y: phoneScrollY }} className="will-change-transform">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img ref={phoneImgRef} src={project.mobileImage} alt={`${project.title} mobile`} className="block h-auto w-full" />
+                      <img
+                        ref={phoneImgRef}
+                        src={project.mobileImage}
+                        alt={`${project.title} mobile`}
+                        className="block h-auto w-full"
+                        onLoad={() => {
+                          phoneScrollBaselineRef.current = null;
+                          recomputeScrollMetrics();
+                          syncPhoneScroll();
+                        }}
+                      />
                     </motion.div>
                   </div>
                   {/* Home indicator */}
@@ -457,6 +539,11 @@ export default function CaseStudyContent({
 
       {/* ── Hero image + mobile overlay ───────────────────────────── */}
       <HeroImageBlock project={project} />
+
+      {/* ── Screenshot gallery (only when screenshots exist) ─────── */}
+      {project.screenshots.length > 0 && (
+        <ScreenshotGallery screenshots={project.screenshots} accent={project.accent} />
+      )}
 
       {/* ── Case study body ───────────────────────────────────────── */}
       <section aria-label="Case study details" className="py-20 md:py-28">

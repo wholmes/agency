@@ -677,6 +677,7 @@ export async function createProject(
       coverImage:  String(formData.get("coverImage")  ?? ""),
       heroImage:   String(formData.get("heroImage")   ?? ""),
       mobileImage: String(formData.get("mobileImage") ?? ""),
+      screenshots: "[]",
     },
   });
 

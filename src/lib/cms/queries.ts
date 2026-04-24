@@ -185,6 +185,23 @@ export const getSiteChrome = cache(async (): Promise<SiteChromeConfigParsed> => 
   return parseJsonObject(row.configJson, {} as SiteChromeConfigParsed);
 });
 
+function parseScreenshots(raw: string): { url: string; caption?: string }[] {
+  try {
+    const v = JSON.parse(raw) as unknown;
+    if (!Array.isArray(v)) return [];
+    return v
+      .filter((item) => item && typeof item === "object" && typeof (item as { url?: unknown }).url === "string")
+      .map((item) => ({
+        url: String((item as { url: string }).url),
+        caption: typeof (item as { caption?: unknown }).caption === "string"
+          ? (item as { caption: string }).caption
+          : undefined,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 function projectRowToProject(row: {
   id: string;
   title: string;
@@ -203,6 +220,7 @@ function projectRowToProject(row: {
   coverImage: string;
   heroImage: string;
   mobileImage: string;
+  screenshots: string;
 }): Project {
   return {
     id: row.id,
@@ -222,6 +240,7 @@ function projectRowToProject(row: {
     coverImage: row.coverImage,
     heroImage: row.heroImage,
     mobileImage: row.mobileImage,
+    screenshots: parseScreenshots(row.screenshots),
   };
 }
 
