@@ -9,6 +9,16 @@ import ExpandableText from "@/components/ExpandableText";
 
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+const LIVE_URLS: Record<string, string> = {
+  "10-speed":           "https://10speedgames.com",
+  "arclight":           "https://artexhib.com",
+  "attribution-rx":     "https://attributionrx.com",
+  "meridian":           "https://blueprint-toolkit.com",
+  "sable":              "https://getintently.io",
+  "datalayer-tracker":  "https://datalayer-tracker.com",
+  "fidget-studio":      "https://fidget.studio",
+};
+
 const cardVariant: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: (i: number) => ({
@@ -92,10 +102,7 @@ function CaseStudy({ project, isAdmin, index }: { project: Project; isAdmin?: bo
         custom={0}
         variants={cardVariant}
       >
-        <Link
-          href={`/work/${project.id}`}
-          className="mb-10 grid grid-cols-1 items-center gap-10 no-underline md:grid-cols-[1.4fr_1fr]"
-        >
+        <div className="mb-10 grid grid-cols-1 items-center gap-10 md:grid-cols-[1.4fr_1fr]">
           {project.coverImage ? (
             <div
               className="overflow-hidden rounded-xl"
@@ -173,16 +180,31 @@ function CaseStudy({ project, isAdmin, index }: { project: Project; isAdmin?: bo
             <p className="mb-8 text-[13px] leading-relaxed text-white/40">{project.resultDetail}</p>
 
             <div className="flex items-center gap-4">
-              <span className="inline-flex items-center gap-2 font-body text-[13px] font-medium text-white/60 transition-colors group-hover:text-white">
-                View project
+              <Link
+                href={`/work/${project.id}`}
+                className="inline-flex items-center gap-2 font-body text-[13px] font-medium text-white/60 no-underline transition-colors hover:text-white"
+              >
+                View case study
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                   <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </span>
+              </Link>
+              {LIVE_URLS[project.id] && (
+                <a
+                  href={LIVE_URLS[project.id]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#c9a55a]/25 bg-[#c9a55a]/[0.06] px-3 py-1 font-mono text-[10px] text-[#c9a55a]/70 no-underline transition-colors hover:border-[#c9a55a]/50 hover:text-[#c9a55a]"
+                >
+                  Visit site
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+              )}
               {isAdmin && (
                 <Link
                   href={`/admin/projects/${project.id}`}
-                  onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 font-mono text-[10px] text-white/35 no-underline transition-colors hover:border-white/20 hover:text-white/60"
                 >
                   Edit
@@ -190,7 +212,7 @@ function CaseStudy({ project, isAdmin, index }: { project: Project; isAdmin?: bo
               )}
             </div>
           </div>
-        </Link>
+        </div>
       </motion.div>
 
       {/* Problem / Approach cards */}
