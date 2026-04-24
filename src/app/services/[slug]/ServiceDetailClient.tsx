@@ -510,20 +510,26 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.06, duration: 0.45, ease: EASE }}
-      className="group border-b border-white/[0.06] py-6"
+      className="group border-b border-white/[0.06] py-6 transition-[border-color] duration-300 ease-out hover:border-white/[0.1]"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-6 select-none [&::-webkit-details-marker]:hidden">
-        <span className="font-display text-base font-light tracking-tight text-white/80 transition-colors duration-200 group-open:text-white group-hover:text-white">
+      <summary className="relative flex cursor-pointer list-none items-center justify-between gap-6 rounded-xl py-2.5 pl-5 pr-2 -mx-2 select-none transition-[background-color,box-shadow] duration-300 ease-out hover:bg-white/[0.04] hover:shadow-[inset_0_0_0_1px_rgba(201,165,90,0.14),0_0_28px_-8px_rgba(201,165,90,0.12)] group-open:bg-white/[0.05] group-open:shadow-[inset_0_0_0_1px_rgba(201,165,90,0.18),0_0_32px_-6px_rgba(201,165,90,0.14)] [&::-webkit-details-marker]:hidden">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-2 top-2.5 bottom-2.5 w-[2px] rounded-full bg-gradient-to-b from-[#c9a55a] via-[#c9a55a]/80 to-[#c9a55a]/15 opacity-0 shadow-[0_0_14px_rgba(201,165,90,0.45)] transition-[opacity,transform] duration-300 ease-out group-hover:opacity-100 group-hover:shadow-[0_0_20px_rgba(201,165,90,0.55)] group-open:opacity-100"
+        />
+        <span className="relative z-[1] min-w-0 flex-1 font-body text-base font-medium leading-snug tracking-normal text-white/85 transition-colors duration-300 ease-out group-hover:text-white group-open:text-white">
           {question}
         </span>
         <span
           aria-hidden="true"
-          className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-white/[0.12] font-mono text-lg font-light text-[#c9a55a] transition-all duration-200 group-open:rotate-45 group-open:border-[#c9a55a]/40"
+          className="relative z-[1] inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.02] font-mono text-lg font-light text-[#c9a55a] transition-all duration-300 ease-out group-hover:scale-110 group-hover:border-[#c9a55a]/50 group-hover:bg-[#c9a55a]/12 group-hover:shadow-[0_0_18px_rgba(201,165,90,0.28)] group-open:rotate-45 group-open:border-[#c9a55a]/55 group-open:bg-[#c9a55a]/16 group-open:shadow-[0_0_22px_rgba(201,165,90,0.32)]"
         >
           +
         </span>
       </summary>
-      <p className="mt-5 max-w-[640px] text-sm leading-relaxed text-white/45">{answer}</p>
+      <p className="mt-5 max-w-[640px] pl-3 text-sm leading-relaxed text-white/45 transition-colors duration-300 group-open:text-white/50">
+        {answer}
+      </p>
     </motion.details>
   );
 }

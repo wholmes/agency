@@ -22,8 +22,8 @@ const nextConfig: NextConfig = {
     // Tree-shake framer-motion: only bundle the named exports actually imported.
     optimizePackageImports: ["framer-motion"],
     serverActions: {
-      // Full-page screenshots as base64 can be several MB — raise the limit.
-      bodySizeLimit: "8mb",
+      // Case study screenshots as base64 + blog S3 uploads via server actions.
+      bodySizeLimit: "12mb",
     },
   },
 

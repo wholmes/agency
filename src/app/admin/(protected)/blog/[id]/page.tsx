@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import AdminToggle from "@/components/admin/AdminToggle";
+import BlogBodyImageInsert from "@/components/admin/BlogBodyImageInsert";
+import BlogCoverImageField from "@/components/admin/BlogCoverImageField";
 import { updateBlogPost, deleteBlogPost } from "../mutations";
 import DeleteBlogPostButton from "./DeleteBlogPostButton";
 
@@ -140,6 +142,9 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
             <p className="text-xs text-text-tertiary mt-1">
               Reading time is auto-calculated on save (~200 wpm).
             </p>
+            <div className="mt-3">
+              <BlogBodyImageInsert />
+            </div>
           </div>
         </fieldset>
 
@@ -182,19 +187,7 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
             Media &amp; taxonomy
           </legend>
 
-          <div className="form-field">
-            <label className="form-label" htmlFor="coverImage">
-              Cover image URL
-            </label>
-            <input
-              id="coverImage"
-              name="coverImage"
-              type="url"
-              defaultValue={post.coverImage}
-              placeholder="https://…"
-              className="form-input"
-            />
-          </div>
+          <BlogCoverImageField defaultValue={post.coverImage} />
 
           <div className="form-field">
             <label className="form-label" htmlFor="tags">

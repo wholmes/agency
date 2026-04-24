@@ -1,6 +1,8 @@
 import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import AdminToggle from "@/components/admin/AdminToggle";
+import BlogBodyImageInsert from "@/components/admin/BlogBodyImageInsert";
+import BlogCoverImageField from "@/components/admin/BlogCoverImageField";
 import { createBlogPost } from "../mutations";
 
 export const metadata = { title: "Admin — New article" };
@@ -120,6 +122,9 @@ function BlogPostForm({
             Supports standard Markdown: headings (#), bold (**), italic (*), links, lists,
             blockquotes (&gt;), code blocks (```).
           </p>
+          <div className="mt-3">
+            <BlogBodyImageInsert />
+          </div>
         </div>
       </fieldset>
 
@@ -164,19 +169,7 @@ function BlogPostForm({
           Media &amp; taxonomy
         </legend>
 
-        <div className="form-field">
-          <label className="form-label" htmlFor="coverImage">
-            Cover image URL
-          </label>
-          <input
-            id="coverImage"
-            name="coverImage"
-            type="url"
-            defaultValue={defaultValues?.coverImage}
-            placeholder="https://…"
-            className="form-input"
-          />
-        </div>
+        <BlogCoverImageField defaultValue={defaultValues?.coverImage ?? ""} />
 
         <div className="form-field">
           <label className="form-label" htmlFor="tags">

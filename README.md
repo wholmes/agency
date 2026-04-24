@@ -63,6 +63,10 @@ For **production-like databases** (e.g. Neon after deploy), apply pending migrat
 | `SCREENSHOTONE_SECRET_KEY` **or** `SCREENSHOTONE_SECRET` | Strongly recommended | Used to [sign](https://screenshotone.com/docs/authentication) the `/take` query string (HMAC-SHA256). If unset, requests are sent without a `signature` parameter (only if your ScreenshotOne project allows it). |
 | `SCREENSHOTONE_CLI_DELAY_MS` | Optional | Delay before capture for the [`screenshot:one`](#screenshotone-admin-screenshot-captures) CLI only (default **1000** ms). |
 | `SCREENSHOTONE_AUTHORIZATION`, `SCREENSHOTONE_COOKIES`, `SCREENSHOTONE_HEADERS` | Optional | CLI-only helpers for [logged-in / protected captures](#step-by-step-capture-a-page-that-requires-login); see steps below. |
+| `AWS_REGION` (or `AWS_DEFAULT_REGION`) | For [blog images on S3](#blog-images-amazon-s3) | Region of your S3 bucket (e.g. `us-east-1`). |
+| `AWS_S3_BUCKET` | For blog S3 uploads | Bucket name where admin uploads are stored under `blog/images/…`. |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | For blog S3 uploads | IAM user with `s3:PutObject` on `blog/*` (and public read via bucket policy or CloudFront). |
+| `AWS_S3_PUBLIC_BASE_URL` | Optional | Public base URL for objects if you use CloudFront or a custom domain (no trailing slash). If unset, URLs use `https://{bucket}.s3.{region}.amazonaws.com/{key}`. |
 
 ### Database URLs (Neon + Prisma)
 
@@ -128,6 +132,16 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | `/admin/industries` | Industries hub + list; `/admin/industries/new` creates a page; `/admin/industries/[slug]` edits `/industries/[slug]`. |
 | `/admin/about` | About page hero, story, values. |
 | `/admin/contact` | Contact page copy + contact form JSON config. |
+| `/admin/blog` | Journal articles: list, create (`/admin/blog/new`), edit (`/admin/blog/[id]`). **Cover:** paste any image URL or **upload to Amazon S3** (when AWS env vars are set). **Inline images in Markdown:** use **Upload to S3 & insert in body** to append `![Image](url)` at the cursor. Details: [Blog images (Amazon S3)](#blog-images-amazon-s3). |
+
+### Blog images (Amazon S3)
+
+Admin uploads use the server action `uploadBlogImageToS3` (`src/lib/admin/blog-s3-upload.ts`). Objects are written under **`blog/images/{timestamp}-{random}.{ext}`** with a public URL returned for the form or Markdown.
+
+1. Create an S3 bucket and IAM user with **`s3:PutObject`** on `arn:aws:s3:::YOUR_BUCKET/blog/*` (least privilege).
+2. Allow **public read** for that prefix via a bucket policy **or** front the bucket with **CloudFront** and set **`AWS_S3_PUBLIC_BASE_URL`** to the distribution origin URL (so returned links use your CDN).
+3. Set **`AWS_REGION`**, **`AWS_S3_BUCKET`**, **`AWS_ACCESS_KEY_ID`**, and **`AWS_SECRET_ACCESS_KEY`** on the host (see [environment variables](#environment-variables)).
+4. Redeploy or restart the dev server. **Image URL** mode still works without AWS (any `https://` image for the cover).
 
 **Behavior:**
 
