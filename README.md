@@ -59,6 +59,9 @@ For **production-like databases** (e.g. Neon after deploy), apply pending migrat
 | `ADMIN_SESSION_SECRET` | No | Secret used to sign the admin session cookie. If omitted, `ADMIN_PASSWORD` is used (fine for local dev; use a separate long secret in production). |
 | `RESEND_API_KEY` | For contact email | Send contact form notifications via Resend; see `/admin/email` for "from" and notify addresses stored in the DB. |
 | `CONTACT_TO_EMAIL`, `CONTACT_FROM_DOMAIN` | Optional | Overrides for delivery / sender domain if not using DB-only email settings. |
+| `SCREENSHOTONE_ACCESS_KEY` **or** `SCREENSHOTONE_API_KEY` | For [ScreenshotOne](#screenshotone-admin-screenshot-captures) | Public access key from [ScreenshotOne](https://screenshotone.com); required for server-side “Capture & apply” in the case study admin. |
+| `SCREENSHOTONE_SECRET_KEY` **or** `SCREENSHOTONE_SECRET` | Strongly recommended | Used to [sign](https://screenshotone.com/docs/authentication) the `/take` query string (HMAC-SHA256). If unset, requests are sent without a `signature` parameter (only if your ScreenshotOne project allows it). |
+| `SCREENSHOTONE_CLI_DELAY_MS` | Optional | Delay before capture for the [`screenshot:one`](#screenshotone-admin-screenshot-captures) CLI only (default **1000** ms). |
 
 ### Database URLs (Neon + Prisma)
 
@@ -114,7 +117,7 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | `/admin/work` | `/work` listing hero, home preview strip, case study template labels. |
 | `/admin/projects` | Case studies: list, reorder ↑↓, publish/draft, link to edit. |
 | `/admin/projects/new` | Create case study (redirects to editor with a success toast). |
-| `/admin/projects/[id]` | Edit one case study (including `services` as a JSON string array). |
+| `/admin/projects/[id]` | Edit one case study (including `services` as a JSON string array). Case study images: manual upload or **ScreenshotOne** remote capture into hero, listing cover, card thumbnail, mobile mockup, or **gallery** (append with optional caption). |
 | `/admin/services` | Services hub copy, home strip, continuity, Lighthouse, estimator JSON. |
 | `/admin/offerings` | Service offerings list; `/admin/offerings/[id]` edits one card. |
 | `/admin/service-pages` | Service detail pages list; `/admin/service-pages/[slug]` edits `/services/[slug]`. |
@@ -173,7 +176,7 @@ Success and error feedback for CMS saves is implemented in **`src/components/adm
 
 | Area | Models |
 | ---- | ------ |
-| Case studies | `Project` |
+| Case studies | `Project` — includes **`screenshots`** (`String`, default `[]`): JSON array of `{ "url": "…", "caption"?: "…" }` for the case study lightbox gallery. |
 | Global settings | `SiteSettings` (`navHideOnScroll` controls header behaviour) |
 | Home | `HomeHero`, `ServicesHomeSection`, `WorkPreviewSection`, `AboutHomeTeaser`, `SocialStat`, `SocialClient`, `FeaturedTestimonial` |
 | Work listing | `WorkPageHero` |
@@ -204,6 +207,7 @@ Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strate
 | `npm run db:resolve-applied` | `prisma migrate resolve --applied` — pass migration name after `--`. |
 | `npm run db:seed` | Run `prisma/seed.ts`. |
 | `npm run db:studio` | Prisma Studio (table browser). |
+| `npm run screenshot:one` | One-off [ScreenshotOne](#screenshotone-admin-screenshot-captures) capture to disk (loads `.env` + `.env.local`). |
 
 ### Editing content
 
@@ -211,6 +215,84 @@ Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strate
 2. **Prisma Studio** — `npm run db:studio`.
 3. **Re-seed** — `npm run db:seed` resets data according to `seed.ts` (destructive; avoid on production if you need to keep live edits).
 4. **Code** — Add getters in `src/lib/cms/queries.ts`, wire components, extend `prisma/seed.ts` for new defaults.
+
+---
+
+## ScreenshotOne (admin screenshot captures)
+
+Remote page screenshots use the **[ScreenshotOne](https://screenshotone.com)** HTTP API (`GET https://api.screenshotone.com/take`). Captures run **only on the server** after an admin session check (`src/lib/admin/screenshotone-capture.ts` → `src/lib/screenshotone.ts`). The admin UI never sends API secrets to the browser.
+
+### Environment
+
+| Variable | Purpose |
+| -------- | ------- |
+| `SCREENSHOTONE_ACCESS_KEY` or `SCREENSHOTONE_API_KEY` | Access key appended as `access_key` on every `/take` request. |
+| `SCREENSHOTONE_SECRET_KEY` or `SCREENSHOTONE_SECRET` | If set, the full query string (excluding `signature`) is signed with **HMAC-SHA256**; the hex digest is sent as `signature` (see ScreenshotOne [authentication](https://screenshotone.com/docs/authentication)). |
+
+### Target URL rules
+
+`assertScreenshotTargetUrl()` in `src/lib/screenshotone.ts` restricts what admins can capture:
+
+- **Allowed:** `https://…` (any host).
+- **Allowed:** `http://localhost/…` or `http://127.0.0.1/…` only (for local sites).
+- **Rejected:** non-HTTPS URLs elsewhere (reduces accidental SSRF to internal `http` origins).
+
+### API request shape (this repo)
+
+All presets send:
+
+| Parameter | Value |
+| --------- | ----- |
+| `format` | `jpeg` |
+| `image_quality` | `82` |
+| `delay` | Seconds derived from the admin “delay” field or CLI env (input is **milliseconds**; converted to seconds and clamped to **0–30**, matching ScreenshotOne’s sync capture limit). |
+| `url` | The validated target page URL. |
+
+Full-page presets also send `full_page=true` and `full_page_max_height` as in the table below.
+
+### Presets (viewport and defaults)
+
+Each preset maps to a case study **slot** in `/admin/projects/[id]`. Admins can choose **full page** vs **above the fold** (single viewport) where the UI offers radios; that maps to `ScreenshotOneFetchOptions` in code.
+
+| Preset | Typical use | Viewport | Notes |
+| ------ | ----------- | -------- | ----- |
+| `hero` | Case study hero image | 1600×900 | Default **full page** (`full_page_max_height` **10000**). Optional above-the-fold. |
+| `cover` | `/work` listing card art | 1440×810 | Default **full page** (max height **10000**). Optional above-the-fold. |
+| `thumbnail` | Homepage / small card thumb | 1280×720 | Default **above the fold**. Optional **full page** (max height **10000**). |
+| `mobile` | Phone mockup | 390×844, `viewport_mobile=true`, `device_scale_factor=2` | Default **full page** (max height **6000**). Optional above-the-fold. |
+| `gallery` | Extra images in case study lightbox | 1440×900 | Default **above the fold**. Optional **full page** (max height **10000**). Appended to `Project.screenshots` JSON after client-side resize. |
+
+### After capture (admin UI)
+
+The API returns image bytes; the admin client resizes each result to the slot’s max dimensions (or gallery encode limits) via canvas, then stores **data URLs** or URLs in the form state. **Save the project** to persist. Gallery rows support an optional **caption** per image.
+
+### CLI: one-off capture to a file
+
+```bash
+npm run screenshot:one -- <page-url> <hero|cover|thumbnail|mobile|gallery> <output.jpg> [viewport|full]
+```
+
+Loads **`.env`** then **`.env.local`** (same pattern as `db:*` scripts). Optional 4th argument:
+
+| Argument | Presets | Meaning |
+| -------- | ------- | ------- |
+| `viewport` | `hero`, `cover`, `mobile` only | One viewport (“above the fold”) instead of the default full-page scroll for those three. |
+| `full` | `thumbnail`, `gallery` only | Full-page scroll instead of the default single viewport for those two. |
+
+Optional env: **`SCREENSHOTONE_CLI_DELAY_MS`** (default `1000`) — pre-capture wait in milliseconds.
+
+### Errors
+
+Failed HTTP responses are parsed when the body is JSON; the admin UI surfaces `error_message` / `error_code` from the API when present (see ScreenshotOne [errors](https://screenshotone.com/docs/errors)). Network failures and missing access keys produce clear server-side messages.
+
+### Code map
+
+| File | Role |
+| ---- | ---- |
+| `src/lib/screenshotone.ts` | Preset query parameters, signing, `fetchScreenshotOneDataUrl`, URL validation. |
+| `src/lib/admin/screenshotone-capture.ts` | Server action `captureScreenshotWithScreenshotOne` (admin-gated). |
+| `src/components/admin/CaseStudyImageUpload.tsx` | ScreenshotOne panel: URL, delay, destination, full-page radios, gallery caption, capture button. |
+| `scripts/screenshot-one.mts` | CLI wrapper around `fetchScreenshotOneDataUrl`. |
 
 ---
 
@@ -294,13 +376,15 @@ npm run db:seed           # only if you want to refresh seed data (destructive)
 
 ```
 prisma/                 Schema, migrations, seed
+scripts/                `screenshot-one.mts` — ScreenshotOne CLI (see README section)
 src/app/admin/          Admin UI (login + CMS pages)
 src/app/                App Router routes, layouts, sitemap, robots
 src/components/         UI (sections, ScopeEstimator, ContactForm, …)
 src/components/admin/   Admin toast provider, AdminSaveForm, URL toast helper
 src/components/icons/   Centralised SVG icon library (currentColor, 24×24 viewBox)
-src/lib/admin/          Session helpers, mutations-data, require-admin
+src/lib/admin/          Session helpers, mutations-data, require-admin, screenshotone-capture
 src/lib/cms/            Queries and shared CMS types
+src/lib/screenshotone.ts   ScreenshotOne `/take` client (presets, signing, fetch)
 ```
 
 Default site metadata and analytics IDs can be edited in **`SeoSettings`** via `/admin/seo`; **`src/app/layout.tsx`** uses `generateMetadata` and injects JSON-LD and analytics scripts from that data where applicable.
@@ -334,7 +418,7 @@ If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after t
 
 ## Deploying
 
-1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI.
+1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI. For case study **ScreenshotOne** capture, set **`SCREENSHOTONE_ACCESS_KEY`** (or `SCREENSHOTONE_API_KEY`) and **`SCREENSHOTONE_SECRET_KEY`** (or `SCREENSHOTONE_SECRET`) — see [ScreenshotOne](#screenshotone-admin-screenshot-captures).
 2. Run migrations in CI or the release step: **`npx prisma migrate deploy`** with env vars injected (Vercel build usually has them), or locally **`npm run db:deploy`** which loads `.env` / `.env.local`. Do **not** use `migrate dev` against production.
 3. Run **`npm run build`** then **`npm run start`**, or use your host's Next.js preset.
 
