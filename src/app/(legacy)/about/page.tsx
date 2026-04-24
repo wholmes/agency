@@ -141,27 +141,78 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Pull quote */}
-      <ScrollReveal>
-        <section className="border-b border-white/[0.06] py-20 md:py-28">
-          <div className="mx-auto max-w-[1280px] px-6 md:px-10 lg:px-16">
-            <div className="mx-auto max-w-[760px] text-center">
-              <div className="mb-8 flex items-center justify-center gap-4">
-                <div className="h-px w-12 bg-[#c9a55a]/30" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/25">BrandMeetsCode</span>
-                <div className="h-px w-12 bg-[#c9a55a]/30" />
+      {/* Pull quote — split layout: quote left, founder photo right */}
+      <section className="border-b border-white/[0.06] py-20 md:py-28">
+        <div className="mx-auto max-w-[1280px] px-6 md:px-10 lg:px-16">
+          <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-[1fr_320px] md:gap-20">
+
+            {/* Left — quote */}
+            <ScrollReveal>
+              <div>
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="h-px w-12 bg-[#c9a55a]/30" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/25">Founder</span>
+                </div>
+                <blockquote className="font-display text-[clamp(1.6rem,3.5vw,2.75rem)] font-light leading-[1.15] tracking-[-0.02em] text-white/80">
+                  <em className="not-italic">
+                    &ldquo;Not by being mediocre at both disciplines — but by being{" "}
+                    <span style={{ color: "#c9a55a" }}>genuinely excellent at both</span>
+                    , and by understanding how each one makes the other better.&rdquo;
+                  </em>
+                </blockquote>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="h-px w-8 bg-white/10" />
+                  <p className="font-sans text-[14px] font-medium text-white/70">Whittfield Holmes</p>
+                </div>
               </div>
-              <blockquote className="font-display text-[clamp(1.6rem,3.5vw,2.75rem)] font-light leading-[1.15] tracking-[-0.02em] text-white/80">
-                <em className="not-italic">
-                  "Not by being mediocre at both disciplines — but by being{" "}
-                  <span style={{ color: "#c9a55a" }}>genuinely excellent at both</span>
-                  , and by understanding how each one makes the other better."
-                </em>
-              </blockquote>
-            </div>
+            </ScrollReveal>
+
+            {/* Right — founder photo */}
+            <ScrollReveal delay={160}>
+              <div className="relative mx-auto w-full max-w-[320px] md:mx-0">
+                {/* Gold halo */}
+                <div
+                  className="pointer-events-none absolute -inset-6 rounded-full"
+                  style={{ background: "radial-gradient(circle, rgba(201,165,90,0.12) 0%, transparent 70%)", filter: "blur(24px)" }}
+                />
+                <div
+                  className="relative overflow-hidden rounded-2xl border border-white/[0.08]"
+                  style={{ boxShadow: "0 0 0 1px rgba(201,165,90,0.08), 0 32px 80px -20px rgba(0,0,0,0.7)" }}
+                >
+                  {/* Subtle grid overlay */}
+                  <div
+                    className="pointer-events-none absolute inset-0 z-10"
+                    style={{
+                      backgroundImage: "linear-gradient(rgba(201,165,90,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,165,90,0.03) 1px, transparent 1px)",
+                      backgroundSize: "32px 32px",
+                    }}
+                  />
+                  {/* Bottom gradient fade */}
+                  <div
+                    className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-32"
+                    style={{ background: "linear-gradient(to top, rgba(14,14,14,0.85) 0%, transparent 100%)" }}
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/whittfield.png"
+                    alt="Whittfield Holmes — CEO, BrandMeetsCode"
+                    className="relative z-0 w-full object-cover object-top"
+                    style={{ filter: "grayscale(100%) contrast(1.08)" }}
+                  />
+                </div>
+                {/* Name badge */}
+                <div
+                  className="absolute bottom-4 left-4 right-4 z-20 rounded-xl px-4 py-3"
+                  style={{ background: "rgba(14,14,14,0.75)", backdropFilter: "blur(12px)", border: "1px solid rgba(201,165,90,0.12)" }}
+                >
+                  <p className="font-mono text-[10px] text-[#c9a55a]/70">CEO · Chief Creator · Full-Stack Designer</p>
+                </div>
+              </div>
+            </ScrollReveal>
+
           </div>
-        </section>
-      </ScrollReveal>
+        </div>
+      </section>
 
       {/* Values section */}
       <section aria-labelledby="values-heading" className="border-b border-white/[0.06] py-20 md:py-28">
