@@ -104,8 +104,8 @@ export default function V2Hero() {
           >
             <p className="max-w-[480px] text-[clamp(1rem,1.2vw,1.125rem)] leading-relaxed text-white/55">
               We build premium websites, analytics systems, and interactive experiences
-              for ambitious B2B companies and SaaS founders. Brand strategy meets
-              technical execution.
+              for ambitious B2B companies and SaaS founders.<span className="hidden md:inline"> Brand strategy meets
+              technical execution.</span>
             </p>
           </motion.div>
 
