@@ -31,12 +31,28 @@ export default function CustomCursor() {
       setIsVisible(false);
     };
 
+    /**
+     * Re-entering the page from browser chrome / OS UI: `mouseenter` does not bubble, so listen on
+     * `documentElement` (and capture on `document`) so the dot comes back even when the first event is not `mousemove`.
+     */
+    const handleMouseEnter = (e: MouseEvent) => {
+      isVisibleRef.current = true;
+      setIsVisible(true);
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate(${e.clientX - 4}px, ${e.clientY - 4}px)`;
+      }
+    };
+
     document.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter, true);
+    document.documentElement.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseenter", handleMouseEnter, true);
+      document.documentElement.removeEventListener("mouseenter", handleMouseEnter);
     };
   }, []);
 
@@ -44,7 +60,7 @@ export default function CustomCursor() {
     <div
       ref={dotRef}
       aria-hidden="true"
-      className="pointer-events-none fixed top-0 left-0 z-[9999] size-2 rounded-full bg-accent transition-opacity [transition-duration:200ms] ease-linear will-change-transform select-none"
+      className="pointer-events-none fixed top-0 left-0 z-[11000] size-2 rounded-full bg-accent transition-opacity [transition-duration:200ms] ease-linear will-change-transform select-none"
       style={{ opacity: isVisible ? 1 : 0 }}
     />
   );

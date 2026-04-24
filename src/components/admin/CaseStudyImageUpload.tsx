@@ -225,6 +225,10 @@ export default function CaseStudyImageUpload({
   const [galleryCaptureFullPage, setGalleryCaptureFullPage] = useState(false);
   const [captureDelayMs, setCaptureDelayMs] = useState(1000);
   const [galleryCaptureCaption, setGalleryCaptureCaption] = useState("");
+  /** ScreenshotOne authenticated targets — forwarded to their API (see README). */
+  const [captureAuthorization, setCaptureAuthorization] = useState("");
+  const [captureCookiesMultiline, setCaptureCookiesMultiline] = useState("");
+  const [captureHeadersMultiline, setCaptureHeadersMultiline] = useState("");
   const [captureBusy, setCaptureBusy] = useState(false);
   const [captureError, setCaptureError] = useState("");
   const [imagePreview, setImagePreview] = useState<{ src: string; label: string } | null>(null);
@@ -330,6 +334,15 @@ export default function CaseStudyImageUpload({
         ...(captureDestination === "thumbImage" ? { thumbnailFullPage: thumbCaptureFullPage } : {}),
         ...(captureDestination === "mobileImage" ? { mobileFullPage: mobileCaptureFullPage } : {}),
         ...(captureDestination === "gallery" ? { galleryFullPage: galleryCaptureFullPage } : {}),
+        ...(captureAuthorization.trim() ||
+        captureCookiesMultiline.trim() ||
+        captureHeadersMultiline.trim()
+          ? {
+              screenshotAuthorization: captureAuthorization.trim() || undefined,
+              screenshotCookiesMultiline: captureCookiesMultiline.trim() || undefined,
+              screenshotHeadersMultiline: captureHeadersMultiline.trim() || undefined,
+            }
+          : {}),
       });
       if (!result.ok) {
         setCaptureError(result.error);
@@ -389,9 +402,103 @@ export default function CaseStudyImageUpload({
           <span className="font-mono text-[10px] text-text-tertiary">server-side · keys from env</span>
         </div>
         <p className="mb-3 text-[11px] leading-relaxed text-text-tertiary">
-          Captures the live URL, then resizes to match each slot (same as manual upload). Use a longer delay for heavy SPAs.
+          Captures the live URL, then resizes to match each slot (same as manual upload). Use a longer delay for heavy
+          SPAs. Public pages: paste <span className="font-mono text-[10px]">https://…</span>, pick where to apply,
+          capture, then <strong className="text-text-primary">save the project</strong>.{" "}
+          <a
+            href="https://github.com/wholmes/agency/blob/main/README.md#step-by-step-capture-a-public-page-admin"
+            className="text-accent underline-offset-2 hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Step-by-step (README)
+          </a>
         </p>
         <div className="flex flex-col gap-3">
+          <details className="rounded-md border border-border/60 bg-surface/40 px-3 py-2">
+            <summary className="cursor-pointer select-none text-xs font-medium text-text-primary">
+              Authenticated page (optional)
+            </summary>
+            <p className="mt-2 text-[10px] leading-relaxed text-text-secondary">
+              <span className="font-medium text-text-primary">Quick steps:</span>{" "}
+              <strong className="text-text-primary">Basic auth popup</strong> — paste one line in{" "}
+              <span className="font-mono text-[10px]">Authorization</span> (<span className="font-mono">Basic …</span>
+              ). <strong className="text-text-primary">Cookie login</strong> — log in in the browser, DevTools →
+              Application → Cookies, then one ScreenshotOne cookie string per line below.{" "}
+              <strong className="text-text-primary">Custom header</strong> — one{" "}
+              <span className="font-mono">Name: value</span> per line in Extra headers.
+            </p>
+            <p className="mt-1 text-[10px] leading-relaxed text-text-tertiary">
+              Full numbered guide:{" "}
+              <a
+                href="https://github.com/wholmes/agency/blob/main/README.md#step-by-step-capture-a-page-that-requires-login"
+                className="text-accent underline-offset-2 hover:underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                README → ScreenshotOne (logged-in pages)
+              </a>
+              . API reference:{" "}
+              <a
+                href="https://screenshotone.com/docs/guides/authenticated-pages"
+                className="text-accent underline-offset-2 hover:underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ScreenshotOne
+              </a>
+              .
+            </p>
+            <p className="mt-1 text-[10px] leading-relaxed text-amber-200/90">
+              Values are sent to ScreenshotOne for that capture only. Prefer staging or a short-lived session — not a
+              long-lived production admin cookie.
+            </p>
+            <div className="mt-2 flex flex-col gap-2">
+              <div className="form-field mb-0">
+                <label className="form-label" htmlFor={`${uid}-cap-authz`}>
+                  Authorization header
+                </label>
+                <input
+                  id={`${uid}-cap-authz`}
+                  type="text"
+                  autoComplete="off"
+                  value={captureAuthorization}
+                  onChange={(e) => setCaptureAuthorization(e.target.value)}
+                  placeholder='e.g. Basic dXN… or Bearer eyJ…'
+                  className="form-input font-mono text-xs"
+                />
+              </div>
+              <div className="form-field mb-0">
+                <label className="form-label" htmlFor={`${uid}-cap-cookies`}>
+                  Cookies <span className="font-normal text-text-tertiary">(one ScreenshotOne cookie string per line)</span>
+                </label>
+                <textarea
+                  id={`${uid}-cap-cookies`}
+                  rows={3}
+                  autoComplete="off"
+                  value={captureCookiesMultiline}
+                  onChange={(e) => setCaptureCookiesMultiline(e.target.value)}
+                  placeholder={"session=abc; Domain=example.com; Path=/; Secure; HttpOnly"}
+                  className="form-input font-mono text-xs"
+                />
+              </div>
+              <div className="form-field mb-0">
+                <label className="form-label" htmlFor={`${uid}-cap-headers`}>
+                  Extra headers <span className="font-normal text-text-tertiary">(one Name: value per line)</span>
+                </label>
+                <textarea
+                  id={`${uid}-cap-headers`}
+                  rows={2}
+                  autoComplete="off"
+                  value={captureHeadersMultiline}
+                  onChange={(e) => setCaptureHeadersMultiline(e.target.value)}
+                  placeholder={"X-Preview-Token: your-token"}
+                  className="form-input font-mono text-xs"
+                />
+              </div>
+            </div>
+          </details>
+
           <div className="form-field mb-0">
             <label className="form-label" htmlFor={`${uid}-capture-url`}>Page URL</label>
             <input

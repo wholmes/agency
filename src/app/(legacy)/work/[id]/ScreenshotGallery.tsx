@@ -59,7 +59,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "0px 0px -40px 0px" }}
                 transition={{ delay: idx * 0.06, duration: 0.7, ease: EASE_OUT }}
-                className="group shrink-0 cursor-pointer focus:outline-none"
+                className="group shrink-0 !cursor-pointer focus:outline-none"
                 aria-label={shot.caption ? `View screenshot: ${shot.caption}` : `View screenshot ${idx + 1}`}
               >
                 {/* Browser chrome card */}
@@ -116,7 +116,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 p-4 md:p-8"
+            className="fixed inset-0 z-[10000] flex cursor-pointer items-center justify-center bg-black/90 p-4 md:p-8"
             onClick={close}
           >
             {/* Card — stop propagation so clicking image doesn't close */}
@@ -126,7 +126,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.97 }}
               transition={{ duration: 0.35, ease: EASE_OUT }}
-              className="relative w-full max-w-5xl"
+              className="relative w-full max-w-5xl cursor-default"
               onClick={e => e.stopPropagation()}
             >
               {/* Browser chrome */}
@@ -176,7 +176,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
                   <button
                     type="button"
                     onClick={e => { e.stopPropagation(); prev(); }}
-                    className="absolute -left-14 top-1/2 -translate-y-1/2 hidden size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white md:flex"
+                    className="absolute -left-14 top-1/2 -translate-y-1/2 hidden size-10 !cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white md:flex"
                     aria-label="Previous screenshot"
                   >
                     <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
@@ -186,7 +186,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
                   <button
                     type="button"
                     onClick={e => { e.stopPropagation(); next(); }}
-                    className="absolute -right-14 top-1/2 -translate-y-1/2 hidden size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white md:flex"
+                    className="absolute -right-14 top-1/2 -translate-y-1/2 hidden size-10 !cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white md:flex"
                     aria-label="Next screenshot"
                   >
                     <svg width="14" height="14" viewBox="0 0 13 13" fill="none">
@@ -204,7 +204,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
                       key={i}
                       type="button"
                       onClick={e => { e.stopPropagation(); setLightboxIdx(i); }}
-                      className="size-1.5 rounded-full transition-all duration-200"
+                      className="size-1.5 !cursor-pointer rounded-full transition-all duration-200"
                       style={{
                         background: i === lightboxIdx ? accent : "rgba(255,255,255,0.2)",
                         transform: i === lightboxIdx ? "scale(1.3)" : "scale(1)",
@@ -220,7 +220,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
             <button
               type="button"
               onClick={close}
-              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white"
+              className="absolute right-4 top-4 flex size-9 !cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all hover:border-white/20 hover:bg-white/10 hover:text-white"
               aria-label="Close"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

@@ -3,6 +3,7 @@
 import { requireAdminSession } from "@/lib/admin/require-admin";
 import {
   fetchScreenshotOneDataUrl,
+  parseScreenshotOneAuthFields,
   type ScreenshotOneCapturePreset,
 } from "@/lib/screenshotone";
 
@@ -20,6 +21,12 @@ export type CaptureScreenshotOneInput = {
   mobileFullPage?: boolean;
   /** Only when `preset` is `gallery`. Default `false` (viewport / above the fold). */
   galleryFullPage?: boolean;
+  /** ScreenshotOne `authorization` param (single line). Optional. */
+  screenshotAuthorization?: string;
+  /** One ScreenshotOne cookie string per line. Optional. */
+  screenshotCookiesMultiline?: string;
+  /** One `Header-Name: value` per line. Optional. */
+  screenshotHeadersMultiline?: string;
 };
 
 export type CaptureScreenshotOneResult =
@@ -31,7 +38,23 @@ export async function captureScreenshotWithScreenshotOne(
 ): Promise<CaptureScreenshotOneResult> {
   await requireAdminSession();
   const delayMs = typeof input.delayMs === "number" && Number.isFinite(input.delayMs) ? input.delayMs : 800;
-  const fetchOpts =
+  const authParsed = parseScreenshotOneAuthFields({
+    authorization: input.screenshotAuthorization,
+    cookiesMultiline: input.screenshotCookiesMultiline,
+    headersMultiline: input.screenshotHeadersMultiline,
+  });
+  if (!authParsed.ok) return { ok: false, error: authParsed.error };
+
+  const authOpts =
+    authParsed.authorization || authParsed.requestCookies.length || authParsed.requestHeaders.length
+      ? {
+          authorization: authParsed.authorization,
+          requestCookies: authParsed.requestCookies.length ? authParsed.requestCookies : undefined,
+          requestHeaders: authParsed.requestHeaders.length ? authParsed.requestHeaders : undefined,
+        }
+      : {};
+
+  const presetOpts =
     input.preset === "mobile"
       ? { mobileFullPage: input.mobileFullPage !== false }
       : input.preset === "hero"
@@ -42,7 +65,8 @@ export async function captureScreenshotWithScreenshotOne(
             ? { thumbnailFullPage: input.thumbnailFullPage === true }
             : input.preset === "gallery"
               ? { galleryFullPage: input.galleryFullPage === true }
-              : undefined;
+              : {};
+  const fetchOpts = { ...presetOpts, ...authOpts };
   const result = await fetchScreenshotOneDataUrl(input.preset, input.url, delayMs, fetchOpts);
   if (!result.ok) return { ok: false, error: result.error };
   return { ok: true, dataUrl: result.dataUrl };

@@ -62,6 +62,7 @@ For **production-like databases** (e.g. Neon after deploy), apply pending migrat
 | `SCREENSHOTONE_ACCESS_KEY` **or** `SCREENSHOTONE_API_KEY` | For [ScreenshotOne](#screenshotone-admin-screenshot-captures) | Public access key from [ScreenshotOne](https://screenshotone.com); required for server-side “Capture & apply” in the case study admin. |
 | `SCREENSHOTONE_SECRET_KEY` **or** `SCREENSHOTONE_SECRET` | Strongly recommended | Used to [sign](https://screenshotone.com/docs/authentication) the `/take` query string (HMAC-SHA256). If unset, requests are sent without a `signature` parameter (only if your ScreenshotOne project allows it). |
 | `SCREENSHOTONE_CLI_DELAY_MS` | Optional | Delay before capture for the [`screenshot:one`](#screenshotone-admin-screenshot-captures) CLI only (default **1000** ms). |
+| `SCREENSHOTONE_AUTHORIZATION`, `SCREENSHOTONE_COOKIES`, `SCREENSHOTONE_HEADERS` | Optional | CLI-only helpers for [logged-in / protected captures](#step-by-step-capture-a-page-that-requires-login); see steps below. |
 
 ### Database URLs (Neon + Prisma)
 
@@ -220,7 +221,7 @@ Service detail URLs are **`/services/[slug]`** (e.g. `web-design`, `brand-strate
 
 ## ScreenshotOne (admin screenshot captures)
 
-Remote page screenshots use the **[ScreenshotOne](https://screenshotone.com)** HTTP API (`GET https://api.screenshotone.com/take`). Captures run **only on the server** after an admin session check (`src/lib/admin/screenshotone-capture.ts` → `src/lib/screenshotone.ts`). The admin UI never sends API secrets to the browser.
+Remote page screenshots use the **[ScreenshotOne](https://screenshotone.com)** HTTP API (`GET https://api.screenshotone.com/take`). Captures run **only on the server** after an admin session check (`src/lib/admin/screenshotone-capture.ts` → `src/lib/screenshotone.ts`). ScreenshotOne access/secret keys stay in **environment variables**; they are not stored in the CMS.
 
 ### Environment
 
@@ -229,13 +230,55 @@ Remote page screenshots use the **[ScreenshotOne](https://screenshotone.com)** H
 | `SCREENSHOTONE_ACCESS_KEY` or `SCREENSHOTONE_API_KEY` | Access key appended as `access_key` on every `/take` request. |
 | `SCREENSHOTONE_SECRET_KEY` or `SCREENSHOTONE_SECRET` | If set, the full query string (excluding `signature`) is signed with **HMAC-SHA256**; the hex digest is sent as `signature` (see ScreenshotOne [authentication](https://screenshotone.com/docs/authentication)). |
 
-### Target URL rules
+### Step-by-step: capture a **public** page (admin)
 
-`assertScreenshotTargetUrl()` in `src/lib/screenshotone.ts` restricts what admins can capture:
+1. **Set keys on the server** — In Vercel (or `.env` locally), add `SCREENSHOTONE_ACCESS_KEY` and `SCREENSHOTONE_SECRET_KEY` as in the [environment table](#environment-variables) above. Redeploy or restart `npm run dev` so the app picks them up.
+2. **Open the case study editor** — `/admin/projects/[id]` for the project you are editing.
+3. **Scroll to “ScreenshotOne”** — Same card as hero / cover / thumbnail uploads.
+4. **Paste “Page URL”** — Must be **`https://…`** so ScreenshotOne’s servers can load it from the internet. (`http://` is allowed only for **localhost** / **127.0.0.1**; a URL like `http://localhost:3000` only works if ScreenshotOne can reach that host — usually **not** from their cloud unless you use a public tunnel.)
+5. **Choose “Apply to”** — Hero, listing cover, card thumbnail, mobile mockup, or gallery (append).
+6. **Optional:** increase **Delay** for slow SPAs; use **full page / above the fold** where offered; open **Authenticated page** only if you need login (see next section).
+7. **Click “Capture & apply”** — Wait for success, then **save the project** so the image persists.
 
-- **Allowed:** `https://…` (any host).
-- **Allowed:** `http://localhost/…` or `http://127.0.0.1/…` only (for local sites).
-- **Rejected:** non-HTTPS URLs elsewhere (reduces accidental SSRF to internal `http` origins).
+### Step-by-step: capture a page that **requires login**
+
+Use this when the page returns a login wall or 401 without extra context. Expand **Authenticated page (optional)** in the admin ScreenshotOne panel (same fields exist for the CLI via env vars — see [CLI](#cli-one-off-capture-to-a-file)).
+
+**Pick the path that matches how the site is protected.**
+
+#### Path A — “Username / password” browser popup (HTTP Basic)
+
+1. Confirm the **Page URL** is the exact URL you want in the screenshot (still `https://…`).
+2. On your machine, build the header value: the word `Basic`, a space, then **Base64** of `yourUsername:yourPassword` (same credentials the browser popup would use). Example (macOS/Linux):  
+   `echo -n 'myuser:mypass' | base64`
+3. In **Authorization header**, paste **one line**: `Basic ` followed by that Base64 string (no line breaks).
+4. Leave **Cookies** and **Extra headers** empty unless you also need them.
+5. Capture and **save the project**.
+
+#### Path B — Normal website login (session **cookie**)
+
+1. In Chrome (or any browser), open the site and **log in** the way a real user would.
+2. Open **DevTools** → **Application** → **Cookies** → select your site’s origin.
+3. Find the cookie that keeps you logged in (name varies, e.g. session or app-specific).
+4. Build **one line per cookie** in ScreenshotOne’s format (name, value, domain, path, flags). Example shape:  
+   `session=YOUR_VALUE; Domain=yoursite.com; Path=/; Secure; HttpOnly`  
+   Official format: [ScreenshotOne → cookies option](https://screenshotone.com/docs/options#cookies).
+5. Paste into the **Cookies** textarea — **one cookie string per line**. Leave **Authorization** empty unless you also use Basic auth.
+6. Set **Page URL** to the **logged-in** page you want (same domain as the cookie, usually `https`).
+7. Capture and **save the project**.
+
+**Important:** Anything you paste is sent to **ScreenshotOne** for that request. Prefer a **staging** login or **short-lived** session, not a long-lived production admin cookie.
+
+#### Path C — Custom header (e.g. preview token)
+
+If your app checks something like `X-Preview-Token` or `X-API-Key` on the request:
+
+1. Put **one header per line** in **Extra headers**, in the form `Header-Name: value` (colon required).
+2. Fill **Page URL** and capture as usual.
+
+### Target URL rules (reference)
+
+`assertScreenshotTargetUrl()` in `src/lib/screenshotone.ts` allows **`https://…`** and **`http://localhost` / `http://127.0.0.1` only** for `http`. Other `http://` hosts are rejected.
 
 ### API request shape (this repo)
 
@@ -248,7 +291,19 @@ All presets send:
 | `delay` | Seconds derived from the admin “delay” field or CLI env (input is **milliseconds**; converted to seconds and clamped to **0–30**, matching ScreenshotOne’s sync capture limit). |
 | `url` | The validated target page URL. |
 
-Full-page presets also send `full_page=true` and `full_page_max_height` as in the table below.
+Full-page presets also send `full_page=true` and `full_page_max_height` as in the table below. Optional **`authorization`**, **`cookies`**, and **`headers`** parameters are documented by [ScreenshotOne](https://screenshotone.com/docs/options); this repo forwards them when you fill the authenticated section or set the CLI env vars below.
+
+### CLI: authenticated env (optional)
+
+For `npm run screenshot:one` only — same ideas as Path A / B / C:
+
+| Env var | What to put |
+| ------- | ----------- |
+| `SCREENSHOTONE_AUTHORIZATION` | One line, e.g. `Basic …` or `Bearer …`. |
+| `SCREENSHOTONE_COOKIES` | Newline-separated cookie strings (same format as Path B, one string per line). |
+| `SCREENSHOTONE_HEADERS` | Newline-separated `Name: value` lines. |
+
+Values are validated by `parseScreenshotOneAuthFields` in `src/lib/screenshotone.ts` (length and line limits).
 
 ### Presets (viewport and defaults)
 
@@ -281,6 +336,8 @@ Loads **`.env`** then **`.env.local`** (same pattern as `db:*` scripts). Optiona
 
 Optional env: **`SCREENSHOTONE_CLI_DELAY_MS`** (default `1000`) — pre-capture wait in milliseconds.
 
+Optional env for **authenticated** targets (same shapes as the admin panel): **`SCREENSHOTONE_AUTHORIZATION`**, **`SCREENSHOTONE_COOKIES`**, **`SCREENSHOTONE_HEADERS`** — see [Step-by-step: page that requires login](#step-by-step-capture-a-page-that-requires-login) and [CLI authenticated env](#cli-authenticated-env-optional).
+
 ### Errors
 
 Failed HTTP responses are parsed when the body is JSON; the admin UI surfaces `error_message` / `error_code` from the API when present (see ScreenshotOne [errors](https://screenshotone.com/docs/errors)). Network failures and missing access keys produce clear server-side messages.
@@ -291,7 +348,7 @@ Failed HTTP responses are parsed when the body is JSON; the admin UI surfaces `e
 | ---- | ---- |
 | `src/lib/screenshotone.ts` | Preset query parameters, signing, `fetchScreenshotOneDataUrl`, URL validation. |
 | `src/lib/admin/screenshotone-capture.ts` | Server action `captureScreenshotWithScreenshotOne` (admin-gated). |
-| `src/components/admin/CaseStudyImageUpload.tsx` | ScreenshotOne panel: URL, delay, destination, full-page radios, gallery caption, capture button. |
+| `src/components/admin/CaseStudyImageUpload.tsx` | ScreenshotOne panel: URL, delay, destination, optional auth (authorization / cookies / headers), full-page radios, gallery caption, capture button. |
 | `scripts/screenshot-one.mts` | CLI wrapper around `fetchScreenshotOneDataUrl`. |
 
 ---

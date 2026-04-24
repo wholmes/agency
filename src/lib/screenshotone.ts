@@ -16,7 +16,100 @@ export type ScreenshotOneFetchOptions = {
   mobileFullPage?: boolean;
   /** Gallery preset only. `false` (default) = one viewport; `true` = full-page scroll capture. */
   galleryFullPage?: boolean;
+  /**
+   * ScreenshotOne `authorization` query param (e.g. `Basic base64`, `Bearer token`).
+   * @see https://screenshotone.com/docs/options#authorization
+   */
+  authorization?: string;
+  /**
+   * Each string becomes one `cookies` query param (ScreenshotOne cookie format).
+   * @see https://screenshotone.com/docs/options#cookies
+   */
+  requestCookies?: string[];
+  /**
+   * Each string becomes one `headers` query param (`Header-Name: value`).
+   * @see https://screenshotone.com/docs/options#headers
+   */
+  requestHeaders?: string[];
 };
+
+const MAX_AUTHORIZATION_LEN = 2048;
+const MAX_AUTH_LINE_LEN = 4000;
+const MAX_COOKIE_LINES = 8;
+const MAX_HEADER_LINES = 8;
+const MAX_AUTH_TOTAL_CHARS = 24_000;
+
+/** Parse admin form fields for ScreenshotOne authenticated-page options. */
+export function parseScreenshotOneAuthFields(fields: {
+  authorization?: string | null;
+  cookiesMultiline?: string | null;
+  headersMultiline?: string | null;
+}):
+  | { ok: true; authorization?: string; requestCookies: string[]; requestHeaders: string[] }
+  | { ok: false; error: string } {
+  const authorization = fields.authorization?.trim() || undefined;
+  if (authorization && /[\r\n]/.test(authorization)) {
+    return { ok: false, error: "Authorization must be a single line (no line breaks)." };
+  }
+  if (authorization && authorization.length > MAX_AUTHORIZATION_LEN) {
+    return { ok: false, error: `Authorization exceeds ${MAX_AUTHORIZATION_LEN} characters.` };
+  }
+
+  function splitLinesBlock(
+    raw: string | null | undefined,
+    maxLines: number,
+    label: string,
+  ): { ok: true; lines: string[] } | { ok: false; error: string } {
+    if (!raw?.trim()) return { ok: true, lines: [] };
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length > maxLines) {
+      return { ok: false, error: `${label}: at most ${maxLines} non-empty lines.` };
+    }
+    for (const line of lines) {
+      if (line.length > MAX_AUTH_LINE_LEN) {
+        return { ok: false, error: `${label}: each line must be at most ${MAX_AUTH_LINE_LEN} characters.` };
+      }
+    }
+    return { ok: true, lines };
+  }
+
+  const cookiesResult = splitLinesBlock(fields.cookiesMultiline, MAX_COOKIE_LINES, "Cookies");
+  if (!cookiesResult.ok) return { ok: false, error: cookiesResult.error };
+  const headersResult = splitLinesBlock(fields.headersMultiline, MAX_HEADER_LINES, "Headers");
+  if (!headersResult.ok) return { ok: false, error: headersResult.error };
+
+  const requestCookies = cookiesResult.lines;
+  const requestHeaders = headersResult.lines;
+  for (const h of requestHeaders) {
+    const idx = h.indexOf(":");
+    if (idx < 1) {
+      return { ok: false, error: 'Each header line must look like "Name: value" (colon required).' };
+    }
+  }
+
+  const total = (authorization?.length ?? 0) + requestCookies.join("").length + requestHeaders.join("").length;
+  if (total > MAX_AUTH_TOTAL_CHARS) {
+    return { ok: false, error: `Authorization, cookies, and headers combined exceed ${MAX_AUTH_TOTAL_CHARS} characters.` };
+  }
+
+  return { ok: true, authorization, requestCookies, requestHeaders };
+}
+
+function authQueryRows(options?: ScreenshotOneFetchOptions): [string, string][] {
+  const rows: [string, string][] = [];
+  if (options?.authorization?.trim()) {
+    rows.push(["authorization", options.authorization.trim()]);
+  }
+  for (const c of options?.requestCookies ?? []) {
+    const t = c.trim();
+    if (t) rows.push(["cookies", t]);
+  }
+  for (const h of options?.requestHeaders ?? []) {
+    const t = h.trim();
+    if (t) rows.push(["headers", t]);
+  }
+  return rows;
+}
 
 function getAccessKey(): string | undefined {
   return (
@@ -177,7 +270,11 @@ export function buildScreenshotOneQueryString(
   delayMs: number,
   options?: ScreenshotOneFetchOptions,
 ): string {
-  const rows: [string, string][] = [["access_key", accessKey], ...presetEntries(preset, targetUrl, delayMs, options)];
+  const rows: [string, string][] = [
+    ["access_key", accessKey],
+    ...presetEntries(preset, targetUrl, delayMs, options),
+    ...authQueryRows(options),
+  ];
   const usp = new URLSearchParams();
   for (const [k, v] of rows) {
     usp.append(k, v);

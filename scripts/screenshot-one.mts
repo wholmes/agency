@@ -9,12 +9,17 @@
  *
  * - `viewport` — above the fold (one screen) for **hero**, **cover**, or **mobile** (default for those is full page except use this flag).
  * - `full` — full-page scroll capture for **thumbnail** or **gallery** (defaults for those are viewport-only).
+ *
+ * Authenticated targets (optional env, multiline where noted):
+ * - `SCREENSHOTONE_AUTHORIZATION` — single line, passed as ScreenshotOne `authorization` param.
+ * - `SCREENSHOTONE_COOKIES` — newline-separated cookie strings (each becomes a `cookies` param).
+ * - `SCREENSHOTONE_HEADERS` — newline-separated `Name: value` lines (each becomes a `headers` param).
  */
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
-const { fetchScreenshotOneDataUrl } = await import("../src/lib/screenshotone");
+const { fetchScreenshotOneDataUrl, parseScreenshotOneAuthFields } = await import("../src/lib/screenshotone");
 type Preset = import("../src/lib/screenshotone").ScreenshotOneCapturePreset;
 
 const url = process.argv[2];
@@ -46,7 +51,7 @@ if (extraArg === "full" && preset !== "thumbnail" && preset !== "gallery") {
 }
 
 const delay = Number(process.env.SCREENSHOTONE_CLI_DELAY_MS ?? "1000");
-const fetchOpts =
+const presetOpts =
   preset === "mobile"
     ? { mobileFullPage: extraArg !== "viewport" }
     : preset === "hero"
@@ -57,7 +62,25 @@ const fetchOpts =
           ? { thumbnailFullPage: extraArg === "full" }
           : preset === "gallery"
             ? { galleryFullPage: extraArg === "full" }
-            : undefined;
+            : {};
+const authParsed = parseScreenshotOneAuthFields({
+  authorization: process.env.SCREENSHOTONE_AUTHORIZATION,
+  cookiesMultiline: process.env.SCREENSHOTONE_COOKIES,
+  headersMultiline: process.env.SCREENSHOTONE_HEADERS,
+});
+if (!authParsed.ok) {
+  console.error(authParsed.error);
+  process.exit(1);
+}
+const authOpts =
+  authParsed.authorization || authParsed.requestCookies.length || authParsed.requestHeaders.length
+    ? {
+        authorization: authParsed.authorization,
+        requestCookies: authParsed.requestCookies.length ? authParsed.requestCookies : undefined,
+        requestHeaders: authParsed.requestHeaders.length ? authParsed.requestHeaders : undefined,
+      }
+    : {};
+const fetchOpts = { ...presetOpts, ...authOpts };
 const result = await fetchScreenshotOneDataUrl(preset, url, delay, fetchOpts);
 if (!result.ok) {
   console.error(result.error);
