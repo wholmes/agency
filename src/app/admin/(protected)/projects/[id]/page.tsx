@@ -6,6 +6,7 @@ import CaseStudyImageUpload from "@/components/admin/CaseStudyImageUpload";
 import { IconExternalLink } from "@/components/icons";
 import { prisma } from "@/lib/prisma";
 import { PROJECT_LIVE_URLS } from "@/lib/project-live-urls";
+import RenameProjectSlugForm from "@/components/admin/RenameProjectSlugForm";
 import { updateProject } from "../../mutations";
 
 interface Props {
@@ -61,6 +62,10 @@ export default async function AdminProjectEditPage({ params }: Props) {
             ← All projects
           </Link>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <RenameProjectSlugForm currentId={p.id} currentUrl={`https://brandmeetscode.com/work/${p.id}`} />
       </div>
 
       <AdminSaveForm action={updateWithId} className="flex flex-col gap-5">

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 4.5;
 
 interface Screenshot {
   url: string;
@@ -13,6 +15,131 @@ interface Screenshot {
 interface Props {
   screenshots: Screenshot[];
   accent: string;
+}
+
+/** Lightbox image: real overflow scroll for tall full-page shots; zoom by widening the layout (so scroll size grows). */
+function LightboxImageArea({ url, alt, resetId }: { url: string; alt: string; resetId: string }) {
+  const [zoom, setZoom] = useState(1);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setZoom(1);
+    viewportRef.current?.scrollTo(0, 0);
+  }, [resetId, url]);
+
+  const clampZoom = (z: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+
+  const nudgeZoom = useCallback((direction: 1 | -1) => {
+    setZoom((z) => {
+      const next = direction === 1 ? clampZoom(z * 1.2) : clampZoom(z / 1.2);
+      if (next <= 1.01) {
+        viewportRef.current?.scrollTo(0, 0);
+        return 1;
+      }
+      return next;
+    });
+  }, []);
+
+  /** Only Ctrl/Cmd + wheel adjusts zoom; otherwise the browser scrolls the viewport (vertical for long pages). */
+  const onViewportWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    const sign = e.deltaY < 0 ? 1 : -1;
+    setZoom((z) => {
+      const next = clampZoom(z * (1 + sign * 0.1));
+      if (next <= 1.01) {
+        viewportRef.current?.scrollTo(0, 0);
+        return 1;
+      }
+      return next;
+    });
+  };
+
+  const isZoomed = zoom > 1.001;
+  /** Wider “sheet” in % of viewport = zoom level; content gets real width/height so scrollbars work. */
+  const contentWidthPercent = Math.round(zoom * 1000) / 10;
+
+  return (
+    <div className="min-h-0 min-w-0">
+      {/* Controls */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] bg-[#0a0a0a] px-3 py-2"
+        onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
+      >
+        <p className="max-w-[min(100%,20rem)] font-mono text-[9px] uppercase leading-relaxed tracking-[0.18em] text-white/30">
+          <span className="text-white/25">Scroll</span> the preview for long pages
+          <span className="text-white/20"> · </span>
+          <span className="text-white/25">Ctrl</span> + scroll to zoom
+        </p>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              nudgeZoom(1);
+            }}
+            className="rounded border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-white/50 transition hover:border-white/20 hover:text-white/80"
+            aria-label="Zoom in"
+            disabled={zoom >= ZOOM_MAX - 0.01}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              nudgeZoom(-1);
+            }}
+            className="rounded border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-xs text-white/50 transition hover:border-white/20 hover:text-white/80"
+            aria-label="Zoom out"
+            disabled={zoom <= ZOOM_MIN + 0.01}
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              setZoom(1);
+              viewportRef.current?.scrollTo(0, 0);
+            }}
+            className="ml-1 rounded border border-white/10 bg-white/[0.04] px-2 py-1 font-mono text-[10px] text-white/40 transition hover:border-white/20 hover:text-white/70"
+            aria-label="Reset zoom and pan"
+            disabled={!isZoomed}
+          >
+            Fit
+          </button>
+          <span className="ml-1 font-mono text-[10px] text-white/25" aria-live="polite">
+            {Math.round(zoom * 100)}%
+          </span>
+        </div>
+      </div>
+
+      {/* Native overflow: vertical (and horizontal when zoomed) for full-page captures */}
+      <div
+        ref={viewportRef}
+        onWheel={onViewportWheel}
+        className="max-h-[min(70vh,85dvh)] w-full overflow-auto overscroll-contain bg-[#0e0e0e]"
+        style={{ touchAction: "pan-x pan-y" }}
+        tabIndex={0}
+      >
+        <div
+          className="min-w-0"
+          style={{ width: `${contentWidthPercent}%`, margin: "0 auto" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt={alt}
+            className="block w-full h-auto"
+            style={{ maxWidth: "100%", height: "auto" }}
+            draggable={false}
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ScreenshotGallery({ screenshots, accent }: Props) {
@@ -152,15 +279,11 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
                   </span>
                 </div>
 
-                {/* Screenshot — max height so it doesn't overflow viewport */}
-                <div className="max-h-[70vh] overflow-auto bg-[#0e0e0e]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={screenshots[lightboxIdx].url}
-                    alt={screenshots[lightboxIdx].caption ?? `Screenshot ${lightboxIdx + 1}`}
-                    className="block w-full"
-                  />
-                </div>
+                <LightboxImageArea
+                  url={screenshots[lightboxIdx].url}
+                  alt={screenshots[lightboxIdx].caption ?? `Screenshot ${lightboxIdx + 1}`}
+                  resetId={`${lightboxIdx}-${screenshots[lightboxIdx].url}`}
+                />
               </div>
 
               {/* Caption */}

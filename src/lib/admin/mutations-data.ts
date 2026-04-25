@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin/require-admin";
 import { optionalFormString } from "@/lib/admin/optional-form-string";
+import { isValidProjectIdSegment, normalizeProjectId } from "@/lib/admin/project-id";
 import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
 
 function parseJsonField(raw: string, fallback: unknown): string {
@@ -639,14 +640,10 @@ export async function createProject(
 ): Promise<CreateProjectState> {
   await requireAdminSession();
 
-  const id = String(formData.get("id") ?? "")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+  const id = normalizeProjectId(String(formData.get("id") ?? ""));
 
   if (!id) return { error: "ID is required." };
-  if (!/^[a-z0-9-]+$/.test(id)) return { error: "ID may only contain lowercase letters, numbers, and hyphens." };
+  if (!isValidProjectIdSegment(id)) return { error: "ID may only contain lowercase letters, numbers, and hyphens." };
 
   const existing = await prisma.project.findUnique({ where: { id } });
   if (existing) return { error: `A case study with ID "${id}" already exists.` };
