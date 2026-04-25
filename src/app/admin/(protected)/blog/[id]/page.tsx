@@ -37,7 +37,7 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
   const tagsDisplay = tagsToDisplay(post.tags);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display mb-1 text-2xl font-light tracking-tight">
@@ -60,7 +60,7 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
         <div className="flex flex-col items-end gap-2">
           <Link
             href="/admin/blog"
-            className="text-sm text-text-tertiary no-underline hover:text-text-secondary"
+            className="whitespace-nowrap text-sm text-text-tertiary no-underline hover:text-text-secondary"
           >
             ← All articles
           </Link>
