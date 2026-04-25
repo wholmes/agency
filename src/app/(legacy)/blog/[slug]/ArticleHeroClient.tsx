@@ -104,7 +104,7 @@ export default function ArticleHeroClient({ post }: Props) {
               style={{ color: "var(--color-text-tertiary)" }}
             >
               {post.publishedAt && (
-                <time dateTime={new Date(post.publishedAt).toISOString()}>
+                <time dateTime={new Date(post.publishedAt).toISOString()} suppressHydrationWarning>
                   {formatDate(post.publishedAt)}
                 </time>
               )}

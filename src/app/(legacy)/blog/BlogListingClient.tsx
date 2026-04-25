@@ -101,7 +101,7 @@ export default function BlogListingClient({ featured, rest }: Props) {
                     {featured.publishedAt && (
                       <>
                         <span>·</span>
-                        <time dateTime={new Date(featured.publishedAt).toISOString()}>
+                        <time dateTime={new Date(featured.publishedAt).toISOString()} suppressHydrationWarning>
                           {formatDate(featured.publishedAt)}
                         </time>
                       </>
@@ -234,7 +234,7 @@ function PostCard({ post }: { post: BlogPostData }) {
           style={{ color: "var(--color-text-tertiary)" }}
         >
           {post.publishedAt && (
-            <time dateTime={new Date(post.publishedAt).toISOString()}>
+            <time dateTime={new Date(post.publishedAt).toISOString()} suppressHydrationWarning>
               {formatDate(post.publishedAt)}
             </time>
           )}
