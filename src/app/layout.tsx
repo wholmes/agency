@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Mono, Yellowtail } from "next/font/google";
-import { GeistSans } from "geist/font";
+import { Fraunces, DM_Mono, Yellowtail, Geist } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import type { NavDropdownData } from "@/components/Navigation";
@@ -36,6 +35,13 @@ const dmMono = DM_Mono({
   display: "swap",
   variable: "--font-dm-mono",
   weight: ["300", "400", "500"],
+  preload: false,
+});
+
+const geistSans = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-sans",
   preload: false,
 });
 
@@ -131,7 +137,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${GeistSans.variable} ${dmMono.variable} ${yellowtail.variable} overflow-x-hidden`}
+      className={`${fraunces.variable} ${geistSans.variable} ${dmMono.variable} ${yellowtail.variable} overflow-x-hidden`}
     >
       <head>
         <meta name="theme-color" content="#0C0C0B" />
