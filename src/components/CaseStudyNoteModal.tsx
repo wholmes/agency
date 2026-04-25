@@ -45,23 +45,31 @@ export default function CaseStudyNoteModal({ note }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-tertiary transition-colors duration-300 hover:text-accent"
+        className="group inline-flex items-center gap-3 rounded-full px-5 py-2.5 transition-all duration-300"
+        style={{
+          background: "rgba(201,165,90,0.07)",
+          border: "1px solid rgba(201,165,90,0.18)",
+        }}
+        onMouseEnter={e => (e.currentTarget.style.background = "rgba(201,165,90,0.13)")}
+        onMouseLeave={e => (e.currentTarget.style.background = "rgba(201,165,90,0.07)")}
       >
         <span
-          className="inline-block size-1 rounded-full bg-accent/60 transition-all duration-300 group-hover:scale-150 group-hover:bg-accent"
+          className="inline-block size-1.5 rounded-full bg-accent/70 transition-all duration-300 group-hover:bg-accent"
           aria-hidden="true"
         />
-        A note on this project
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent/80 transition-colors duration-300 group-hover:text-accent">
+          A note on this project
+        </span>
         <svg
-          width="10"
-          height="10"
+          width="11"
+          height="11"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="opacity-50 transition-opacity duration-300 group-hover:opacity-100"
+          className="text-accent/50 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-accent"
           aria-hidden="true"
         >
           <path d="M5 12h14M12 5l7 7-7 7" />
