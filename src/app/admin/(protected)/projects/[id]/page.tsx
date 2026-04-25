@@ -166,6 +166,25 @@ export default async function AdminProjectEditPage({ params }: Props) {
             spellCheck={false}
           />
         </div>
+        {/* Case study note */}
+        <div className="form-field">
+          <label className="form-label" htmlFor="caseStudyNote">
+            Case study note <span className="font-normal text-text-tertiary">(optional)</span>
+          </label>
+          <p className="mb-2 text-[11px] text-text-tertiary leading-relaxed">
+            Markdown. When set, a subtle link appears below the hero screenshot on the public case study page, opening this note in a modal.
+          </p>
+          <textarea
+            id="caseStudyNote"
+            name="caseStudyNote"
+            rows={8}
+            defaultValue={p.caseStudyNote}
+            placeholder={"## A note on this project\n\nSome context about the work, the client relationship, or results that aren't shown publicly..."}
+            className="form-input font-mono text-sm"
+            spellCheck
+          />
+        </div>
+
         {/* Images */}
         <div className="rounded-lg border border-border p-5">
           <p className="mb-5 text-xs font-semibold uppercase tracking-wider text-text-tertiary">Images</p>

@@ -45,7 +45,8 @@ model Project {
   coverImage   String  @default("")   // Work listing card  — 1440 × 810 px  (16:9)
   heroImage    String  @default("")   // Case study hero    — 2200 × 1238 px (16:9), full width
   mobileImage  String  @default("")   // Phone mockup       — 780 × 1688 px  (9:19.5)
-  screenshots  String  @default("[]") // JSON array of { url: string; caption?: string }
+  screenshots      String  @default("[]") // JSON array of { url: string; caption?: string }
+  caseStudyNote    String  @default("")   // Optional Markdown note shown in a modal on the drilldown
 }
 
 model TeamMember {

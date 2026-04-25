@@ -23,6 +23,8 @@ export interface Project {
   mobileImage: string;
   /** Ordered gallery screenshots for the case study detail page */
   screenshots: { url: string; caption?: string }[];
+  /** Optional Markdown note shown in a modal on the case study page */
+  caseStudyNote: string;
 }
 
 export { getProject, getProjects } from "@/lib/cms/queries";

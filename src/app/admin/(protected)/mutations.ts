@@ -164,6 +164,7 @@ export async function updateProject(id: string, formData: FormData) {
       heroImage:    String(formData.get("heroImage")    ?? ""),
       mobileImage:  String(formData.get("mobileImage")  ?? ""),
       screenshots:  screenshotsJson,
+      caseStudyNote: String(formData.get("caseStudyNote") ?? ""),
     },
   });
   revalidatePath("/work");

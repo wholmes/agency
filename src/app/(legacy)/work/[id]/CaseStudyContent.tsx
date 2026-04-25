@@ -15,6 +15,7 @@ import { useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import type { Project } from "@/lib/projects";
 import type { CaseStudyUiLabels } from "@prisma/client";
 import ExpandableText from "@/components/ExpandableText";
+import CaseStudyNoteModal from "@/components/CaseStudyNoteModal";
 import ScreenshotGallery from "./ScreenshotGallery";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -539,6 +540,13 @@ export default function CaseStudyContent({
 
       {/* ── Hero image + mobile overlay ───────────────────────────── */}
       <HeroImageBlock project={project} />
+
+      {/* ── Case study note (optional) ────────────────────────────── */}
+      {project.caseStudyNote?.trim() && (
+        <div className="flex justify-center py-6">
+          <CaseStudyNoteModal note={project.caseStudyNote} />
+        </div>
+      )}
 
       {/* ── Screenshot gallery (only when screenshots exist) ─────── */}
       {project.screenshots.length > 0 && (
