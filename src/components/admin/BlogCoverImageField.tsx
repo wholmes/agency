@@ -56,7 +56,7 @@ export default function BlogCoverImageField({ defaultValue = "" }: { defaultValu
         Use a direct image URL (any host), or upload to your Amazon S3 bucket when env vars are set.
       </p>
 
-      <div className="mb-3 flex flex-wrap gap-2">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setMode("url")}
@@ -79,6 +79,15 @@ export default function BlogCoverImageField({ defaultValue = "" }: { defaultValu
         >
           Upload to Amazon S3
         </button>
+        {coverUrl.trim() && (
+          <button
+            type="button"
+            onClick={() => setCoverUrl("")}
+            className="ml-auto rounded-md border border-error/40 px-3 py-1.5 text-xs font-medium text-error/70 transition-colors hover:border-error hover:text-error"
+          >
+            Clear image
+          </button>
+        )}
       </div>
 
       <input type="hidden" name="coverImage" value={coverUrl} readOnly />
