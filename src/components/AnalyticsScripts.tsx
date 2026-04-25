@@ -26,15 +26,11 @@ export default function AnalyticsScripts({ gaId, gtmId }: Props) {
 
       {/* GTM <noscript> fallback — injected just after <body> via a portal */}
       {hasGtm && (
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-            title="Google Tag Manager"
-          />
-        </noscript>
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe>`,
+          }}
+        />
       )}
 
       {/* Google Analytics 4 — only load if GTM is NOT present (avoid double-counting) */}
