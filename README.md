@@ -132,18 +132,9 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | `/admin/industries` | Industries hub + list; `/admin/industries/new` creates a page; `/admin/industries/[slug]` edits `/industries/[slug]`. |
 | `/admin/about` | About page hero, story, values. |
 | `/admin/contact` | Contact page copy + contact form JSON config. |
-| `/admin/blog` | Journal articles: list, create (`/admin/blog/new`), edit (`/admin/blog/[id]`). **Cover:** paste any image URL or **upload to Amazon S3** (when AWS env vars are set). **Inline images in Markdown:** use **Upload to S3 & insert in body** to append `![Image](url)` at the cursor. Details: [Blog images (Amazon S3)](#blog-images-amazon-s3). |
+| `/admin/blog` | Journal articles: list, create (`/admin/blog/new`), edit (`/admin/blog/[id]`). **Cover:** paste any image URL or **upload to Amazon S3** (when AWS env vars are set). **Inline images in Markdown:** use **Upload to S3 & insert in body** to append `![Image](url)` at the cursor. The editor shows **image thumbnails** for the cover (URL or S3) and for the **last** inline S3 upload. Details: [Blog images (Amazon S3)](#blog-images-amazon-s3). |
 
-### Blog images (Amazon S3)
-
-Admin uploads use the server action `uploadBlogImageToS3` (`src/lib/admin/blog-s3-upload.ts`). Objects are written under **`blog/images/{timestamp}-{random}.{ext}`** with a public URL returned for the form or Markdown.
-
-1. Create an S3 bucket and IAM user with **`s3:PutObject`** on `arn:aws:s3:::YOUR_BUCKET/blog/*` (least privilege).
-2. Allow **public read** for that prefix via a bucket policy **or** front the bucket with **CloudFront** and set **`AWS_S3_PUBLIC_BASE_URL`** to the distribution origin URL (so returned links use your CDN).
-3. Set **`AWS_REGION`**, **`AWS_S3_BUCKET`**, **`AWS_ACCESS_KEY_ID`**, and **`AWS_SECRET_ACCESS_KEY`** on the host (see [environment variables](#environment-variables)).
-4. Redeploy or restart the dev server. **Image URL** mode still works without AWS (any `https://` image for the cover).
-
-**Behavior:**
+### Admin session, SEO, and extensions
 
 - **Session:** HTTP-only cookie, HMAC-signed, 7-day lifetime (`src/lib/admin/session.ts`).
 - **Authorization:** Protected routes use `requireAdminSession()`; server actions live in `src/app/admin/(protected)/mutations.ts` and `src/lib/admin/mutations-data.ts`.
@@ -151,6 +142,17 @@ Admin uploads use the server action `uploadBlogImageToS3` (`src/lib/admin/blog-s
 - **Weak password:** If `ADMIN_PASSWORD` is still the default placeholder, a warning banner appears in the admin shell.
 
 **Adding more editors:** Follow existing pages under `src/app/admin/(protected)/`, add server actions in `mutations.ts` or `mutations-data.ts`, and wire `revalidatePath` for affected public routes.
+
+### Blog images (Amazon S3)
+
+Admin uploads use the server action `uploadBlogImageToS3` (`src/lib/admin/blog-s3-upload.ts`). Objects are written under **`blog/images/{timestamp}-{random}.{ext}`** with a public URL returned for the form or Markdown. **`next.config.ts`** sets **`serverActions.bodySizeLimit`** to **12mb** so case-study screenshot payloads and blog image uploads do not hit the default Server Action size cap.
+
+1. Create an S3 bucket and IAM user with **`s3:PutObject`** on `arn:aws:s3:::YOUR_BUCKET/blog/*` (least privilege).
+2. **Public read for objects** — Browsers (cover preview, inline preview, and the public site) load images via `GET` on the object URL. IAM alone does not grant anonymous read: add a **bucket policy** allowing **`s3:GetObject`** for `arn:aws:s3:::YOUR_BUCKET/blog/*` (e.g. `Principal: "*"`), **or** use **CloudFront** (or another CDN) in front of the bucket and set **`AWS_S3_PUBLIC_BASE_URL`** so returned URLs point at the CDN. If **S3 Block Public Access** blocks the policy, adjust bucket/account settings so the policy can take effect (common cause of **AccessDenied** in the browser after a successful upload).
+3. Set **`AWS_REGION`** (or **`AWS_DEFAULT_REGION`**), **`AWS_S3_BUCKET`**, **`AWS_ACCESS_KEY_ID`**, and **`AWS_SECRET_ACCESS_KEY`** on the host (see [environment variables](#environment-variables)).
+4. Redeploy or restart the dev server after changing env. **Image URL** mode for the cover still works without AWS (any reachable `https://` image).
+
+**UI:** `BlogCoverImageField` and `BlogBodyImageInsert` (`src/components/admin/`) — previews call the same URLs the journal will use; if preview fails, check the object URL, bucket policy, and CORS (for third-party origins if applicable).
 
 ### Admin toasts (save feedback)
 
@@ -201,6 +203,7 @@ Success and error feedback for CMS saves is implemented in **`src/components/adm
 | Shared CTAs | `CtaSectionCopy` |
 | Footer | `FooterCopy` |
 | Contact | `ContactPageCopy`, `ContactFormConfig` |
+| **Journal / blog** | **`BlogPost`** — `slug`, `status` (`draft` \| `published`), `title`, `excerpt`, `body` (Markdown), `coverImage`, `author`, `authorTitle`, `tags` (JSON string array), SEO fields, `readingTime`, `publishedAt`, `featured`, `sortOrder` |
 | Case study template | `CaseStudyUiLabels` |
 | Nav / footer chrome | `SiteChrome` |
 | Industries | `IndustriesHub`, `IndustryPage` |
@@ -420,6 +423,11 @@ The `prisma migrate dev` command runs `prisma generate` automatically, but Turbo
 - Ensure `ADMIN_PASSWORD` is at least **8 characters** in `.env`.
 - Restart the dev server after changing `.env`.
 
+### Blog S3: "S3 is not configured" or upload succeeds but preview / site shows **AccessDenied**
+
+- **Not configured** — AWS env vars are missing on the process running Next.js (e.g. add them to `.env.local` locally and **restart** `npm run dev`). The admin UI only enables S3 when the server sees the bucket/region/credentials.
+- **AccessDenied on the object URL** — Upload used **`PutObject`** (IAM user); viewing uses **anonymous `GetObject`** (browser). Fix with a **bucket policy** (and Block Public Access) or a **CloudFront** distribution + **`AWS_S3_PUBLIC_BASE_URL`**, as in [Blog images (Amazon S3)](#blog-images-amazon-s3).
+
 ### Schema changes
 
 ```bash
@@ -451,9 +459,9 @@ scripts/                `screenshot-one.mts` — ScreenshotOne CLI (see README s
 src/app/admin/          Admin UI (login + CMS pages)
 src/app/                App Router routes, layouts, sitemap, robots
 src/components/         UI (sections, ScopeEstimator, ContactForm, …)
-src/components/admin/   Admin toast provider, AdminSaveForm, URL toast helper
+src/components/admin/   Admin toast provider, AdminSaveForm, URL toast, blog S3 fields (`BlogCoverImageField`, `BlogBodyImageInsert`), case study uploads
 src/components/icons/   Centralised SVG icon library (currentColor, 24×24 viewBox)
-src/lib/admin/          Session helpers, mutations-data, require-admin, screenshotone-capture
+src/lib/admin/          Session helpers, mutations-data, require-admin, `blog-s3-upload`, screenshotone-capture
 src/lib/cms/            Queries and shared CMS types
 src/lib/screenshotone.ts   ScreenshotOne `/take` client (presets, signing, fetch)
 ```
@@ -489,7 +497,7 @@ If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after t
 
 ## Deploying
 
-1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI. For case study **ScreenshotOne** capture, set **`SCREENSHOTONE_ACCESS_KEY`** (or `SCREENSHOTONE_API_KEY`) and **`SCREENSHOTONE_SECRET_KEY`** (or `SCREENSHOTONE_SECRET`) — see [ScreenshotOne](#screenshotone-admin-screenshot-captures).
+1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI. For case study **ScreenshotOne** capture, set **`SCREENSHOTONE_ACCESS_KEY`** (or `SCREENSHOTONE_API_KEY`) and **`SCREENSHOTONE_SECRET_KEY`** (or `SCREENSHOTONE_SECRET`) — see [ScreenshotOne](#screenshotone-admin-screenshot-captures). For **blog images on S3**, set the **AWS** variables from [environment variables](#environment-variables) and ensure the bucket allows public reads (or CloudFront) as in [Blog images (Amazon S3)](#blog-images-amazon-s3).
 2. Run migrations in CI or the release step: **`npx prisma migrate deploy`** with env vars injected (Vercel build usually has them), or locally **`npm run db:deploy`** which loads `.env` / `.env.local`. Do **not** use `migrate dev` against production.
 3. Run **`npm run build`** then **`npm run start`**, or use your host's Next.js preset.
 

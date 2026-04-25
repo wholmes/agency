@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import BrandLogoMark from "@/components/BrandLogoMark";
 import type { ServicesPageHero } from "@prisma/client";
 
 const HeroFieldCanvas = dynamic(() => import("@/components/HeroFieldCanvas"), {
@@ -57,7 +58,7 @@ export default function V2ServicesHero({ content }: { content: ServicesPageHero 
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <span className="inline-flex size-6 items-center justify-center rounded-full border border-[#c9a55a]/40 font-mono text-[11px] font-semibold text-[#c9a55a]">B</span>
+          <BrandLogoMark variant="mini" />
           <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/30">BrandMeetsCode · Services</span>
         </motion.div>
 

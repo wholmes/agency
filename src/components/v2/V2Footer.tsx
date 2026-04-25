@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import BrandLogoMark from "@/components/BrandLogoMark";
 import StackLogos from "@/components/StackLogos";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
@@ -130,9 +131,7 @@ export default function V2Footer({
               className="mb-4 inline-flex items-center gap-3 no-underline"
               aria-label="BrandMeetsCode — Home"
             >
-              <span className="inline-flex size-7 items-center justify-center rounded-full border border-[#c9a55a]/40 font-mono text-[12px] font-semibold text-[#c9a55a]">
-                B
-              </span>
+              <BrandLogoMark variant="footerDark" />
               <span className="font-display text-[15px] font-normal tracking-tight text-white/80">
                 Brand<em className="not-italic text-[#c9a55a]" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
               </span>
@@ -179,7 +178,7 @@ export default function V2Footer({
         {/* Bottom bar */}
         <div className="flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/20">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/20" suppressHydrationWarning>
               © {year} {chrome.copyrightBrandName}
             </span>
             <span className="text-white/10" aria-hidden="true">·</span>

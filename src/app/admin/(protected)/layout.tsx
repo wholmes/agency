@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import BrandLogoMark from "@/components/BrandLogoMark";
 import { AdminToastProvider } from "@/components/admin/AdminToast";
 import AdminKeyboardSave from "@/components/admin/AdminKeyboardSave";
 import AdminUrlToast from "@/components/admin/AdminUrlToast";
@@ -145,7 +146,10 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
       <div className="min-w-0 flex-1">
         <header className="max-h-[min(50dvh,24rem)] overflow-y-auto border-b border-border bg-surface px-4 py-4 md:hidden">
           <div className="mb-4 flex items-center justify-between">
-            <span className="font-display text-sm text-accent">CMS</span>
+            <span className="flex items-center gap-2 font-display text-sm text-accent">
+              <BrandLogoMark variant="admin" />
+              CMS
+            </span>
             <form action={logoutAction}>
               <button type="submit" className="text-xs text-text-tertiary">
                 Sign out

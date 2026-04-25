@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandLogoMark from "@/components/BrandLogoMark";
 import StackLogos from "./StackLogos";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 
@@ -29,12 +30,7 @@ export default function Footer({
               className="mb-5 inline-flex items-center gap-3"
               aria-label="BrandMeetsCode — Home"
             >
-              <span
-                className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-accent/50 text-accent opacity-90"
-                aria-hidden="true"
-              >
-                <span className="font-mono text-[0.8125rem] font-semibold leading-none">B</span>
-              </span>
+              <BrandLogoMark variant="footer" className="opacity-90" />
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
                 Brand<em className="inline-block -rotate-6 italic text-accent">Meets</em>Code
               </span>
@@ -80,7 +76,7 @@ export default function Footer({
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex items-center gap-4">
-              <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase">
+              <p className="font-mono text-[11px] tracking-[0.08em] text-text-tertiary uppercase" suppressHydrationWarning>
                 &copy; {year} {chrome.copyrightBrandName}
               </p>
               <span aria-hidden="true" className="text-border">·</span>

@@ -4,42 +4,48 @@ export const runtime = "edge";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
+const mono =
+  'ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace';
+
 export default function AppleIcon() {
   return new ImageResponse(
     (
       <div
         style={{
+          position: "relative",
           width: 180,
           height: 180,
           borderRadius: 40,
-          background: "#0e0e0e",
+          background: "#0c0c0b",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: "2px solid rgba(201,165,90,0.3)",
+          border: "2px solid rgba(201, 168, 76, 0.35)",
         }}
       >
-        {/* Gold radial glow behind the B */}
         <div
           style={{
             position: "absolute",
-            width: 120,
-            height: 120,
+            width: 140,
+            height: 140,
+            left: 20,
+            top: 20,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(201,165,90,0.18) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 68%)",
           }}
         />
         <span
           style={{
-            fontFamily: "serif",
-            fontSize: 96,
-            fontWeight: 700,
+            position: "relative",
+            fontFamily: mono,
+            fontSize: 56,
+            fontWeight: 600,
             color: "#c9a55a",
+            letterSpacing: "-0.05em",
             lineHeight: 1,
-            marginTop: 6,
           }}
         >
-          B
+          B/C
         </span>
       </div>
     ),

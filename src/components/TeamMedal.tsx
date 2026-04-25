@@ -158,7 +158,7 @@ function createTeamMedalTexture(
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // Engraved "B/C" — "B" and "C" in Georgia, "/" in Yellowtail to match the nav logo
+  // Engraved "B/C" monogram — Georgia + Yellowtail on the medal (nav/footer use mono ring mark)
   ctx.translate(cx, cy);
   ctx.rotate(-Math.PI / 2);
   ctx.textAlign = "center";

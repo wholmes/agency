@@ -8,6 +8,7 @@ import { parseOutcomeList } from "@/lib/service-icons";
 import type { ServiceOffering as ServiceOfferingModel } from "@prisma/client";
 import type { ServicesHomeSection } from "@prisma/client";
 import { appendUtmToUrl, utmFromFooterLinkDb } from "@/lib/utm";
+import BrandLogoMark from "@/components/BrandLogoMark";
 
 // ---------------------------------------------------------------------------
 // Fabricated UI panels — one per service slug
@@ -109,9 +110,7 @@ function BrandPanel() {
       {/* Logo area */}
       <div className="mb-5 flex h-16 items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.02]">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-full border border-[#c9a55a]/50 text-[#c9a55a]">
-            <span className="font-mono text-xs font-semibold">B</span>
-          </div>
+          <BrandLogoMark variant="footerDark" />
           <div className="h-3 w-20 rounded-full bg-white/10" />
         </div>
       </div>

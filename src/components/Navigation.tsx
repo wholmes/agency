@@ -9,6 +9,7 @@ import { ServiceIconGlyph } from "@/lib/service-icons";
 import type { AvailabilityStatus } from "@/lib/availability";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
 import { siteChromePrimaryCtaHref } from "@/lib/utm";
+import BrandLogoMark from "@/components/BrandLogoMark";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -437,11 +438,10 @@ export default function Navigation({
           >
             {/* Mobile: circle + wordmark */}
             <span className="flex items-center gap-3 md:hidden">
-              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-accent/50 text-accent transition-opacity [transition-duration:var(--duration-base)] group-hover:opacity-80">
-                <span className="font-mono text-sm font-semibold leading-none" aria-hidden="true">
-                  B
-                </span>
-              </span>
+              <BrandLogoMark
+                variant="nav"
+                className="transition-opacity [transition-duration:var(--duration-base)] group-hover:opacity-80"
+              />
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
                 Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
               </span>
@@ -450,9 +450,7 @@ export default function Navigation({
             {/* md–xl: fixed slot (circle width); pill expands over the nav — does not push layout */}
             <span className="relative hidden h-8 w-8 shrink-0 overflow-visible md:block xl:hidden">
               <span className="absolute top-1/2 left-0 z-[110] inline-flex h-8 max-w-8 -translate-y-1/2 items-center overflow-hidden rounded-full border border-accent/50 bg-bg/95 text-accent shadow-[0_8px_32px_rgb(0_0_0_/_0.45)] backdrop-blur-md transition-[max-width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:max-w-[min(280px,calc(100vw-8rem))] group-focus-within:max-w-[min(280px,calc(100vw-8rem))]">
-                <span className="inline-flex size-8 shrink-0 items-center justify-center" aria-hidden="true">
-                  <span className="font-mono text-sm font-semibold leading-none">B</span>
-                </span>
+                <BrandLogoMark variant="navInset" />
                 <span className="font-display max-w-0 overflow-hidden pr-3 text-md font-normal tracking-tight whitespace-nowrap text-text-primary opacity-0 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] -translate-x-1 group-hover:max-w-[min(220px,42vw)] group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:max-w-[min(220px,42vw)] group-focus-within:translate-x-0 group-focus-within:opacity-100">
                   Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
                 </span>
@@ -461,11 +459,10 @@ export default function Navigation({
 
             {/* xl+: circle + wordmark */}
             <span className="hidden items-center gap-3 xl:flex">
-              <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-accent/50 text-accent transition-opacity [transition-duration:var(--duration-base)] group-hover:opacity-80">
-                <span className="font-mono text-sm font-semibold leading-none" aria-hidden="true">
-                  B
-                </span>
-              </span>
+              <BrandLogoMark
+                variant="nav"
+                className="transition-opacity [transition-duration:var(--duration-base)] group-hover:opacity-80"
+              />
               <span className="font-display text-md font-normal tracking-tight text-text-primary">
                 Brand<em className="not-italic text-accent" style={{ fontFamily: "var(--font-yellowtail)", fontSize: "1.45em", lineHeight: 1, verticalAlign: "middle", marginInline: "0.08em" }}>/</em>Code
               </span>
