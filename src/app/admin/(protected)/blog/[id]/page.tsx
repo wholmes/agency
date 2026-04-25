@@ -58,15 +58,13 @@ export default async function AdminEditBlogPostPage({ params }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {post.status === "published" && (
-            <Link
-              href={`/blog/${post.slug}`}
-              target="_blank"
-              className="text-xs text-text-tertiary no-underline hover:text-accent transition-colors"
-            >
-              View ↗
-            </Link>
-          )}
+          <Link
+            href={`/blog/${post.slug}`}
+            target="_blank"
+            className="text-xs text-text-tertiary no-underline hover:text-accent transition-colors"
+          >
+            {post.status === "published" ? "View ↗" : "Preview ↗"}
+          </Link>
           <Link
             href="/admin/blog"
             className="text-sm text-text-tertiary no-underline hover:text-text-secondary"
