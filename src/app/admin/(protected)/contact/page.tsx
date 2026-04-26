@@ -48,8 +48,10 @@ export default async function AdminContactPage() {
             <input name="heroEmphasis" required defaultValue={copy.heroEmphasis} className="form-input" />
           </div>
           <div className="form-field">
-            <label className="form-label">Hero line 2 (after emphasis, e.g. leading space + text)</label>
-            <input name="heroLineAfterEm" required defaultValue={copy.heroLineAfterEm} className="form-input" />
+            <label className="form-label">
+              Hero line 2 (after emphasis, e.g. leading space + text) <span className="text-text-tertiary">— optional</span>
+            </label>
+            <input name="heroLineAfterEm" defaultValue={copy.heroLineAfterEm} className="form-input" />
           </div>
           <div className="form-field">
             <label className="form-label">Intro paragraph</label>
