@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { IconArrowUpRight, IconCheck } from "./icons";
 import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
 
@@ -29,12 +30,16 @@ export default function ContactForm({
   config,
   contactEmail,
   variant = "default",
+  thankYouPath = "/contact/thank-you",
 }: {
   config: ContactFormConfigParsed;
   contactEmail: string;
   /** `"v2"` — dark glass styling for the public marketing contact page */
   variant?: "default" | "v2";
+  /** After a successful v2 submit, go here (stable URL for GA4 / ad conversion goals). */
+  thankYouPath?: string;
 }) {
+  const router = useRouter();
   const [formState, setFormState] = useState<FormState>("idle");
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -78,15 +83,28 @@ export default function ContactForm({
     setFormState("loading");
 
     try {
+      const sp =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : null;
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          pageUrl: typeof window !== "undefined" ? window.location.href : "",
+          referrer: typeof document !== "undefined" ? document.referrer : "",
+          utmSource: sp?.get("utm_source") ?? "",
+          utmMedium: sp?.get("utm_medium") ?? "",
+          utmCampaign: sp?.get("utm_campaign") ?? "",
+        }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({})) as { error?: string };
         console.error("Contact form error:", data.error);
         setFormState("error");
+      } else if (variant === "v2") {
+        router.push(thankYouPath);
       } else {
         setFormState("success");
       }

@@ -108,6 +108,13 @@ export default async function AdminSeoPage() {
           <legend className="px-2 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
             Google Analytics 4
           </legend>
+          <p className="mb-4 rounded-md border border-border bg-surface-2/80 px-3 py-2.5 text-xs text-text-secondary">
+            <strong className="text-text-primary">Ignore Google’s “install this code on every page” step.</strong> This site
+            already loads the same gtag/GA4 tag from the Measurement ID you save here — do{" "}
+            <strong>not</strong> paste a second snippet in Vercel, layout files, or Tag Assistant duplicates.
+            If you use <strong>Tag Manager</strong> below, configure GA4 inside that GTM container; this app
+            will load GTM only and skip the direct gtag block (on purpose, to avoid double hits).
+          </p>
           <div className="mt-4 flex flex-col gap-4">
             {/* Status row */}
             {(hasGa || hasGtm) && (

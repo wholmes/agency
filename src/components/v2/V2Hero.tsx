@@ -153,7 +153,7 @@ export default function V2Hero() {
             ))}
           </div>
           <span className="hidden font-mono text-[10px] text-white/40 md:block">
-            500+ businesses served →
+            From the first launch to scale →
           </span>
         </motion.div>
       </div>

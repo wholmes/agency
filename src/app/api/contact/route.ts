@@ -10,7 +10,21 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { name, email, company, project, budget, message } = body;
+  const {
+    name,
+    email,
+    company,
+    project,
+    budget,
+    message,
+    pageUrl,
+    referrer,
+    utmSource,
+    utmMedium,
+    utmCampaign,
+  } = body;
+
+  const clip = (s: unknown, max: number) => (typeof s === "string" ? s.slice(0, max) : "");
 
   if (!name?.trim() || !email?.trim() || !message?.trim()) {
     return Response.json({ error: "Name, email and message are required." }, { status: 422 });
@@ -75,6 +89,27 @@ export async function POST(req: Request) {
   if (notifyResult.error) {
     console.error("Resend notify error:", notifyResult.error);
     return Response.json({ error: "Failed to send message. Please try again." }, { status: 500 });
+  }
+
+  // Persist for admin conversion tracking (after email succeeds)
+  try {
+    await prisma.contactLead.create({
+      data: {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        company: clip(company, 500),
+        project: clip(project, 500),
+        budget: clip(budget, 200),
+        message: clip(message, 20_000),
+        pageUrl: clip(pageUrl, 2000),
+        referrer: clip(referrer, 2000),
+        utmSource: clip(utmSource, 500),
+        utmMedium: clip(utmMedium, 500),
+        utmCampaign: clip(utmCampaign, 500),
+      },
+    });
+  } catch (err) {
+    console.error("ContactLead create failed (non-fatal):", err);
   }
 
   // Auto-reply to the submitter

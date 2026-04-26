@@ -190,6 +190,22 @@
   background-color: var(--color-accent-muted);
 }
 
+/* Work / case study — horizontal screenshot strip.
+   `overflow-x: auto` alone can make `overflow-y` compute to `auto`, which reserves a
+   vertical scrollbar gutter (thin light strip on the right) until layout settles.
+   Lock the block axis and hide scrollbars so thumbnails stay clean. */
+.work-gallery-strip {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.work-gallery-strip::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* --------------------------------------------------------------------------
    Components — shared UI patterns (Tailwind-composed)
    -------------------------------------------------------------------------- */

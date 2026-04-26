@@ -1,0 +1,31 @@
+# Local PostgreSQL for development — no Neon, no cold starts.
+# Credentials: postgres / postgres, DB name: agency, host port: 5434 (change left side if "port already allocated").
+#
+# IMPORTANT: If you change POSTGRES_USER or POSTGRES_PASSWORD, you MUST reset the data volume
+# or the old password stays forever:  npm run db:reset:local
+# (docker compose up alone does not re-apply env vars to an existing volume.)
+#
+#   npm run db:up
+#   npm run db:sync-dev-env && npm run db:deploy:local && npm run dev:local
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    # Map a free host port → 5432 in the container (avoid 5432/5433 if something else uses them).
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: agency
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d agency"]
+      interval: 1s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+    volumes:
+      - agency_pgdata:/var/lib/postgresql/data
+
+volumes:
+  agency_pgdata:

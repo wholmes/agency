@@ -18,21 +18,30 @@ import type { RedirectEntry } from "@/app/api/redirects/route";
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // In local dev, skip the in-app fetch: same-origin /api/redirects from middleware can
+  // block the only worker (middleware waits for Prisma, API never runs → tab spins forever),
+  // and a slow DB makes it worse. Production keeps DB-backed redirects.
+  if (process.env.NODE_ENV === "development") {
+    return NextResponse.next();
+  }
+
   // ── Fetch the redirect list (edge-cached, ~60 s TTL) ──────────────────────
   let redirects: RedirectEntry[] = [];
   try {
     const apiUrl = new URL("/api/redirects", request.nextUrl.origin);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8_000);
     const res = await fetch(apiUrl.toString(), {
-      // next: { revalidate } tells Next.js Data Cache to revalidate every 60 s
-      // when running on Vercel infrastructure.
       next: { revalidate: 60 },
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (res.ok) {
       const body = (await res.json()) as { redirects: RedirectEntry[] };
       redirects = body.redirects ?? [];
     }
   } catch {
-    // If the API is unreachable (e.g. cold-start race), fall through — no redirect.
+    // If the API is unreachable, times out, or DB is down — do not block the request.
     return NextResponse.next();
   }
 

@@ -22,6 +22,11 @@ const sections: {
         description: "JSON for navigation, footer columns, and utility links.",
         href: "/admin/chrome",
       },
+      {
+        title: "Contact conversions",
+        description: "Form submission counts and recent leads (saved when email sends).",
+        href: "/admin/contact-conversions",
+      },
     ],
   },
   {

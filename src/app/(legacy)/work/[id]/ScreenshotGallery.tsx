@@ -175,7 +175,7 @@ export default function ScreenshotGallery({ screenshots, accent }: Props) {
           </div>
 
           {/* Scrollable row */}
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none" role="list">
+          <div className="work-gallery-strip flex gap-4 pb-4" role="list">
             {screenshots.map((shot, idx) => (
               <motion.button
                 key={idx}

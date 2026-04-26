@@ -9,8 +9,9 @@
 // Local dev: if you only have one URL, duplicate it — set POSTGRES_PRISMA_URL to the same value as
 // DATABASE_URL. Production: copy both from Vercel (`vercel env pull .env.local`) or Neon dashboard.
 //
-// Prisma CLI reads `.env` only by default — use `npm run db:migrate`, `npm run db:deploy`, etc., which
-// load `.env` then `.env.local` so `vercel env pull` output is picked up.
+// Prisma CLI auto-loads `.env` and can override vars set by a shell — for local Docker use
+// `npm run db:deploy:local` / `db:migrate:local` (they load only `.env.docker`, see package.json).
+// For Neon/Vercel: `db:migrate` / `db:deploy` load `.env` then `.env.local`.
 //
 // When using Prisma Accelerate instead, switch docs in src/lib/prisma.ts and adjust URLs accordingly.
 
@@ -516,4 +517,23 @@ model EmailSettings {
   autoReplySubject String  @default("Got your message — I'll be in touch shortly")
   /// Opening line of the auto-reply ({{name}} is replaced)
   autoReplyOpening String  @default("Thanks for reaching out — I've received your message and will get back to you within 1–2 business days.")
+}
+
+/// Successful contact form submissions — for admin conversion tracking (not a full CRM)
+model ContactLead {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  name        String
+  email       String
+  company     String   @default("")
+  project     String   @default("")
+  budget      String   @default("")
+  message     String   @db.Text
+  pageUrl     String   @default("")
+  referrer    String   @default("")
+  utmSource   String   @default("")
+  utmMedium   String   @default("")
+  utmCampaign String   @default("")
+
+  @@index([createdAt])
 }

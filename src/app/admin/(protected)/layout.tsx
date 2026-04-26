@@ -14,6 +14,7 @@ const navGroups: { heading: string; items: { href: string; label: string }[] }[]
     items: [
       { href: "/admin/settings", label: "Site & availability" },
       { href: "/admin/seo", label: "SEO & Analytics" },
+      { href: "/admin/contact-conversions", label: "Contact conversions" },
       { href: "/admin/email", label: "Email settings" },
       { href: "/admin/footer", label: "Footer" },
       { href: "/admin/chrome", label: "Nav & footer links" },
