@@ -91,8 +91,12 @@ export default async function AdminServicesContentPage() {
             <input name="footerLinkHref" required defaultValue={homeSection.footerLinkHref} className="form-input" />
           </div>
           <UtmOptionalBlock
-            title="GA4 — Footer inline link UTM (optional)"
-            description="Appended to the footer link in the homepage services strip."
+            title="GA4 — Footer UTM (optional)"
+            description={
+              "Source, medium, campaign, and term apply to the sitewide footer “Start a project” CTA. " +
+                "The footer CTA’s utm_content is set automatically from the current URL path (e.g. home, work, services-web-design) so you can keep one campaign and segment by page. " +
+                "The utm_content field here is only used for the long inline text link in the homepage services section — not the big footer button."
+            }
             fieldNames={{
               source: "footerLinkUtmSource",
               medium: "footerLinkUtmMedium",

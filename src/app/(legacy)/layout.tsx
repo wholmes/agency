@@ -1,11 +1,13 @@
 import V2Footer from "@/components/v2/V2Footer";
-import { getFooterCopy, getSiteChrome, getSiteSettings } from "@/lib/cms/queries";
+import { getFooterCopy, getServicesHomeSection, getSiteChrome, getSiteSettings } from "@/lib/cms/queries";
+import { utmFromFooterLinkDb } from "@/lib/utm";
 
 export default async function LegacyLayout({ children }: { children: React.ReactNode }) {
-  const [footer, chrome, settings] = await Promise.all([
+  const [footer, chrome, settings, homeSection] = await Promise.all([
     getFooterCopy(),
     getSiteChrome(),
     getSiteSettings(),
+    getServicesHomeSection(),
   ]);
 
   return (
@@ -16,6 +18,7 @@ export default async function LegacyLayout({ children }: { children: React.React
         remoteBlurb={footer.remoteBlurb}
         contactEmail={settings.contactEmail}
         chrome={chrome}
+        contactUtmBase={utmFromFooterLinkDb(homeSection)}
         canvasVariant="cta"
         bridgeFromLight
       />

@@ -10,6 +10,7 @@ import {
   getSiteChrome,
   getSiteSettings,
 } from "@/lib/cms/queries";
+import { utmFromFooterLinkDb } from "@/lib/utm";
 
 export const revalidate = 300; // re-cache every 5 minutes
 
@@ -71,6 +72,7 @@ export default async function Home() {
         remoteBlurb={footer.remoteBlurb}
         contactEmail={settings.contactEmail}
         chrome={chrome}
+        contactUtmBase={utmFromFooterLinkDb(servicesHome)}
       />
     </>
   );

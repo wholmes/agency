@@ -110,7 +110,6 @@ export async function generateMetadata(): Promise<Metadata> {
             "max-snippet": -1,
           },
         },
-    alternates: { canonical: SITE_URL },
   };
 }
 
@@ -141,7 +140,6 @@ export default async function RootLayout({
     >
       <head>
         <meta name="theme-color" content="#0C0C0B" />
-        <link rel="canonical" href="https://brandmeetscode.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

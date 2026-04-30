@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import BrandLogoMark from "@/components/BrandLogoMark";
 import StackLogos from "@/components/StackLogos";
 import type { SiteChromeConfigParsed } from "@/lib/cms/site-chrome-types";
+import type { UtmParams } from "@/lib/utm";
+import FooterStartProjectCta from "./FooterStartProjectCta";
 
 const HeroFieldCanvas = dynamic(() => import("@/components/HeroFieldCanvas"), { ssr: false });
 
@@ -35,6 +37,8 @@ export default function V2Footer({
   remoteBlurb,
   contactEmail,
   chrome,
+  /** If set, "Start a project" appends these UTMs and sets `utm_content` from the current path. */
+  contactUtmBase,
   canvasVariant = "cta",
   bridgeFromLight = false,
 }: {
@@ -42,6 +46,7 @@ export default function V2Footer({
   remoteBlurb: string;
   contactEmail: string;
   chrome: SiteChromeConfigParsed;
+  contactUtmBase?: UtmParams;
   canvasVariant?: "home" | "services" | "cta";
   bridgeFromLight?: boolean;
 }) {
@@ -100,15 +105,28 @@ export default function V2Footer({
             </div>
             {/* Same as V2Hero CTA column — flex-col default stretch was full-width pill on mobile */}
             <div className="flex flex-col items-start gap-4 md:items-end">
-              <Link
-                href="/contact"
-                className="inline-flex w-fit items-center gap-2.5 rounded-full bg-[#c9a55a] px-7 py-3.5 font-body text-sm font-semibold text-[#080808] no-underline transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_0_28px_rgba(201,165,90,0.25)]"
-              >
-                Start a project
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
+              {contactUtmBase ? (
+                <FooterStartProjectCta
+                  baseUtm={contactUtmBase}
+                  data-cursor-label="Start a project"
+                  className="inline-flex w-fit items-center gap-2.5 rounded-full bg-[#c9a55a] px-7 py-3.5 font-body text-sm font-semibold text-[#080808] no-underline transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_0_28px_rgba(201,165,90,0.25)]"
+                >
+                  Start a project
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </FooterStartProjectCta>
+              ) : (
+                <Link
+                  href="/contact"
+                  className="inline-flex w-fit items-center gap-2.5 rounded-full bg-[#c9a55a] px-7 py-3.5 font-body text-sm font-semibold text-[#080808] no-underline transition-all duration-300 hover:bg-[#d4b46a] hover:shadow-[0_0_28px_rgba(201,165,90,0.25)]"
+                >
+                  Start a project
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
+                    <path d="M2 6.5h9M6.5 2l4.5 4.5L6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+              )}
               <a
                 href={`mailto:${contactEmail}`}
                 className="font-mono text-[12px] text-white/30 no-underline transition-colors hover:text-white/60"

@@ -12,9 +12,11 @@ import {
   getServicesContinuityIntro,
   getContinuityBlocks,
   getFooterCopy,
+  getServicesHomeSection,
   getSiteChrome,
   getSiteSettings,
 } from "@/lib/cms/queries";
+import { utmFromFooterLinkDb } from "@/lib/utm";
 
 export const metadata: Metadata = {
   title: "Services — Web Design, Development, Brand Strategy & Analytics",
@@ -47,6 +49,7 @@ export default async function ServicesPage() {
     continuityIntro,
     continuityBlocks,
     footer,
+    homeSection,
     chrome,
     settings,
   ] = await Promise.all([
@@ -56,6 +59,7 @@ export default async function ServicesPage() {
     getServicesContinuityIntro(),
     getContinuityBlocks(),
     getFooterCopy(),
+    getServicesHomeSection(),
     getSiteChrome(),
     getSiteSettings(),
   ]);
@@ -86,6 +90,7 @@ export default async function ServicesPage() {
         remoteBlurb={footer.remoteBlurb}
         contactEmail={settings.contactEmail}
         chrome={chrome}
+        contactUtmBase={utmFromFooterLinkDb(homeSection)}
         canvasVariant="cta"
       />
     </>

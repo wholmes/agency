@@ -104,6 +104,26 @@ export function utmFromCalendlyDb(row: {
   };
 }
 
+/**
+ * Value for `utm_content` on the sitewide footer "Start a project" → /contact link.
+ * Derived from the current path so source/medium/campaign can stay fixed in the CMS
+ * while content identifies which page the click came from.
+ */
+export function pathnameToFooterUtmContent(pathname: string | null | undefined): string {
+  if (pathname == null || pathname === "") return "home";
+  const t = pathname.replace(/\/$/, "") || "/";
+  if (t === "/") return "home";
+  return t.replace(/^\//, "").replace(/\//g, "-");
+}
+
+/** Merge static footer UTMs (from DB) with per-page `utm_content` (typically pathname-based). */
+export function mergeFooterCtaUtm(
+  base: UtmParams,
+  utmContent: string,
+): UtmParams {
+  return { ...base, utm_content: utmContent };
+}
+
 /** Header / mobile nav primary CTA href with optional JSON `utm*` fields. */
 export function siteChromePrimaryCtaHref(chrome: SiteChromeConfigParsed): string {
   const p = chrome.primaryCta;
