@@ -466,6 +466,25 @@ export const getBlogPostSlugs = cache(async (): Promise<string[]> => {
   return rows.map((r) => r.slug);
 });
 
+/** Sitemap — slugs + dates without loading markdown bodies */
+export const getBlogPostsForSitemap = cache(async () => {
+  return prisma.blogPost.findMany({
+    where: { status: "published" },
+    select: { slug: true, publishedAt: true, updatedAt: true },
+    orderBy: [{ publishedAt: "desc" }],
+  });
+});
+
+/** Sitemap — IDs only (avoids loading large image fields from Project rows) */
+export const getPublishedProjectIdsForSitemap = cache(async (): Promise<string[]> => {
+  const rows = await prisma.project.findMany({
+    where: { published: true },
+    select: { id: true },
+    orderBy: { sortOrder: "asc" },
+  });
+  return rows.map((r) => r.id);
+});
+
 export const getAllBlogPostsForAdmin = cache(async () => {
   const rows = await prisma.blogPost.findMany({
     orderBy: [{ createdAt: "desc" }],
