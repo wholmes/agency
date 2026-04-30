@@ -1,0 +1,10 @@
+# Example output when CMS "Block indexing" is OFF.
+# Live crawlers receive /robots.txt from src/app/robots.ts (NeXT.js App Router).
+# Do not add public/robots.txt — it conflicts with that route and ignores CMS noIndex.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+Sitemap: https://brandmeetscode.com/sitemap.xml

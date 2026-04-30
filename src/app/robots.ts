@@ -2,6 +2,11 @@ import type { MetadataRoute } from "next";
 import { getSeoSettings } from "@/lib/cms/queries";
 import { getPublicSiteUrl } from "@/lib/site-url";
 
+/**
+ * Robots Exclusion file — served at `/robots.txt` (do not add `public/robots.txt`:
+ * same URL would conflict and could bypass CMS `noIndex` → Disallow: /).
+ */
+
 /** Fresh robots when SEO toggles (e.g. staging → launch). */
 export const dynamic = "force-dynamic";
 
