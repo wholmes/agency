@@ -213,7 +213,7 @@ export default async function AdminSeoPage() {
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-medium text-green-400">✓ GTM is active</p>
                 <p className="rounded-md border border-border bg-surface-2/80 px-3 py-2.5 text-xs text-text-secondary">
-                  <strong className="text-text-primary">Meta Pixel:</strong> install only inside GTM (Meta tag template). Do not load the pixel separately in env or layout — avoid duplicate fires.
+                  <strong className="text-text-primary">Meta Pixel:</strong> install only inside GTM (Meta tag template). Do not load the pixel outside GTM (e.g. extra layout scripts) — avoid duplicate fires.
                   On internal navigations the site pushes{" "}
                   <code className="font-mono text-[11px]">virtual_page_view</code> to{" "}
                   <code className="font-mono text-[11px]">dataLayer</code>. In GTM add a trigger{" "}
