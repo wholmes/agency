@@ -1,6 +1,14 @@
 "use client";
 
 import Script from "next/script";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+
+declare global {
+  interface Window {
+    dataLayer?: Record<string, unknown>[];
+  }
+}
 
 interface Props {
   gaId?: string;
@@ -8,8 +16,32 @@ interface Props {
 }
 
 export default function AnalyticsScripts({ gaId, gtmId }: Props) {
+  const pathname = usePathname();
+  const prevPathForVirtualPv = useRef<string | null>(null);
+
   const hasGa = gaId && gaId.startsWith("G-");
   const hasGtm = gtmId && gtmId.startsWith("GTM-");
+
+  /**
+   * GTM fires its initial Page View on container load. Next.js App Router navigations do not reload
+   * the page — push a named event so tags (Meta Pixel, GA4, etc.) configured in GTM can fire again.
+   */
+  useEffect(() => {
+    if (!hasGtm || typeof window === "undefined") return;
+    window.dataLayer = window.dataLayer ?? [];
+
+    const prev = prevPathForVirtualPv.current;
+    prevPathForVirtualPv.current = pathname;
+
+    if (prev !== null && prev !== pathname) {
+      window.dataLayer.push({
+        event: "virtual_page_view",
+        page_path: pathname,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    }
+  }, [pathname, hasGtm]);
 
   return (
     <>

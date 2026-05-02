@@ -210,7 +210,18 @@ export default async function AdminSeoPage() {
               </p>
             </div>
             {hasGtm && (
-              <p className="text-xs font-medium text-green-400">✓ GTM is active</p>
+              <div className="flex flex-col gap-2">
+                <p className="text-xs font-medium text-green-400">✓ GTM is active</p>
+                <p className="rounded-md border border-border bg-surface-2/80 px-3 py-2.5 text-xs text-text-secondary">
+                  <strong className="text-text-primary">Meta Pixel:</strong> install only inside GTM (Meta tag template). Do not load the pixel separately in env or layout — avoid duplicate fires.
+                  On internal navigations the site pushes{" "}
+                  <code className="font-mono text-[11px]">virtual_page_view</code> to{" "}
+                  <code className="font-mono text-[11px]">dataLayer</code>. In GTM add a trigger{" "}
+                  <strong className="text-text-secondary">Custom Event</strong> name{" "}
+                  <code className="font-mono text-[11px]">virtual_page_view</code> and attach your Meta{" "}
+                  <strong className="text-text-secondary">Page View</strong> (and GA4 page_view if you route GA4 through GTM too).
+                </p>
+              </div>
             )}
           </div>
         </fieldset>
