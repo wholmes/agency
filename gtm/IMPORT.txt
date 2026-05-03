@@ -38,3 +38,36 @@ Admin → Export container and compare structure to this file. Official referenc
 https://support.google.com/tagmanager/answer/6106997
 
 Known enum: container usageContext must be WEB (uppercase), not web — required by import.
+
+TROUBLESHOOTING (PRODUCTION CONSOLE / GTM PREVIEW)
+-------------------------------------------------
+You may see messages like:
+  Invalid Ecommerce event name "gtm.init_consent" / "gtm.js" / "gtm.dom" / "gtm.load"
+  [WARN] data.event "form_start" is not a valid event
+  [ERROR] ttq not found
+  TikTok Pixel - Invalid Event Name Format
+
+What they mean:
+
+1) gtm.* events — These are normal Google Tag Manager lifecycle events (container boot).
+   They are NOT ecommerce events. Warnings usually come from Tag Assistant / Preview debug
+   mode or from a tag that validates event names against GA4 ecommerce. They are noisy but
+   harmless unless you misconfigured a tag to treat every event as a purchase.
+
+2) form_start / form_submit — From GA4 Enhanced Measurement (automatic form tracking). Same
+   story: not "ecommerce" events; a strict validator or wrong tag wiring causes the warning.
+   Fix in GTM: do not send all gtag events to TikTok/Meta as ecommerce; use explicit triggers.
+
+3) ttq not found + TikTok "Invalid Event Name" — The TikTok browser pixel (ttq) is missing
+   OR a GTM tag is forwarding GA4/gtag events to TikTok without filtering. TikTok only
+   accepts specific event names (e.g. CompleteRegistration, SubmitForm, ViewContent).
+   Forwarding "gtm.init", "gtm.dom", "form_start", etc. causes rejections.
+   Fix in GTM: TikTok tag(s) should fire only on dedicated triggers (e.g. Custom Event
+   generate_lead), not on "All pages" + every GA4 event, and ensure the TikTok base snippet
+   loads before dependent tags (or use server-side Events API only).
+
+4) connect.facebook.net ... ERR_BLOCKED_BY_CLIENT — Almost always an ad blocker or strict
+   privacy extension; not a site bug.
+
+5) /api/contact 500 — Application / Resend delivery, unrelated to GTM. Check Vercel logs
+   for Resend errors and verify From domain + RESEND_API_KEY.

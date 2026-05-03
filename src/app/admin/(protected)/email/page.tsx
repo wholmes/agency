@@ -9,6 +9,13 @@ export const metadata = { title: "Admin — Email settings" };
 export default async function AdminEmailPage() {
   const s = await prisma.emailSettings.findUniqueOrThrow({ where: { id: 1 } });
   const hasApiKey = !!(process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "re_YOUR_KEY_HERE");
+  const envFromOverride = (process.env.CONTACT_FROM_DOMAIN ?? "").trim();
+  const effectiveFrom = (s.fromAddress.trim() || envFromOverride || "onboarding@resend.dev").trim();
+  const fromUsesResendTest = /@resend\.dev$/i.test(effectiveFrom);
+  const envForcesTestFrom =
+    !s.fromAddress.trim() &&
+    envFromOverride.length > 0 &&
+    /@resend\.dev$/i.test(envFromOverride);
 
   return (
     <div className="mx-auto max-w-xl">
@@ -59,6 +66,29 @@ export default async function AdminEmailPage() {
           )}
         </span>
       </div>
+
+      {fromUsesResendTest && (
+        <div className="mb-8 flex items-start gap-3 rounded-lg border border-amber-600/40 bg-amber-950/40 px-4 py-3 text-sm text-amber-100">
+          <span className="mt-0.5" aria-hidden="true">
+            ⓘ
+          </span>
+          <span>
+            <strong>Contact form uses Resend’s test “From” address.</strong> Verifying DNS in Resend
+            does not change this until you set <strong>From address</strong> below to something like{" "}
+            <code className="font-mono text-xs">noreply@yourverifieddomain.com</code> and click{" "}
+            <strong>Save</strong>. While “From” ends with <code className="font-mono text-xs">@resend.dev</code>,
+            Resend only delivers to your Resend account email — not your notification inbox.
+            {envForcesTestFrom ? (
+              <>
+                {" "}
+                <code className="font-mono text-xs">CONTACT_FROM_DOMAIN</code> on the host is set to a test
+                address and the database &ldquo;From address&rdquo; is empty — set From below or fix the env
+                var.
+              </>
+            ) : null}
+          </span>
+        </div>
+      )}
 
       <AdminSaveForm action={updateEmailSettings} className="flex flex-col gap-6">
         {/* Delivery */}

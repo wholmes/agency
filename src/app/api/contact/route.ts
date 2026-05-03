@@ -90,8 +90,9 @@ export async function POST(req: Request) {
 
   if (notifyResult.error) {
     console.error("Resend notify error:", JSON.stringify(notifyResult.error));
+    console.error("Contact send attempted with fromAddress:", fromAddress, "notify:", notifyEmail);
     const body: { error: string; devResendError?: unknown } = {
-      error: "Failed to send message. Please try again.",
+      error: contactSendUserError(notifyResult.error),
     };
     if (process.env.NODE_ENV === "development") {
       body.devResendError = notifyResult.error;
@@ -154,6 +155,25 @@ export async function POST(req: Request) {
   });
 
   return Response.json({ ok: true, ...(leadId ? { leadId } : {}) });
+}
+
+/** Map Resend failures to a short message; visitors see `error` in the contact form UI. */
+function contactSendUserError(resendError: unknown): string {
+  const msg =
+    typeof resendError === "object" &&
+    resendError !== null &&
+    "message" in resendError &&
+    typeof (resendError as { message: unknown }).message === "string"
+      ? (resendError as { message: string }).message
+      : "";
+  if (
+    msg.includes("only send testing emails") ||
+    msg.includes("verify a domain") ||
+    msg.includes("verify a domain at resend.com")
+  ) {
+    return "Email is still sending from Resend’s test address. In Admin → Email settings, set “From address” to an address on your verified domain (not @resend.dev), save, then try again. On Vercel, remove or update CONTACT_FROM_DOMAIN if it forces a test address.";
+  }
+  return "Failed to send message. Please try again.";
 }
 
 function buildNotifyHtml(d: {
