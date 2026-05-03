@@ -137,6 +137,7 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${fraunces.variable} ${geistSans.variable} ${dmMono.variable} ${yellowtail.variable} overflow-x-hidden`}
+      suppressHydrationWarning
     >
       <head>
         <meta name="theme-color" content="#0C0C0B" />
@@ -163,7 +164,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="font-body overflow-x-hidden">
+      <body className="font-body overflow-x-hidden" suppressHydrationWarning>
         {/* Clips any wide descendants (nav chrome, transformed motion, etc.) site-wide */}
         <div className="relative min-h-dvh w-full min-w-0 overflow-x-hidden">
           <SmoothScroll />
