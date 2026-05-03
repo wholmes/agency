@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin/require-admin";
 import { optionalFormString } from "@/lib/admin/optional-form-string";
 import { isValidProjectIdSegment, normalizeProjectId } from "@/lib/admin/project-id";
-import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
+import type { ContactFormConfigParsed, ContactFormError } from "@/lib/cms/contact-form-types";
 
 function parseJsonField(raw: string, fallback: unknown): string {
   try {
@@ -445,6 +445,35 @@ export async function updateContactPageCopy(formData: FormData) {
 }
 
 export type ContactFormJsonState = { error?: string } | null;
+
+export async function updateContactFormErrorSettings(formData: FormData) {
+  await requireAdminSession();
+  const row = await prisma.contactFormConfig.findUniqueOrThrow({ where: { id: 1 } });
+  let parsed: ContactFormConfigParsed;
+  try {
+    parsed = JSON.parse(row.configJson) as ContactFormConfigParsed;
+  } catch {
+    throw new Error("Invalid contact form config in database.");
+  }
+  const generic = String(formData.get("errorGeneric") ?? "").trim();
+  if (!generic) {
+    throw new Error("Error message text is required.");
+  }
+  const rawDisplay = String(formData.get("errorDisplayEmail") ?? "").trim();
+  const displayEmail =
+    rawDisplay && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawDisplay) ? rawDisplay : "";
+  if (rawDisplay && !displayEmail) {
+    throw new Error("Enter a valid email for the address shown in the error, or leave it blank.");
+  }
+  const nextError: ContactFormError = { generic };
+  if (displayEmail) nextError.displayEmail = displayEmail;
+  parsed.error = nextError;
+  await prisma.contactFormConfig.update({
+    where: { id: 1 },
+    data: { configJson: JSON.stringify(parsed) },
+  });
+  revalidatePath("/contact");
+}
 
 export async function updateContactFormJson(
   _prev: ContactFormJsonState,

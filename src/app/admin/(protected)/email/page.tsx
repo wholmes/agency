@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import AdminToggle from "@/components/admin/AdminToggle";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +15,14 @@ export default async function AdminEmailPage() {
       <h1 className="font-display mb-2 text-2xl font-light tracking-tight">Email settings</h1>
       <p className="mb-8 text-sm text-text-secondary">
         Configure where contact form submissions are delivered and how replies are sent.
+      </p>
+      <p className="mb-8 text-sm text-text-secondary">
+        To edit the red &ldquo;something went wrong&rdquo; text under the contact form (and which address
+        appears in <code className="font-mono text-xs">{"{{email}}"}</code> there), use{" "}
+        <Link href="/admin/contact" className="text-accent underline hover:text-text-primary">
+          Contact → Contact form — error message
+        </Link>
+        . That wording is separate from the notification address below.
       </p>
 
       {/* API key status banner */}
@@ -123,7 +132,9 @@ export default async function AdminEmailPage() {
                 </a>
                 . Use{" "}
                 <code className="font-mono">onboarding@resend.dev</code> for testing until your
-                domain is verified.
+                domain is verified — Resend only delivers those messages to a narrow set of test
+                recipients, so production contact forms need a verified domain and an address on
+                that domain here.
               </p>
             </div>
           </div>

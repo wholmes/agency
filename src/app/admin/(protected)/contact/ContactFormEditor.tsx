@@ -41,7 +41,9 @@ export default function ContactFormEditor({ initialJson }: { initialJson: string
         ) : (
           <p className="text-xs text-text-tertiary">
             Must match <code className="font-mono">ContactFormConfigParsed</code>: labels, budgetOptions, projectOptions,
-            placeholders, validation, submit, success, error, footerNote, etc.
+            placeholders, validation, submit, success, error (<code className="font-mono">generic</code>, optional{" "}
+            <code className="font-mono">displayEmail</code>), footerNote, etc. Error copy can also be edited above without
+            touching JSON.
           </p>
         )}
       </div>

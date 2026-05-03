@@ -1,0 +1,40 @@
+BrandMeetsCode — GTM web container import (bmc-web-container-import.json)
+============================================================================
+
+WHAT'S IN THE FILE
+------------------
+- User variables: Cookie - bmc_vid; Data Layer vars for page_location, page_title,
+  page_path, currency, value, form_id (used when you add GA4 Event tags yourself).
+- Triggers: All Pages; Custom Event virtual_page_view; Custom Event generate_lead.
+- Tags: One Google tag (googtag) with measurement ID G-CZWQMF2S67, server_container_url
+  https://brandmeetscode.com/metrics, send_page_view true, client_id = {{Cookie - bmc_vid}}.
+
+IMPORTANT
+---------
+You likely ALREADY have a Google tag and variables in your workspace. Importing can CREATE
+DUPLICATES. Prefer importing into an EMPTY workspace or choose Merge and rename conflicts.
+
+HOW TO IMPORT
+-------------
+1. tagmanager.google.com → Web container → Admin → Import container.
+2. Choose workspace → Merge (recommended) or Overwrite (destructive).
+3. Select bmc-web-container-import.json.
+4. Resolve conflicts: if names clash with your existing Google tag, rename the imported
+   tag or skip duplicates.
+
+BEFORE PUBLISHING
+-----------------
+- Replace measurement ID in the JSON before import if yours is not G-CZWQMF2S67; or edit
+  the tag after import.
+- Edit server_container_url if your first-party metrics URL differs.
+- Optional: Add two GA4 Event tags (type GA4 Event in UI) firing on triggers
+  CE - virtual_page_view and CE - generate_lead, linked to the same Google tag / GA4,
+  using the DL-* variables for event parameters. This repo pushes those dataLayer keys.
+
+IF IMPORT FAILS
+---------------
+GTM's JSON format varies slightly by UI version. Create one tag in the UI, then use
+Admin → Export container and compare structure to this file. Official reference:
+https://support.google.com/tagmanager/answer/6106997
+
+Known enum: container usageContext must be WEB (uppercase), not web — required by import.

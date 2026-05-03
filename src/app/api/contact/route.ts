@@ -58,16 +58,18 @@ export async function POST(req: Request) {
     /* non-fatal — fall back */
   }
 
-  const notifyEmail =
+  const notifyEmail = (
     settings?.notifyEmail ||
     process.env.CONTACT_TO_EMAIL ||
-    "";
+    ""
+  ).trim();
 
-  const fromName = settings?.fromName || "BrandMeetsCode";
-  const fromAddress =
+  const fromName = (settings?.fromName || "BrandMeetsCode").trim() || "BrandMeetsCode";
+  const fromAddress = (
     settings?.fromAddress ||
     process.env.CONTACT_FROM_DOMAIN ||
-    "onboarding@resend.dev";
+    "onboarding@resend.dev"
+  ).trim();
   const from = `${fromName} <${fromAddress}>`;
 
   if (!notifyEmail) {
@@ -87,8 +89,14 @@ export async function POST(req: Request) {
   });
 
   if (notifyResult.error) {
-    console.error("Resend notify error:", notifyResult.error);
-    return Response.json({ error: "Failed to send message. Please try again." }, { status: 500 });
+    console.error("Resend notify error:", JSON.stringify(notifyResult.error));
+    const body: { error: string; devResendError?: unknown } = {
+      error: "Failed to send message. Please try again.",
+    };
+    if (process.env.NODE_ENV === "development") {
+      body.devResendError = notifyResult.error;
+    }
+    return Response.json(body, { status: 500 });
   }
 
   // Persist for admin conversion tracking (after email succeeds)
@@ -123,12 +131,18 @@ export async function POST(req: Request) {
       settings?.autoReplyOpening ||
       "Thanks for reaching out — I've received your message and will get back to you within 1–2 business days.";
 
-    await resend.emails.send({
+    const autoReplyResult = await resend.emails.send({
       from,
       to: email,
       subject,
       html: buildAutoReplyHtml({ name, opening, notifyEmail }),
     });
+    if (autoReplyResult.error) {
+      console.error(
+        "Resend auto-reply error (inquiry notification was sent):",
+        JSON.stringify(autoReplyResult.error),
+      );
+    }
   }
 
   // Server-side GA4 event — fire and forget

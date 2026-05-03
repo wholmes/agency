@@ -483,6 +483,7 @@ If **GTM** is set in `/admin/seo`, the app loads **GTM only** and does **not** a
 | `src/lib/analytics.ts` | Measurement Protocol. |
 | `src/app/api/contact/route.ts` | Example **`trackEvent`** after a successful lead. |
 | `cloudflare/workers/sgtm-metrics-proxy.mjs` | Optional same-origin **`/metrics`** → Cloud Run proxy. |
+| `gtm/bmc-web-container-import.json` | Optional **web** GTM container import (Google tag + `bmc_vid` + triggers); see `gtm/IMPORT.txt`. |
 
 ---
 

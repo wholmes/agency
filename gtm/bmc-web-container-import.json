@@ -1,0 +1,161 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-05-03 12:00:00",
+  "containerVersion": {
+    "path": "accounts/0/containers/0/versions/0",
+    "name": "BMC web — Google tag, bmc_vid, SPA + lead triggers",
+    "container": {
+      "path": "accounts/0/containers/0",
+      "accountId": "0",
+      "containerId": "0",
+      "name": "BMC Web import template",
+      "publicId": "GTM-XXXXXXX",
+      "usageContext": ["WEB"]
+    },
+    "variable": [
+      {
+        "name": "Cookie - bmc_vid",
+        "type": "k",
+        "variableId": "1",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "bmc_vid" }
+        ]
+      },
+      {
+        "name": "DL - page_location",
+        "type": "v",
+        "variableId": "2",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "page_location" }
+        ]
+      },
+      {
+        "name": "DL - page_title",
+        "type": "v",
+        "variableId": "3",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "page_title" }
+        ]
+      },
+      {
+        "name": "DL - page_path",
+        "type": "v",
+        "variableId": "4",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "page_path" }
+        ]
+      },
+      {
+        "name": "DL - currency",
+        "type": "v",
+        "variableId": "5",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "currency" }
+        ]
+      },
+      {
+        "name": "DL - value",
+        "type": "v",
+        "variableId": "6",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "value" }
+        ]
+      },
+      {
+        "name": "DL - form_id",
+        "type": "v",
+        "variableId": "7",
+        "parameter": [
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" },
+          { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" },
+          { "type": "TEMPLATE", "key": "name", "value": "form_id" }
+        ]
+      }
+    ],
+    "trigger": [
+      {
+        "name": "All Pages",
+        "type": "PAGEVIEW",
+        "triggerId": "1"
+      },
+      {
+        "name": "CE - virtual_page_view",
+        "type": "CUSTOM_EVENT",
+        "triggerId": "2",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "virtual_page_view" }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CE - generate_lead",
+        "type": "CUSTOM_EVENT",
+        "triggerId": "3",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "generate_lead" }
+            ]
+          }
+        ]
+      }
+    ],
+    "tag": [
+      {
+        "name": "Google tag — GA4 (BMC template)",
+        "type": "googtag",
+        "tagId": "10",
+        "firingTriggerId": ["1"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "consentSettings": { "consentStatus": "NOT_SET" },
+        "parameter": [
+          { "type": "TEMPLATE", "key": "tagId", "value": "G-CZWQMF2S67" },
+          {
+            "type": "LIST",
+            "key": "configSettingsTable",
+            "list": [
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "parameter", "value": "server_container_url" },
+                  { "type": "TEMPLATE", "key": "parameterValue", "value": "https://brandmeetscode.com/metrics" }
+                ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "parameter", "value": "send_page_view" },
+                  { "type": "TEMPLATE", "key": "parameterValue", "value": "true" }
+                ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "parameter", "value": "client_id" },
+                  { "type": "TEMPLATE", "key": "parameterValue", "value": "{{Cookie - bmc_vid}}" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

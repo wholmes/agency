@@ -1,7 +1,11 @@
 import AdminSaveForm from "@/components/admin/AdminSaveForm";
 import { UtmOptionalBlock } from "@/components/admin/UtmOptionalBlock";
 import { prisma } from "@/lib/prisma";
-import { updateContactPageCopy } from "@/lib/admin/mutations-data";
+import {
+  updateContactFormErrorSettings,
+  updateContactPageCopy,
+} from "@/lib/admin/mutations-data";
+import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
 import ContactFormEditor from "./ContactFormEditor";
 
 export const metadata = { title: "Admin — Contact" };
@@ -14,11 +18,23 @@ function prettyJson(s: string): string {
   }
 }
 
+function parseContactFormConfig(json: string): ContactFormConfigParsed | null {
+  try {
+    return JSON.parse(json) as ContactFormConfigParsed;
+  } catch {
+    return null;
+  }
+}
+
 export default async function AdminContactPage() {
   const [copy, formConfig] = await Promise.all([
     prisma.contactPageCopy.findUniqueOrThrow({ where: { id: 1 } }),
     prisma.contactFormConfig.findUniqueOrThrow({ where: { id: 1 } }),
   ]);
+
+  const formParsed = parseContactFormConfig(formConfig.configJson);
+  const errorGeneric = formParsed?.error?.generic ?? "";
+  const errorDisplayEmail = formParsed?.error?.displayEmail ?? "";
 
   return (
     <div className="mx-auto max-w-2xl space-y-16">
@@ -112,6 +128,57 @@ export default async function AdminContactPage() {
           />
           <button type="submit" className="btn btn-primary w-fit">
             Save copy
+          </button>
+        </AdminSaveForm>
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-text-tertiary">
+          Contact form — error message
+        </h2>
+        <p className="mb-6 text-sm text-text-secondary">
+          Shown when submission fails (for example email delivery not configured). Use{" "}
+          <code className="font-mono text-xs">{"{{email}}"}</code> in the text where the address
+          should appear. The optional field below overrides which address fills{" "}
+          <code className="font-mono text-xs">{"{{email}}"}</code> here only — it does not change
+          your site-wide contact email in the footer or elsewhere.
+        </p>
+        <AdminSaveForm
+          action={updateContactFormErrorSettings}
+          className="flex flex-col gap-4"
+          successMessage="Error message saved"
+        >
+          <div className="form-field">
+            <label className="form-label" htmlFor="errorGeneric">
+              Message
+            </label>
+            <textarea
+              id="errorGeneric"
+              name="errorGeneric"
+              required
+              rows={3}
+              defaultValue={errorGeneric}
+              className="form-input"
+              placeholder="Something went wrong. Please try emailing us directly at {{email}}"
+            />
+          </div>
+          <div className="form-field">
+            <label className="form-label" htmlFor="errorDisplayEmail">
+              Address for <code className="font-mono text-xs">{"{{email}}"}</code>{" "}
+              <span className="font-normal text-text-tertiary">— optional</span>
+            </label>
+            <input
+              id="errorDisplayEmail"
+              name="errorDisplayEmail"
+              type="email"
+              defaultValue={errorDisplayEmail}
+              className="form-input"
+              placeholder="Leave blank to use Settings → contact email"
+              autoComplete="off"
+            />
+          </div>
+          <button type="submit" className="btn btn-primary w-fit">
+            Save error message
           </button>
         </AdminSaveForm>
       </section>

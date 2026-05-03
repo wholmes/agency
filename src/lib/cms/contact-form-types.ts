@@ -33,6 +33,8 @@ export type ContactFormSuccess = {
 
 export type ContactFormError = {
   generic: string;
+  /** If set, replaces {{email}} in generic for this error notice only (site contact email stays unchanged elsewhere). */
+  displayEmail?: string;
 };
 
 export type ContactFormConfigParsed = {

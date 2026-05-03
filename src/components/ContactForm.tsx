@@ -106,9 +106,14 @@ export default function ContactForm({
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
         leadId?: string;
+        devResendError?: unknown;
       };
       if (!res.ok) {
-        console.error("Contact form error:", data.error);
+        if (process.env.NODE_ENV === "development" && data.devResendError != null) {
+          console.error("Contact form error:", data.error, "| Resend:", data.devResendError);
+        } else {
+          console.error("Contact form error:", data.error);
+        }
         setFormState("error");
       } else {
         const leadId = typeof data.leadId === "string" ? data.leadId : undefined;
@@ -323,7 +328,10 @@ export default function ContactForm({
 
         {formState === "error" && (
           <p className="text-center text-sm text-error" role="alert">
-            {interpolateEmail(error.generic, contactEmail)}
+            {interpolateEmail(
+              error.generic,
+              error.displayEmail?.trim() || contactEmail,
+            )}
           </p>
         )}
 
