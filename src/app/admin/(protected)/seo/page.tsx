@@ -220,6 +220,11 @@ export default async function AdminSeoPage() {
                   <strong className="text-text-secondary">Custom Event</strong> name{" "}
                   <code className="font-mono text-[11px]">virtual_page_view</code> and attach your Meta{" "}
                   <strong className="text-text-secondary">Page View</strong> (and GA4 page_view if you route GA4 through GTM too).
+                  Contact conversions push{" "}
+                  <code className="font-mono text-[11px]">generate_lead</code> (with{" "}
+                  <code className="font-mono text-[11px]">user_data.email_address</code>) — use a{" "}
+                  <strong className="text-text-secondary">Custom Event</strong> trigger and forward to server GTM / TikTok
+                  as you configured.
                 </p>
               </div>
             )}

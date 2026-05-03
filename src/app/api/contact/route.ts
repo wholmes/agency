@@ -92,8 +92,9 @@ export async function POST(req: Request) {
   }
 
   // Persist for admin conversion tracking (after email succeeds)
+  let leadId: string | undefined;
   try {
-    await prisma.contactLead.create({
+    const lead = await prisma.contactLead.create({
       data: {
         name: name.trim(),
         email: email.trim().toLowerCase(),
@@ -108,6 +109,7 @@ export async function POST(req: Request) {
         utmCampaign: clip(utmCampaign, 500),
       },
     });
+    leadId = lead.id;
   } catch (err) {
     console.error("ContactLead create failed (non-fatal):", err);
   }
@@ -132,11 +134,12 @@ export async function POST(req: Request) {
   // Server-side GA4 event — fire and forget
   void trackEvent("generate_lead", {
     form_name: "contact",
+    ...(leadId ? { event_id: leadId } : {}),
     ...(project ? { project_type: project } : {}),
     ...(budget ? { budget_range: budget } : {}),
   });
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true, ...(leadId ? { leadId } : {}) });
 }
 
 function buildNotifyHtml(d: {

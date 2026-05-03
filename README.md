@@ -2,6 +2,22 @@
 
 Premium marketing site for **BrandMeetsCode**, built with **Next.js 16** (App Router), **React 19**, **Tailwind CSS 4**, and **Prisma 5**. Page copy, case studies, services, navigation, forms, and most UI strings live in a **Prisma-backed database**. A password-protected **admin UI** at **`/admin`** edits frequently changed content and case studies; **Prisma Studio** and SQL remain available for everything else.
 
+## Table of contents
+
+- [Requirements](#requirements)
+- [Quick start (local)](#quick-start-local)
+- [Environment variables](#environment-variables)
+- [Admin UI (`/admin`)](#admin-ui-admin)
+- [Database and CMS](#database-and-cms)
+- [ScreenshotOne (admin screenshot captures)](#screenshotone-admin-screenshot-captures)
+- [Key components](#key-components)
+- [Analytics, GTM, and server-side tagging](#analytics-gtm-and-server-side-tagging)
+- [Troubleshooting](#troubleshooting)
+- [Project layout](#project-layout)
+- [Custom cursor](#custom-cursor)
+- [Deploying](#deploying)
+- [Learn more](#learn-more)
+
 ---
 
 ## Requirements
@@ -111,7 +127,7 @@ In production, use a **strong** `ADMIN_PASSWORD` and preferably a distinct **`AD
 | `/admin/login` | Sign in with `ADMIN_PASSWORD`. |
 | `/admin` | Overview and links to editors. |
 | `/admin/settings` | Contact email, availability strip, **nav hide-on-scroll toggle**. |
-| `/admin/seo` | Default metadata, indexing, GA4 / GTM / Measurement Protocol (server-side GA). |
+| `/admin/seo` | Default metadata, indexing, GA4 / GTM / Measurement Protocol (server-side GA). Long-form tagging notes: [Analytics, GTM, and server-side tagging](#analytics-gtm-and-server-side-tagging). |
 | `/admin/email` | Resend delivery + auto-reply copy (API key stays in env). |
 | `/admin/footer` | Footer tagline and remote blurb. |
 | `/admin/chrome` | **SiteChrome** JSON (nav links, primary CTA, footer columns, utility links, copyright). |
@@ -404,6 +420,72 @@ Controlled by `SiteSettings.navHideOnScroll` (toggle at `/admin/settings`). When
 
 ---
 
+## Analytics, GTM, and server-side tagging
+
+The public site can load **Google Tag Manager (web)** as the main way to run **GA4** and other vendors, optionally send hits to **server-side GTM (sGTM)** on **Google Cloud Run** (via **`server_container_url`** or a first-party proxy), use a **first-party visitor cookie** so GA4’s **`client_id`** is not tied only to Google’s **`_ga`** cookie, fire **`dataLayer`** events from the browser (including contact conversions), and send **GA4 Measurement Protocol** events from the server when an API secret is configured.
+
+### Where settings live
+
+| What | Where |
+| ---- | ----- |
+| Measurement ID (`G-…`), GTM web container ID (`GTM-…`), GA4 **API secret** (Measurement Protocol) | **`/admin/seo`** → persisted in **`SeoSettings`** |
+| Tag definitions, triggers, variables | **tagmanager.google.com** — **web** workspace uses the ID from `/admin/seo`; **server** workspace is your sGTM container (separate ID from Google’s tagging-server setup) |
+
+### Web GTM vs server GTM
+
+| Container | Role |
+| --------- | ---- |
+| **Web** | Loads `gtm.js` on the marketing site (`src/components/AnalyticsScripts.tsx`). Your **Google** tag (or GA4 Configuration) for `G-…` lives here. Set **`client_id`** from a cookie variable and **`server_container_url`** here so the browser talks to your tagging endpoint before Google’s servers. |
+| **Server** | Runs on Cloud Run (or equivalent). **Clients** (e.g. GA4) accept forwarded hits; **tags** send data to GA4, TikTok Events API, etc. The server container does **not** create **`bmc_vid`** — that cookie is set in the visitor’s browser on your site’s origin. |
+
+### First-party visitor id (`bmc_vid`)
+
+- **What:** Cookie **`bmc_vid`** (a UUID) plus an early **`dataLayer.push({ bmc_vid })`**, both set **in the browser** before `gtm.js` runs (`beforeInteractive` script in `AnalyticsScripts`).
+- **Why:** Lets GA4 use a stable **`client_id`** when **`_ga`** is missing, blocked, or late (privacy tools, first paint, etc.).
+- **GTM (web), one-time:** Variables → **First Party Cookie** → name **`bmc_vid`** → e.g. `{{Cookie - bmc_vid}}`. On your **Google** tag for `G-…` → **Configuration settings** → **`client_id`** = `{{Cookie - bmc_vid}}`. Publish.
+
+**Consent:** When you add a CMP, gate the bootstrap script until analytics storage is allowed (see comment in `AnalyticsScripts.tsx`).
+
+### Transport URL and `/metrics` proxy
+
+- **`server_container_url`** should match the **tagging server URL** Google expects (Cloud Run hostname **or** a first-party URL you proxy to that host).
+- Optional worker: **`cloudflare/workers/sgtm-metrics-proxy.mjs`** forwards **`https://YOUR_DOMAIN/metrics/*`** to Cloud Run (see [Google’s custom-domain guide](https://developers.google.com/tag-platform/tag-manager/server-side/custom-domain)). If you use it, set **`server_container_url`** to your first-party metrics base (e.g. `https://brandmeetscode.com/metrics`) so collection stays same-site.
+
+### App Router: `virtual_page_view`
+
+Client-side navigations do not reload the page, so a default **Page View** trigger alone may not refire. When GTM is active, **`AnalyticsScripts`** pushes **`virtual_page_view`** with `page_path`, `page_location`, and `page_title` on route changes. In **web** GTM, add a **Custom Event** trigger on **`virtual_page_view`** and attach GA4 or other tags as needed.
+
+### Contact form and `dataLayer`
+
+- **`src/lib/analytics-data-layer.ts`** — **`pushGenerateLeadDataLayer()`** pushes **`generate_lead`**, **`user_data.email_address`**, and optional **`lead_id` / `event_id` / `transaction_id`** for deduplication.
+- The v2 contact flow may **redirect** before an immediate push; **`stashContactConversionForThankYouPage`** / **`consumeStashedContactConversion`** use **`sessionStorage`** so the thank-you page fires once (**`ContactConversionDataLayer.tsx`**).
+
+Map Data Layer variables in **web** GTM; **server** GTM tags (e.g. TikTok Events API) can fire on the same hit stream if GA4 uses the tagging server transport.
+
+### GA4 Measurement Protocol (server)
+
+- **`src/lib/analytics.ts`** — **`trackEvent` / `trackEvents`** POST to Google’s **`mp/collect`** when **`googleAnalyticsId`** and **`googleAnalyticsApiSecret`** exist in **`SeoSettings`** (`/admin/seo`).
+- **`getClientId()`** currently reads Google’s **`_ga`** cookie; if it is absent, a random UUID is used (event still recorded, weaker join to browser sessions). To align with **`bmc_vid`**, you can later extend **`getClientId()`** to read the **`bmc_vid`** cookie when **`_ga`** is missing.
+
+**Use MP for** outcomes only the server sees (e.g. **`src/app/api/contact/route.ts`**). **Use `dataLayer`** when web GTM (and optionally sGTM) should handle the event in the normal tag chain.
+
+### Avoid double counting
+
+If **GTM** is set in `/admin/seo`, the app loads **GTM only** and does **not** also inject standalone **`gtag.js`** for the same measurement ID.
+
+### Code map (analytics)
+
+| File | Role |
+| ---- | ---- |
+| `src/components/AnalyticsScripts.tsx` | GTM / optional direct GA4; **`bmc_vid`** bootstrap; **`virtual_page_view`**. |
+| `src/lib/bmc-visitor-id.ts` | Cookie helpers + inline bootstrap for `beforeInteractive`. |
+| `src/lib/analytics-data-layer.ts` | **`generate_lead`** push + contact conversion stash. |
+| `src/lib/analytics.ts` | Measurement Protocol. |
+| `src/app/api/contact/route.ts` | Example **`trackEvent`** after a successful lead. |
+| `cloudflare/workers/sgtm-metrics-proxy.mjs` | Optional same-origin **`/metrics`** → Cloud Run proxy. |
+
+---
+
 ## Troubleshooting
 
 ### Prisma client errors after schema changes (e.g. `prisma.capability` is undefined)
@@ -463,10 +545,14 @@ src/components/admin/   Admin toast provider, AdminSaveForm, URL toast, blog S3 
 src/components/icons/   Centralised SVG icon library (currentColor, 24×24 viewBox)
 src/lib/admin/          Session helpers, mutations-data, require-admin, `blog-s3-upload`, screenshotone-capture
 src/lib/cms/            Queries and shared CMS types
+src/lib/analytics.ts    GA4 Measurement Protocol (server `trackEvent`)
+src/lib/analytics-data-layer.ts  GTM `dataLayer` (e.g. generate_lead, contact stash)
+src/lib/bmc-visitor-id.ts   First-party `bmc_vid` cookie for GA4 `client_id`
 src/lib/screenshotone.ts   ScreenshotOne `/take` client (presets, signing, fetch)
+cloudflare/workers/     Optional `sgtm-metrics-proxy.mjs` — `/metrics` → Cloud Run sGTM
 ```
 
-Default site metadata and analytics IDs can be edited in **`SeoSettings`** via `/admin/seo`; **`src/app/layout.tsx`** uses `generateMetadata` and injects JSON-LD and analytics scripts from that data where applicable.
+Default site metadata and analytics IDs can be edited in **`SeoSettings`** via `/admin/seo`; **`src/app/layout.tsx`** uses `generateMetadata` and injects JSON-LD and analytics scripts from that data where applicable. For GTM, GA4, sGTM, `bmc_vid`, and Measurement Protocol, see [Analytics, GTM, and server-side tagging](#analytics-gtm-and-server-side-tagging).
 
 ---
 
@@ -497,7 +583,7 @@ If **`prefers-reduced-motion: reduce`**, the stroke does not animate in; after t
 
 ## Deploying
 
-1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI. For case study **ScreenshotOne** capture, set **`SCREENSHOTONE_ACCESS_KEY`** (or `SCREENSHOTONE_API_KEY`) and **`SCREENSHOTONE_SECRET_KEY`** (or `SCREENSHOTONE_SECRET`) — see [ScreenshotOne](#screenshotone-admin-screenshot-captures). For **blog images on S3**, set the **AWS** variables from [environment variables](#environment-variables) and ensure the bucket allows public reads (or CloudFront) as in [Blog images (Amazon S3)](#blog-images-amazon-s3).
+1. Set **`POSTGRES_PRISMA_URL`** (pooled) and **`DATABASE_URL`** (direct) on the host (e.g. Vercel), plus **`ADMIN_PASSWORD`** / **`ADMIN_SESSION_SECRET`** for the admin UI. For case study **ScreenshotOne** capture, set **`SCREENSHOTONE_ACCESS_KEY`** (or `SCREENSHOTONE_API_KEY`) and **`SCREENSHOTONE_SECRET_KEY`** (or `SCREENSHOTONE_SECRET`) — see [ScreenshotOne](#screenshotone-admin-screenshot-captures). For **blog images on S3**, set the **AWS** variables from [environment variables](#environment-variables) and ensure the bucket allows public reads (or CloudFront) as in [Blog images (Amazon S3)](#blog-images-amazon-s3). GTM / GA4 / sGTM / **`bmc_vid`** are configured in **`/admin/seo`** and Tag Manager — see [Analytics, GTM, and server-side tagging](#analytics-gtm-and-server-side-tagging). If you use the **Cloudflare** worker for **`/metrics`**, deploy it on the **production** zone that serves the public domain (worker is not part of `npm run build`).
 2. Run migrations in CI or the release step: **`npx prisma migrate deploy`** with env vars injected (Vercel build usually has them), or locally **`npm run db:deploy`** which loads `.env` / `.env.local`. Do **not** use `migrate dev` against production.
 3. Run **`npm run build`** then **`npm run start`**, or use your host's Next.js preset.
 

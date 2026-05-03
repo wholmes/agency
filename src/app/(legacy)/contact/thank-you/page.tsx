@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { IconCheck, IconArrowUpRight } from "@/components/icons";
+import ContactConversionDataLayer from "@/components/ContactConversionDataLayer";
 import { getContactFormConfig, getSiteSettings } from "@/lib/cms/queries";
 
 function interpolateEmail(template: string, email: string): string {
@@ -21,6 +22,7 @@ export default async function ContactThankYouPage() {
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-[#0e0e0e]">
+      <ContactConversionDataLayer />
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-[9999]"

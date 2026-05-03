@@ -3,6 +3,10 @@
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import {
+  BMC_VISITOR_COOKIE_NAME,
+  bmcVisitorIdBootstrapInlineScript,
+} from "@/lib/bmc-visitor-id";
 
 declare global {
   interface Window {
@@ -15,12 +19,26 @@ interface Props {
   gtmId?: string;
 }
 
+/*
+ * GTM (web → server GTM): map first-party id to GA4 client_id
+ * -----------------------------------------------------------
+ * 1. Variables → New → First Party Cookie → Name: bmc_vid → Save as e.g. "Cookie - bmc_vid".
+ * 2. Open your GA4 Configuration tag → Fields to set → Add row:
+ *    Field name: client_id    Value: {{Cookie - bmc_vid}}
+ * 3. Publish. (Event tags on the same stream inherit this client_id.)
+ *
+ * Optional: Data Layer Variable name `bmc_vid` — the bootstrap also pushes it before gtm.js.
+ *
+ * When you add a consent banner, only inject the bootstrap script after analytics consent
+ * (or split: set cookie after consent; until then omit the beforeInteractive visitor script).
+ */
 export default function AnalyticsScripts({ gaId, gtmId }: Props) {
   const pathname = usePathname();
   const prevPathForVirtualPv = useRef<string | null>(null);
 
   const hasGa = gaId && gaId.startsWith("G-");
   const hasGtm = gtmId && gtmId.startsWith("GTM-");
+  const needsVisitorBootstrap = Boolean(hasGtm || hasGa);
 
   /**
    * GTM fires its initial Page View on container load. Next.js App Router navigations do not reload
@@ -43,8 +61,34 @@ export default function AnalyticsScripts({ gaId, gtmId }: Props) {
     }
   }, [pathname, hasGtm]);
 
+  const visitorBootstrap = bmcVisitorIdBootstrapInlineScript();
+
+  const gaConfigInline =
+    hasGa && !hasGtm
+      ? (() => {
+          const id = gaId as string;
+          return (
+            `window.dataLayer=window.dataLayer||[];` +
+            `function gtag(){dataLayer.push(arguments);}` +
+            `function _bmcReadVid(){var m=document.cookie.match(new RegExp('(?:^|; )${BMC_VISITOR_COOKIE_NAME.replace(/[.*+?^${}()|[\]\\]/g, "\\\\$&")}=([^;]*)'));` +
+            `return m?decodeURIComponent((m[1]||'').split('+').join(' ')):'';}` +
+            `gtag('js',new Date());` +
+            `var _bmc=_bmcReadVid();` +
+            `gtag('config','${id}',Object.assign({page_path:window.location.pathname},_bmc?{client_id:_bmc}:{}));`
+          );
+        })()
+      : "";
+
   return (
     <>
+      {needsVisitorBootstrap && (
+        <Script
+          id="bmc-visitor-id-bootstrap"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: visitorBootstrap }}
+        />
+      )}
+
       {/* Google Tag Manager — <head> snippet */}
       {hasGtm && (
         <Script
@@ -77,7 +121,7 @@ export default function AnalyticsScripts({ gaId, gtmId }: Props) {
             id="ga-init"
             strategy="afterInteractive"
             dangerouslySetInnerHTML={{
-              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}',{page_path:window.location.pathname});`,
+              __html: gaConfigInline,
             }}
           />
         </>

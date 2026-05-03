@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconArrowUpRight, IconCheck } from "./icons";
 import type { ContactFormConfigParsed } from "@/lib/cms/contact-form-types";
+import {
+  pushGenerateLeadDataLayer,
+  stashContactConversionForThankYouPage,
+} from "@/lib/analytics-data-layer";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -99,14 +103,23 @@ export default function ContactForm({
           utmCampaign: sp?.get("utm_campaign") ?? "",
         }),
       });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        leadId?: string;
+      };
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { error?: string };
         console.error("Contact form error:", data.error);
         setFormState("error");
-      } else if (variant === "v2") {
-        router.push(thankYouPath);
       } else {
-        setFormState("success");
+        const leadId = typeof data.leadId === "string" ? data.leadId : undefined;
+        const conv = { email: formData.email, ...(leadId ? { leadId } : {}) };
+        if (variant === "v2") {
+          stashContactConversionForThankYouPage(conv);
+          router.push(thankYouPath);
+        } else {
+          pushGenerateLeadDataLayer(conv);
+          setFormState("success");
+        }
       }
     } catch {
       setFormState("error");
